@@ -39,7 +39,7 @@ reward-tiers:
 boss-bar: true #true(yes)/false(no)
 bar-timer: "5m" #d - days; h - hours; m - minutes; s - seconds
 duration: #DO NOT MODIFY
-bar-title: "&6&lHalloween Event Active!"
+bar-title: "&6&Treasure Hunt Active!"
 bar-title-ended: "&c&lTreasure Hunt Ended! Thanks for your participation. "
 bar-title-time-left: "&5&lTime left: "
 time-left-style: "&5&l" #This is ONLY for styles
