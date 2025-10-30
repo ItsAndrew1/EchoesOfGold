@@ -1,0 +1,23 @@
+name: TreasureHunt
+version: '1.0'
+main: me.andrew.halloweenEvent.TreasureHunt
+api-version: '1.21'
+author: ItsAndrew
+
+permissions:
+  treasurehunt.admin:
+    description: Gives access to commands
+    default: op
+  treasurehunt.use:
+    description: Gives access to hints
+    default: true
+
+commands:
+  treasurehunt:
+    usage: /halloween <enable | disable | books | reload | helps>
+    description: The commands for the event
+    permission: treasurehunt.admin
+  hints:
+    usage: /hints
+    description: Allows you to access the hints
+    permission: treasurehunt.use
