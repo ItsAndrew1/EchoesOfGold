@@ -14,7 +14,7 @@ permissions:
 
 commands:
   treasurehunt:
-    usage: /halloween <enable | disable | books | reload | helps>
+    usage: /treasurehunt <enable | disable | books | reload | helps>
     description: The commands for the event
     permission: treasurehunt.admin
   hints:

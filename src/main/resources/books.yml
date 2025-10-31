@@ -2,12 +2,12 @@
 #This .yml file is for configuring the Books GUI.
 
 #Here you can configure all of your created books.
-#The start-book is the book when you run /halloween enable.
+#The start-book is the book when you run /treasurehunt enable.
 books:
   start-book:
     toggle: true #true(yes) / #false(no)
     author: "&cServer Staffs"
-    title: "&6Halloween Event"
+    title: "&6&lTREASURE HUNT - INFO"
     unlock-after: 0
     pages:
       - "&5Welcome, adventurer!\n\n&6The night of terror begins...\n3 cursed chests await for you in the Overworld.\n\n&cFind them before they find you."
