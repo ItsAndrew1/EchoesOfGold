@@ -1,3 +1,30 @@
-# Project exclude paths
-/out/
+# Maven build output
 /target/
+
+# IntelliJ IDEA project files
+.idea/
+*.iml
+out/
+
+# Logs and debug data
+*.log
+logs/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Backups, temporary, or local files
+*.bak
+*.tmp
+*.swp
+
+# Don’t upload compiled jars (use Releases instead)
+*.jar
+
+# Dependency-reduced POM (created by Maven Shade plugin sometimes)
+dependency-reduced-pom.xml
+
+# Maven Wrapper files
+.mvn/
+!/.mvn/wrapper/maven-wrapper.jar
