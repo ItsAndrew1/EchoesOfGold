@@ -58,6 +58,6 @@ Tracks player progress and the treasures they’ve discovered.
 ---
 
 ## ❤️ Credits
-Developed by **_ItsAndrew_**  
+Developed by **\_ItsAndrew_**  
 Special thanks to everyone who help, test and give feedback!
-My discord: _itsandrew_
+My discord: *\_itsandrew_*
