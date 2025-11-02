@@ -182,7 +182,7 @@ public class CommandManager implements CommandExecutor{
                                 return true;
                             }
                             else if(strings.length < 3){
-                                Bukkit.getLogger().info("Usage: /halloween books delete <name>");
+                                Bukkit.getLogger().info("Usage: /treasurehunt books delete <name>");
                                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &cUsage: &l/treasurehunt books delete <name>"));
                                 return true;
                             }
