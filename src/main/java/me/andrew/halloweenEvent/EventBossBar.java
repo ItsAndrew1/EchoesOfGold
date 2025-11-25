@@ -39,10 +39,8 @@ public class EventBossBar{
                     cancel();
                     return;
                 }
-
                 String timeLeft = formatTime(remaining);
                 bossBar.setTitle(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("bar-title-time-left") + plugin.getConfig().getString("time-left-style") + timeLeft + plugin.getConfig().getString("bar-after-time")));
-
                 double progress = (double) remaining / durationMillis;
                 bossBar.setProgress(Math.max(0.0, Math.min(1.0, progress)));
             }

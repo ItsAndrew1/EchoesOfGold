@@ -9,6 +9,7 @@ public final class TreasureHunt extends JavaPlugin{
     private YMLfiles books;
     private YMLfiles playerdata;
     private EventScoreboard scoreboardManager;
+    private int guiSize;
     int bookCount = 0;
     boolean eventActive;
     TreasureManager treasureManager;
@@ -17,6 +18,7 @@ public final class TreasureHunt extends JavaPlugin{
     @Override
     public void onEnable() {
         saveDefaultConfig();
+
 
         //Defining the YML files and main objects
         treasures = new YMLfiles(this, "treasures.yml");
@@ -61,6 +63,8 @@ public final class TreasureHunt extends JavaPlugin{
                 getLogger().info("Event had already ended before a restart.");
             }
         }
+
+
     }
 
     //Saving data after shutting down the server
@@ -98,5 +102,8 @@ public final class TreasureHunt extends JavaPlugin{
     }
     public EventScoreboard getScoreboardManager(){
         return scoreboardManager;
+    }
+    public int getGuiSize(){
+        return guiSize;
     }
 }

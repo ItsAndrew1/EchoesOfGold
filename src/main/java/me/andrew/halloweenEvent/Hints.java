@@ -109,12 +109,4 @@ public class Hints implements Listener {
         player.closeInventory();
         player.openBook(realBook);
     }
-
-    @EventHandler
-    public void onInventoryDrag(InventoryDragEvent event) {
-        String title = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("hints-gui-title"));
-        if (event.getView().getTitle().equals(title)) {
-            event.setCancelled(true);
-        }
-    }
 }

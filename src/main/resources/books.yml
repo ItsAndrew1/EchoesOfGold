@@ -6,6 +6,7 @@
 books:
   start-book:
     toggle: true #true(yes) / #false(no)
+    gui-slot: 13
     author: "&cServer Staffs"
     title: "&6&lTREASURE HUNT - INFO"
     unlock-after: 0

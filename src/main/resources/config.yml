@@ -1,11 +1,33 @@
 #Developed by: _ItsAndrew_
+#This file is for configuring the main parts of the plugin
+
+chat-prefix: "&f&l[&6&lTH&f&l]" #This is the prefix that shows up in the chat
+
+#Configure the GUI settings
+hints-gui:
+  gui-rows: 6 #Value must be between 1 and 6. Each row has 9 slots => 9 slots-minimum, 54 slots-maximum
+  gui-title: "Hints" #You can use & styles!
+  gui-exit-button:
+    toggle: true #true(yes) / false(no)
+    material: red_concrete #The item that the button will have
+    title: "&c&lEXIT"
+    sound:
+      sound-string: "ui.button.click"
+      sound-volume: 1
+      sound-pitch: 1
+
+#Configure every sound for the plugin. For checking AND hearing every sound, run /playsound in minecraft, then write what is after "minecraft:"
+#As for the volume and pitch, the default value is 1
+teleport-location-sound: "entity.wither.spawn"
+tls-volume: 1
+tls-pitch: 1
+
+
 
 #Configure the /treasurehunt enable command
-#Everything about it you can find here (tp location, sound, title, subtitle)
 teleport-location-x: 32
 teleport-location-y: 76
 teleport-location-z: -113
-teleport-location-sound: "ENTITY_WITHER_SPAWN" #https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html <- all available sounds
 title: "" #Use "&" for style
 subtitle: "" #Use "&" for style
 
@@ -24,7 +46,6 @@ player-found-all-treasures: "&f&l[&6&lTH&f&l] &6&lGG! &6You have found all the t
 
 hints-no-books-configured: "&cThere are no books configured."
 hint-not-found-yet: "&cYou have not found this hint yet!"
-hints-gui-title: "Hints"
 hints-locked-lore: "&8🔒 Locked"
 
 #Configure the REWARDS

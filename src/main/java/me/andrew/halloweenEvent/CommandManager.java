@@ -30,14 +30,14 @@ public class CommandManager implements CommandExecutor{
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         FileConfiguration books = plugin.getBooks().getConfig();
         Player player = (Player) commandSender;
+        String chatPrefix = plugin.getConfig().getString("chat-prefix");
         if(command.getName().equalsIgnoreCase("treasurehunt")){
             if(!commandSender.hasPermission("treasurehunt.admin")){
-                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] You don't have permission to run this command!"));
+                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou don't have permission to run this command!"));
                 return true;
             }
             if(strings.length == 0){
-                Bukkit.getLogger().info("Usage: /treasurehunt <enable | disable | reload | books | help>");
-                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &cUsage: &l/treasurehunt <enable | disable | reload | books | help>"));
+                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt <enable | disable | reload | books | help>"));
                 return true;
             }
 
@@ -45,7 +45,7 @@ public class CommandManager implements CommandExecutor{
                 case "enable":
                     if(plugin.eventActive){
                         Bukkit.getLogger().info("The game is already active!");
-                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &cThe game is &lalready active&c!"));
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe game is &lalready active&c!"));
                         break;
                     }
                     else{
@@ -86,7 +86,7 @@ public class CommandManager implements CommandExecutor{
                 case "disable":
                     if(!plugin.eventActive){
                         Bukkit.getLogger().info("The game is already disabled!");
-                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &cThe game is &lalready disabled&c!"));
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe game is &lalready disabled&c!"));
                     }
                     else{
                         for(Player p : Bukkit.getOnlinePlayers()){
@@ -98,7 +98,7 @@ public class CommandManager implements CommandExecutor{
                         plugin.getPlayerData().saveConfig();
                         plugin.getBossBar().stop();
                         Bukkit.getLogger().info("Treasure Hunt successfully disabled!");
-                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &aTreasure Hunt successfully &ldisabled &a!"));
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aTreasure Hunt successfully &ldisabled &a!"));
                         plugin.eventActive = false;
                     }
                     break;
@@ -109,7 +109,7 @@ public class CommandManager implements CommandExecutor{
                     plugin.getTreasures().reloadConfig();
                     plugin.getPlayerData().reloadConfig();
                     Bukkit.getLogger().info("Treasure Hunt reloaded successfully!");
-                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &aTreasure Hunt reloaded successfully!"));
+                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aTreasure Hunt reloaded successfully!"));
                     break;
 
                 case "help":
@@ -121,22 +121,60 @@ public class CommandManager implements CommandExecutor{
                     }
                     break;
 
-                case "books":
+                case "hints":
                     ItemStack item = player.getInventory().getItemInMainHand();
                     if(strings.length < 2){
                         Bukkit.getLogger().info("Usage: /halloween books <create | delete | list>");
-                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &cUsage: &l/treasurehunt books <create | delete | list>"));
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt books <create | delete | list>"));
                         return true;
                     }
 
-                    switch(strings[1]){
+                    switch(strings[1].toLowerCase()){
+                        //treasurehunt hints manage <hint> <args1> <args2>
+                        case "manage":
+                            if(strings.length < 3){
+                                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt hints manage <hint> ..."));
+                                return true;
+                            }
+
+                            switch(strings[3].toLowerCase()){
+                                case "setguislot":
+                                    if(strings.length < 5){
+                                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/th hints manage <hint> setguislot <slot>"));
+                                        return true;
+                                    }
+
+                                    int slot;
+                                    try{
+                                       slot = Integer.parseInt(strings[4]);
+                                       if(slot < 1 || slot > plugin.getGuiSize()){
+                                           commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe value must be between &l1 &cand &l"+plugin.getGuiSize()+"&c!"));
+                                           return true;
+                                       }
+                                    } catch (NumberFormatException e){
+                                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe value must be a number!"));
+                                        return true;
+                                    }
+                                    books.set("books."+strings[2]+".gui-slot", slot);
+                                    plugin.getBooks().saveConfig();
+
+                                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &GUI Slot &l"+slot+" &asaved for book &l"+strings[2]+"&a!"));
+                                    Bukkit.getLogger().info("[TH] GUI Slot "+slot+" saved for book "+strings[2]+"!");
+                                    break;
+
+                                case "setauthor":
+                                    //Continue with setauthor, settitle etc.
+                                    break;
+                            }
+                            break;
+
                         case "create":
                             if(strings.length < 3){
-                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &cUsage: &l/treasurehunt books create <name>"));
+                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt books create <name>"));
                                 return true;
                             }
                             if(item.getType() != Material.WRITTEN_BOOK){
-                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &cYou must hold a &lwritten book &cin your main hand!"));
+                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou must hold a &lwritten book &cin your main hand!"));
                                 return true;
                             }
                             String name = strings[2];
@@ -146,44 +184,26 @@ public class CommandManager implements CommandExecutor{
 
                             books.set(path + ".title", meta.getTitle());
                             books.set(path + ".author", meta.getAuthor());
+                            books.set(path + ".gui-slot", "");
                             books.set(path + ".unlock-after", plugin.bookCount+1);
                             books.set(path + ".pages", meta.getPages());
 
                             plugin.getBooks().saveConfig();
                             plugin.bookCount++;
                             Bukkit.getLogger().info("Book "+name+" saved to books.yml");
-                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &aBook &l"+name+"&a saved to &lbooks.yml!"));
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aBook &l"+name+"&a saved to &lbooks.yml!"));
                             break;
 
-                        case "list":
-                            if(!books.isConfigurationSection("books")){
-                                Bukkit.getLogger().info("You have no books created");
-                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &cYou have no books created!"));
-                                return true;
-                            }
-
-                            else{
-                                Set<String> bookNames = Objects.requireNonNull(books.getConfigurationSection("books")).getKeys(false);
-                                Bukkit.getLogger().info("[BOOKS LIST]");
-                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&l[BOOK LIST]"));
-                                int i = 1;
-                                for(String bookName : bookNames){
-                                    Bukkit.getLogger().info("1. " +bookName);
-                                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&c"+i+". &6" + bookName));
-                                    i++;
-                                }
-                            }
-                            break;
 
                         case "delete":
                             if(!books.isConfigurationSection("books")){
                                 Bukkit.getLogger().info("You have no books created");
-                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &cYou have no books created!"));
+                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou have no books created!"));
                                 return true;
                             }
                             else if(strings.length < 3){
                                 Bukkit.getLogger().info("Usage: /treasurehunt books delete <name>");
-                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &cUsage: &l/treasurehunt books delete <name>"));
+                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt books delete <name>"));
                                 return true;
                             }
                             else{
@@ -193,24 +213,24 @@ public class CommandManager implements CommandExecutor{
                                     plugin.getBooks().saveConfig();
                                     plugin.bookCount--;
                                     Bukkit.getLogger().info("Book successfully deleted");
-                                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &aBook &l" + bookName + "&a successfully deleted!"));
+                                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aBook &l" + bookName + "&a successfully deleted!"));
                                 }
                                 else{
                                     Bukkit.getLogger().info("That books doesn't exist");
-                                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &cBook &l" + bookName + "&c doesn't exit!"));
+                                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cBook &l" + bookName + "&c doesn't exit!"));
                                 }
                             }
                             break;
 
                         default:
                             Bukkit.getLogger().info("Unknown command");
-                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &cUnknown command. Use &l/treasurehunt help &cfor info."));
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/treasurehunt help &cfor info."));
                             break;
                     }
                     break;
 
                 default:
-                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&6&lTH&f&l] &cUnknown command. Use &l/treasurehunt help &cfor info."));
+                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/treasurehunt help &cfor info."));
                     break;
             }
             return true;
@@ -223,13 +243,11 @@ public class CommandManager implements CommandExecutor{
                 return true;
             }
             if(!plugin.eventActive){
-                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThe event is &c&lNOT &cenabled"));
-                Bukkit.getLogger().info("The event is NOT enabled");
+                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThe event is not enabled."));
                 return true;
             }
             if(strings.length > 0){
                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cUsage: &l/hints"));
-                Bukkit.getLogger().info("Usage: /hints");
                 return true;
             }
 
@@ -288,6 +306,7 @@ public class CommandManager implements CommandExecutor{
         plugin.getPlayerData().saveConfig();
     }
 
+    //Parses the duration of the event from config.yml (bar-timer)
     public long parseDuration(String input) {
         long millis = 0;
         Matcher m = Pattern.compile("(\\d+)([dhms])").matcher(input.toLowerCase());
