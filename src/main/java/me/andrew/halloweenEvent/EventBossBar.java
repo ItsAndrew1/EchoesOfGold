@@ -1,3 +1,4 @@
+//Developed by _ItsAndrew_
 package me.andrew.halloweenEvent;
 
 import org.bukkit.Bukkit;

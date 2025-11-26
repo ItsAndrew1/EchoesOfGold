@@ -1,6 +1,8 @@
+//Developed by _ItsAndrew_
 package me.andrew.halloweenEvent;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -64,8 +66,66 @@ public final class TreasureHunt extends JavaPlugin{
             }
         }
 
-        //Check if everything for hint-gui is right
+        //Check if the size is good
+        if(guiSize < 9 || guiSize > 54){
+            Bukkit.getLogger().warning("[TH] The value gui-rows is invalid. The value must be between 1 and 6.");
+        }
 
+        //Check if everything for hint-gui is right.
+        try{
+            //This is for exitButton (if it is toggled)
+            boolean exitButtonToggle = getConfig().getBoolean("hints-gui.gui-exit-button.toggle");
+            if(exitButtonToggle){
+                String exitButtonMaterialString = getConfig().getString("hints-gui.gui-exit-button.material").toUpperCase();
+                Material exitButtonMaterial = Material.matchMaterial(exitButtonMaterialString);
+                int exitButtonSlot = getConfig().getInt("hints-gui.gui-exit-button.slot");
+
+                if(exitButtonMaterial == null){
+                    Bukkit.getLogger().warning("[TH] Invalid material for gui-exit-button.material.");
+                }
+                if(exitButtonSlot < 1 || exitButtonSlot > getGuiSize()){
+                    Bukkit.getLogger().warning("[TH] Invalid value for gui-exit-button.slot! The value must be between 1 and "+getGuiSize()+"!");
+                }
+            }
+        } catch (Exception e){
+            Bukkit.getLogger().warning("[TH] "+e.getMessage()); //This is if the value of gui-exit-button.toggle is not valid
+        }
+        try{
+            //This is for noHintsItem (if it is toggle)
+            boolean noHintsItemToggle = getConfig().getBoolean("hints-gui.gui-no-hints-item.toggle");
+            if(noHintsItemToggle){
+                String noHintsItemMaterialString = getConfig().getString("hints-gui.gui-no-hints-item.material").toUpperCase();
+                Material noHintsItemMaterial = Material.matchMaterial(noHintsItemMaterialString);
+                int noHintsItemSlot = getConfig().getInt("hints-gui.gui-no-hints-item.slot");
+
+                if(noHintsItemMaterial == null){
+                    Bukkit.getLogger().warning("[TH] Invalid material for gui-no-hints-item.material.");
+                }
+                if(noHintsItemSlot < 1 || noHintsItemSlot > getGuiSize()){
+                    Bukkit.getLogger().warning("[TH] Invalid value for gui-no-hints-item.slot! The value must be between 1 and "+getGuiSize()+"!");
+                }
+            }
+        } catch (Exception e){
+            Bukkit.getLogger().warning("[TH] "+e.getMessage());
+        }
+
+        //Check if the coordonates of the enable command are ok
+        String coordX = getConfig().getString("teleport-location-x");
+        String coordY = getConfig().getString("teleport-location-x");
+        String coordZ = getConfig().getString("teleport-location-z");
+        if(coordX != null && coordY != null && coordZ != null){
+            try{
+                int intCoordX = Integer.parseInt(coordX);
+                int intCoordY = Integer.parseInt(coordY);
+                int intCoordZ = Integer.parseInt(coordZ);
+            } catch (NumberFormatException e){
+                Bukkit.getLogger().warning("[TH] The enable command coordonates MUST be a number!");
+                Bukkit.getLogger().warning("[TH] Error message: "+e.getMessage());
+            }
+        }
+        else{
+            Bukkit.getLogger().warning("[TH] One/more coordonates from the enable command are null!");
+        }
     }
 
     //Saving data after shutting down the server

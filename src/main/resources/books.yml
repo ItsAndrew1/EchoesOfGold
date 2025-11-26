@@ -4,12 +4,4 @@
 #Here you can configure all of your created books.
 #The start-book is the book when you run /treasurehunt enable.
 books:
-  start-book:
-    toggle: true #true(yes) / #false(no)
-    gui-slot: 13
-    author: "&cServer Staffs"
-    title: "&6&lTREASURE HUNT - INFO"
-    unlock-after: 0
-    pages:
-      - "&5Welcome, adventurer!\n\n&6The night of terror begins...\n3 cursed chests await for you in the Overworld.\n\n&cFind them before they find you."
-      - "&7Each chest holds &eancient treasures&7.\nBut beware...\nSome are guarded by monsters.\n\n&4Good luck!"
+

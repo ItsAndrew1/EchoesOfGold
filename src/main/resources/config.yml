@@ -3,31 +3,58 @@
 
 chat-prefix: "&f&l[&6&lTH&f&l]" #This is the prefix that shows up in the chat
 
+#Configure the start-book. It is the book that appears right after you enable the event.
+start-book:
+  toggle: true #true(yes) / #false(no)
+  delay: 3 #In seconds
+  gui-slot: 13
+  author: "&cServer Staffs"
+  title: "&6&lTREASURE HUNT - INFO"
+  unlock-after: 0
+  pages: #Use '\n' to go on a new line in a page
+    - "&5Welcome, adventurer!\n\n&6The night of terror begins...\n3 cursed chests await for you in the Overworld.\n\n&cFind them before they find you."
+    - "&7Each chest holds &eancient treasures&7.\nBut beware...\nSome are guarded by monsters.\n\n&4Good luck!"
+
 #Configure the GUI settings
 hints-gui:
   gui-rows: 6 #Value must be between 1 and 6. Each row has 9 slots => 9 slots-minimum, 54 slots-maximum
   gui-title: "Hints" #You can use & styles!
+
+  #Configure the exit-button
   gui-exit-button:
     toggle: true #true(yes) / false(no)
+    slot:
     material: red_concrete #The item that the button will have
     title: "&c&lEXIT"
-    sound:
-      sound-string: "ui.button.click"
-      sound-volume: 1
-      sound-pitch: 1
+
+  #Configure the no-hints-item. It appears if there aren't any hints created
+  gui-no-hints-item:
+    toggle: true #true(yes) / false(no)
+    chat-message: "&cThere are no hints configured for this event!"
+    material: oak_sign
+    slot:
+    title: "&cThere are no hints configured"
+    lore: #You can use '&' styles!
+      - ""
 
 #Configure every sound for the plugin. For checking AND hearing every sound, run /playsound in minecraft, then write what is after "minecraft:"
 #As for the volume and pitch, the default value is 1
-teleport-location-sound: "entity.wither.spawn"
-tls-volume: 1
-tls-pitch: 1
+start-event-sound: "entity.wither.spawn"
+ses-volume: 1
+ses-pitch: 1
 
+exit-button-sound: "ui.button.click"
+ebs-volume: 1
+ebs-pitch: 1
 
+no-hints-item-sound: "entity.villager.no"
+nhis-volume: 1
+nhis-pitch: 0.7
 
 #Configure the /treasurehunt enable command
-teleport-location-x: 32
-teleport-location-y: 76
-teleport-location-z: -113
+teleport-location-x:
+teleport-location-y:
+teleport-location-z:
 title: "" #Use "&" for style
 subtitle: "" #Use "&" for style
 

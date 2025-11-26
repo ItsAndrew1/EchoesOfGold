@@ -1,3 +1,4 @@
+//Developed by _ItsAndrew_
 package me.andrew.halloweenEvent;
 
 import org.bukkit.*;
@@ -13,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,9 +50,24 @@ public class CommandManager implements CommandExecutor{
                     }
                     else{
                         plugin.eventActive = true;
-                        String soundName = plugin.getConfig().getString("teleport-location-sound");
-                        Sound sound = Sound.valueOf(soundName.toUpperCase());
+
+                        //Gets all the details about the start-event-sound. Prints an error if the sound is invalid
+                        String startEventSoundString = plugin.getConfig().getString("start-event-sound");
+                        float startEventSoundVolume = plugin.getConfig().getInt("ses-volume");
+                        float startEventSoundPitch = plugin.getConfig().getInt("ses-pitch");
+                        Sound startEventSound;
+                        try{
+                            NamespacedKey checkStartEventSound = NamespacedKey.minecraft(startEventSoundString.toLowerCase());
+                            startEventSound = Registry.SOUNDS.get(checkStartEventSound);
+                        } catch (Exception e){
+                            commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThere is a problem with &lstart-event-sound &c!"));
+                            Bukkit.getLogger().warning("[TH] "+e.getMessage());
+                            return true;
+                        }
+
+                        //Gets all the players and opens the book after openBookDelay seconds
                         getPlayers();
+                        long openBookDelay = plugin.getConfig().getInt("start-book.delay") * 20L;
                         for(Player p : Bukkit.getOnlinePlayers()){
                             teleportPlayers(p);
                             p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
@@ -63,12 +78,13 @@ public class CommandManager implements CommandExecutor{
                                 public void run(){
                                     openBook(p);
                                 }
-                            }.runTaskLater(plugin, 60L);
-                            p.playSound(p.getLocation(), sound, 1F, 1F);
+                            }.runTaskLater(plugin, openBookDelay);
+                            p.playSound(p.getLocation(), startEventSound, startEventSoundVolume, startEventSoundPitch);
                         }
                         plugin.getTreasureManager().spawnTreasures();
                         plugin.getTreasureManager().spawnChestParticles();
 
+                        //If the value of boss-bar is true, spawns the boss bar with the timer.
                         if(plugin.getConfig().getString("boss-bar").equalsIgnoreCase("true")){
                             long duration = parseDuration(plugin.getConfig().getString("bar-timer"));
                             long endTime = System.currentTimeMillis() + duration;
@@ -77,6 +93,8 @@ public class CommandManager implements CommandExecutor{
                             plugin.getConfig().set("duration", endTime);
                             plugin.saveConfig();
                         }
+
+                        //If the value of scoreboard is true, it shows up on the screen.
                         if(plugin.getConfig().getString("scoreboard").equalsIgnoreCase("true")){
                             plugin.getScoreboardManager().updateScoreboard();
                         }
@@ -104,6 +122,11 @@ public class CommandManager implements CommandExecutor{
                     break;
 
                 case "reload":
+                    if(plugin.eventActive){
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou must disable the event to use this command!"));
+                        return true;
+                    }
+
                     plugin.reloadConfig();
                     plugin.getBooks().reloadConfig();
                     plugin.getTreasures().reloadConfig();
@@ -124,13 +147,16 @@ public class CommandManager implements CommandExecutor{
                 case "hints":
                     ItemStack item = player.getInventory().getItemInMainHand();
                     if(strings.length < 2){
-                        Bukkit.getLogger().info("Usage: /halloween books <create | delete | list>");
-                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt books <create | delete | list>"));
+                        Bukkit.getLogger().info("Usage: /halloween books <create | delete | manage>");
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt books <create | delete | manage>"));
+                        return true;
+                    }
+                    if(plugin.eventActive){
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou must disable the event to use this command!"));
                         return true;
                     }
 
                     switch(strings[1].toLowerCase()){
-                        //treasurehunt hints manage <hint> <args1> <args2>
                         case "manage":
                             if(strings.length < 3){
                                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt hints manage <hint> ..."));
@@ -221,7 +247,6 @@ public class CommandManager implements CommandExecutor{
                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aBook &l"+name+"&a saved to &lbooks.yml!"));
                             break;
 
-
                         case "delete":
                             if(!books.isConfigurationSection("books")){
                                 Bukkit.getLogger().info("You have no books created");
@@ -288,9 +313,9 @@ public class CommandManager implements CommandExecutor{
     public void openBook(Player player){
         FileConfiguration books = plugin.getBooks().getConfig();
 
-        String author = books.getString("books.start-book.author");
-        String title = books.getString("books.start-book.title");
-        List<String> pages = books.getStringList("books.start-book.pages");
+        String author = plugin.getConfig().getString("start-book.author");
+        String title = plugin.getConfig().getString("start-book.title");
+        List<String> pages = plugin.getConfig().getStringList("start-book.pages");
 
         ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
         BookMeta meta = (BookMeta) book.getItemMeta();

@@ -1,3 +1,4 @@
+//Developed by _ItsAndrew_
 package me.andrew.halloweenEvent;
 
 import org.bukkit.*;
@@ -81,6 +82,7 @@ public class TreasureClickEvent implements Listener {
         if(foundCount == plugin.getTreasures().getConfig().getInt("max-treasures")){
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("player-found-all-treasures")));
             foundCount++;
+            return;
         }
 
         player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("treasure-found")));

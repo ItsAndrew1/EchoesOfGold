@@ -1,3 +1,4 @@
+//Developed by _ItsAndrew_
 package me.andrew.halloweenEvent;
 
 import org.bukkit.command.Command;
@@ -25,11 +26,13 @@ public class CommandTabs implements TabCompleter {
             else if(args.length == 2 && args[0].equalsIgnoreCase("hints")){
                 return Arrays.asList("create", "delete", "manage");
             }
-            //th hints manage <hint>
             else if(args.length == 3 && args[1].equalsIgnoreCase("manage")){
                 FileConfiguration books = plugin.getBooks().getConfig();
                 List<String> hints = new ArrayList<>();
                 hints.addAll(books.getConfigurationSection("books").getKeys(false));
+                if(hints.isEmpty()){
+                    return Collections.emptyList();
+                }
                 return hints;
             }
             else if(args.length == 4 && args[1].equalsIgnoreCase("manage")){

@@ -1,3 +1,4 @@
+//Developed by _ItsAndrew_
 package me.andrew.halloweenEvent;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
@@ -105,7 +106,7 @@ public class TreasureManager{
         }
     }
 
-    //Removes the treasures (custom heads)
+    //Removes the treasures
     public void removeTreasures(){
         FileConfiguration treasures = plugin.getTreasures().getConfig();
 
@@ -127,7 +128,7 @@ public class TreasureManager{
                 block.setType(Material.AIR);
             }
         }
-        Bukkit.getLogger().info("All treasures have been removed!");
+        Bukkit.getLogger().info("[TH] All treasures have been removed!");
     }
 
     //Get the top 3 players (used for SCOREBOARD)
