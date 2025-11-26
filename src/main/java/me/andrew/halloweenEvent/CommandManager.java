@@ -163,7 +163,34 @@ public class CommandManager implements CommandExecutor{
                                     break;
 
                                 case "setauthor":
-                                    //Continue with setauthor, settitle etc.
+                                    if(strings.length < 5){
+                                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/th hints manage <hint> setauthor <author>"));
+                                        return true;
+                                    }
+                                    String author = strings[4];
+                                    books.set("books."+strings[2]+".author", author);
+                                    plugin.getBooks().saveConfig();
+
+                                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aAuthor &r"+author+" &asaved for book &l"+strings[2]+"&a!"));
+                                    Bukkit.getLogger().info("[TH] Author "+author+" saved for book "+strings[2]+"!");
+                                    break;
+
+                                case "settitle":
+                                    if(strings.length < 5){
+                                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/th hints manage <hint> settitle <title>"));
+                                        return true;
+                                    }
+
+                                    String title = strings[5];
+                                    books.set("books."+strings[2]+".title", title);
+                                    plugin.getBooks().saveConfig();
+
+                                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aTitle &r"+title+" &asaved for book &l"+strings[2]+"&a!"));
+                                    Bukkit.getLogger().info(("[TH] Title "+title+" saved for book "+strings[2]+"!"));
+                                    break;
+
+                                default:
+                                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/treasurehunt help &cfor info."));
                                     break;
                             }
                             break;

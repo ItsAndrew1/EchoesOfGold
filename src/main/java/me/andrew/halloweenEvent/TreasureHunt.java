@@ -18,7 +18,7 @@ public final class TreasureHunt extends JavaPlugin{
     @Override
     public void onEnable() {
         saveDefaultConfig();
-
+        guiSize = getConfig().getInt("hints-gui.gui-rows") * 9;
 
         //Defining the YML files and main objects
         treasures = new YMLfiles(this, "treasures.yml");
@@ -64,6 +64,7 @@ public final class TreasureHunt extends JavaPlugin{
             }
         }
 
+        //Check if everything for hint-gui is right
 
     }
 
