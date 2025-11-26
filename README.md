@@ -1,7 +1,7 @@
 
 <img width="1080" height="720" alt="BannerTreasureHuntFinal" src="https://github.com/user-attachments/assets/23e69c68-bf3c-49d1-83fc-d85b72820651" />
 
-#  Echoes of Gold
+#  Echoes of Gold (Working on an Update)
 **Echoes of Gold** is a fully customizable treasure-hunting minigame plugin designed to bring exploration and adventure to your Minecraft server.  
 Players search for hidden treasures, collect rewards, and compete for the top spot on the leaderboard!
 
