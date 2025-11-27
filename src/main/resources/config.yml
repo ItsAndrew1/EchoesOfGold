@@ -75,14 +75,6 @@ hints-no-books-configured: "&cThere are no books configured."
 hint-not-found-yet: "&cYou have not found this hint yet!"
 hints-locked-lore: "&8🔒 Locked"
 
-#Configure the REWARDS
-#Only modify the "minecraft:... <number>" part. <number> stands for QUANTITY!
-reward-tiers:
-  1: #As in the first treasure found by a player.
-    commands:
-      - "give %player% minecraft:iron_ingot 5"
-      - "give %player% minecraft:iron_leggings 1"
-
 #BOSS BAR
 boss-bar: true #true(yes)/false(no)
 bar-timer: "5m" #d - days; h - hours; m - minutes; s - seconds

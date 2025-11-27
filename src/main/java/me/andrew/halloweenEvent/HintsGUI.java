@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -19,11 +18,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class Hints implements Listener {
+public class HintsGUI implements Listener {
     private final TreasureHunt plugin;
     private final NamespacedKey key;
 
-    public Hints(TreasureHunt plugin) {
+    public HintsGUI(TreasureHunt plugin) {
         this.plugin = plugin;
         this.key = new NamespacedKey(plugin, "hint-id");
     }

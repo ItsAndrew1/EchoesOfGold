@@ -19,11 +19,11 @@ import java.util.regex.Pattern;
 
 public class CommandManager implements CommandExecutor{
     TreasureHunt plugin;
-    private final Hints accessHints;
+    private final HintsGUI accessHintsGUI;
 
-    public CommandManager(TreasureHunt plugin, Hints accessHints){
+    public CommandManager(TreasureHunt plugin, HintsGUI accessHintsGUI){
         this.plugin = plugin;
-        this.accessHints = accessHints;
+        this.accessHintsGUI = accessHintsGUI;
     }
 
     @Override
@@ -169,7 +169,6 @@ public class CommandManager implements CommandExecutor{
                                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/th hints manage <hint> setguislot <slot>"));
                                         return true;
                                     }
-
                                     int slot;
                                     try{
                                        slot = Integer.parseInt(strings[4]);
@@ -303,7 +302,7 @@ public class CommandManager implements CommandExecutor{
                 return true;
             }
 
-            accessHints.hintsGUI(player);
+            accessHintsGUI.hintsGUI(player);
             return true;
         }
         return false;

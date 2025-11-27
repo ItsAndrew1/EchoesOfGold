@@ -12,6 +12,7 @@ public final class TreasureHunt extends JavaPlugin{
     private YMLfiles playerdata;
     private EventScoreboard scoreboardManager;
     private int guiSize;
+    private YMLfiles rewards;
     int bookCount = 0;
     boolean eventActive;
     TreasureManager treasureManager;
@@ -24,21 +25,23 @@ public final class TreasureHunt extends JavaPlugin{
 
         //Defining the YML files and main objects
         treasures = new YMLfiles(this, "treasures.yml");
+        rewards = new YMLfiles(this, "rewards.yml");
         books = new YMLfiles(this, "books.yml");
         treasureManager = new TreasureManager(this);
         bar = new EventBossBar(this);
         playerdata = new YMLfiles(this, "playerdata.yml");
         scoreboardManager = new EventScoreboard(this);
-        Hints hintsAccess = new Hints(this);
+        HintsGUI hintsGUIAccess = new HintsGUI(this);
 
         //Setting the commands and their tabs
-        getCommand("treasurehunt").setExecutor(new CommandManager(this, hintsAccess));
+        getCommand("treasurehunt").setExecutor(new CommandManager(this, hintsGUIAccess));
         getCommand("treasurehunt").setTabCompleter(new CommandTabs(this));
-        getCommand("hints").setExecutor(new CommandManager(this, hintsAccess));
+        getCommand("hints").setExecutor(new CommandManager(this, hintsGUIAccess));
 
         //Setting the events
         getServer().getPluginManager().registerEvents(new TreasureClickEvent(this), this);
-        getServer().getPluginManager().registerEvents(new Hints(this), this);
+        getServer().getPluginManager().registerEvents(new RewardsGUI(this), this);
+        getServer().getPluginManager().registerEvents(new HintsGUI(this), this);
 
         //Regaining data after a reload
         if(getConfig().contains("duration")){
@@ -151,6 +154,9 @@ public final class TreasureHunt extends JavaPlugin{
     }
     public YMLfiles getBooks(){
         return books;
+    }
+    public YMLfiles getRewards(){
+        return rewards;
     }
     public TreasureManager getTreasureManager(){
         return treasureManager;
