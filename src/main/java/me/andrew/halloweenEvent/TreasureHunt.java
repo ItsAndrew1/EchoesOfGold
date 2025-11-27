@@ -12,7 +12,6 @@ public final class TreasureHunt extends JavaPlugin{
     private YMLfiles playerdata;
     private EventScoreboard scoreboardManager;
     private int guiSize;
-    private YMLfiles rewards;
     int bookCount = 0;
     boolean eventActive;
     TreasureManager treasureManager;
@@ -25,22 +24,22 @@ public final class TreasureHunt extends JavaPlugin{
 
         //Defining the YML files and main objects
         treasures = new YMLfiles(this, "treasures.yml");
-        rewards = new YMLfiles(this, "rewards.yml");
         books = new YMLfiles(this, "books.yml");
         treasureManager = new TreasureManager(this);
         bar = new EventBossBar(this);
         playerdata = new YMLfiles(this, "playerdata.yml");
         scoreboardManager = new EventScoreboard(this);
         HintsGUI hintsGUIAccess = new HintsGUI(this);
+        ManageTreasuresGUIs mainManageGUI = new ManageTreasuresGUIs(this);
 
         //Setting the commands and their tabs
-        getCommand("treasurehunt").setExecutor(new CommandManager(this, hintsGUIAccess));
+        getCommand("treasurehunt").setExecutor(new CommandManager(this, hintsGUIAccess, mainManageGUI));
         getCommand("treasurehunt").setTabCompleter(new CommandTabs(this));
-        getCommand("hints").setExecutor(new CommandManager(this, hintsGUIAccess));
+        getCommand("hints").setExecutor(new CommandManager(this, hintsGUIAccess, mainManageGUI));
 
         //Setting the events
         getServer().getPluginManager().registerEvents(new TreasureClickEvent(this), this);
-        getServer().getPluginManager().registerEvents(new RewardsGUI(this), this);
+        getServer().getPluginManager().registerEvents(new ManageTreasuresGUIs(this), this);
         getServer().getPluginManager().registerEvents(new HintsGUI(this), this);
 
         //Regaining data after a reload
@@ -154,9 +153,6 @@ public final class TreasureHunt extends JavaPlugin{
     }
     public YMLfiles getBooks(){
         return books;
-    }
-    public YMLfiles getRewards(){
-        return rewards;
     }
     public TreasureManager getTreasureManager(){
         return treasureManager;

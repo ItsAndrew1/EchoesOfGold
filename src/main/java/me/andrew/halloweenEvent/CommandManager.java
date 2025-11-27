@@ -20,10 +20,12 @@ import java.util.regex.Pattern;
 public class CommandManager implements CommandExecutor{
     TreasureHunt plugin;
     private final HintsGUI accessHintsGUI;
+    private final ManageTreasuresGUIs mainManageGUI;
 
-    public CommandManager(TreasureHunt plugin, HintsGUI accessHintsGUI){
+    public CommandManager(TreasureHunt plugin, HintsGUI accessHintsGUI, ManageTreasuresGUIs mainManageGUI){
         this.plugin = plugin;
         this.accessHintsGUI = accessHintsGUI;
+        this.mainManageGUI = mainManageGUI;
     }
 
     @Override
@@ -142,6 +144,15 @@ public class CommandManager implements CommandExecutor{
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', line));
                         Bukkit.getLogger().info(line);
                     }
+                    break;
+
+                case "treasures":
+                    if(strings.length > 1){
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt treasures"));
+                        return true;
+                    }
+
+                    mainManageGUI.showMainManageGui();
                     break;
 
                 case "hints":

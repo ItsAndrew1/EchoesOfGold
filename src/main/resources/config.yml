@@ -15,7 +15,7 @@ start-book:
     - "&5Welcome, adventurer!\n\n&6The night of terror begins...\n3 cursed chests await for you in the Overworld.\n\n&cFind them before they find you."
     - "&7Each chest holds &eancient treasures&7.\nBut beware...\nSome are guarded by monsters.\n\n&4Good luck!"
 
-#Configure the GUI settings
+#Configure the Hints GUI settings
 hints-gui:
   gui-rows: 6 #Value must be between 1 and 6. Each row has 9 slots => 9 slots-minimum, 54 slots-maximum
   gui-title: "Hints" #You can use & styles!

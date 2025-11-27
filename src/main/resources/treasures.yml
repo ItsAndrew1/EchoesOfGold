@@ -1,14 +1,23 @@
 #Developed by: _ItsAndrew_
 #This config file is for all the treasures that you will create
 
+#============[STRUCTURE]============
+#treasures:
+#  treasure1:
+#     rewards:
+#       diamond_sword:
+#         material: diamond_sword
+#         enchantments:
+#           - ...
+#       ...
+#     facing: <EAST/SOUTH/NORTH/WEST/NORTH-WEST...>
+#     world: <world/world_nether/world_the_end> !!You need to look in your server's folder for the world's name
+#     x: ...
+#     y: ...
+#     z: ...
+
 max-treasures: 1 #Max treasures that you want in your game
 treasures:
-  #============[STRUCTURE]============
-  #facing: <EAST | WEST | NORTH | EAST | NORTH_EAST ...> CAPS is important!!
-  #world: <world | world_nether | world_the_end> IMPORTANT: Look in your server's world files to see how each dimension is called!!
-  #x: <number>
-  #y: <number>
-  #z: <number>
   treasure1:
     facing: NORTH_EAST
     world: world

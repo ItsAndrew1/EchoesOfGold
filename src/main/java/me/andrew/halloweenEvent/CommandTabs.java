@@ -21,7 +21,7 @@ public class CommandTabs implements TabCompleter {
 
         if(command.getName().equalsIgnoreCase("treasurehunt")){
             if(args.length == 1){
-                return Arrays.asList("enable","disable","reload", "hints", "help");
+                return Arrays.asList("enable","disable","reload", "treasures","hints", "help");
             }
             else if(args.length == 2 && args[0].equalsIgnoreCase("hints")){
                 return Arrays.asList("create", "delete", "manage");
