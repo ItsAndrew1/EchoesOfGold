@@ -62,18 +62,25 @@ public class Hints implements Listener {
             ItemStack noHintsItem = new ItemStack(noHintsItemMaterial);
             ItemMeta noHintsItemMeta = noHintsItem.getItemMeta();
 
+            //Setting the noHintsItem's title
+            String coloredNoHintsItemTitle = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("hints-gui.gui-no-hints-item.title"));
+            noHintsItemMeta.setDisplayName(coloredNoHintsItemTitle);
+
+            //Setting the noHintsItem's lore (if there is any)
             List<String> noHintsItemLore = plugin.getConfig().getStringList("hints-gui.gui-no-hints-item.lore");
             List<String> coloredNoHintsItemLore = new ArrayList<>();
             if(noHintsItemLore.isEmpty()){
-                noHintsItemMeta.setLore(null);
-                return;
+                coloredNoHintsItemLore = Collections.EMPTY_LIST;
+                noHintsItemMeta.setLore(coloredNoHintsItemLore);
+            }
+            else{
+                for(String rawLine : noHintsItemLore){
+                    String coloredLine = ChatColor.translateAlternateColorCodes('&', rawLine);
+                    coloredNoHintsItemLore.add(coloredLine);
+                }
+                noHintsItemMeta.setLore(coloredNoHintsItemLore);
             }
 
-            for(String rawLine : noHintsItemLore){
-                String coloredLine = ChatColor.translateAlternateColorCodes('&', rawLine);
-                coloredNoHintsItemLore.add(coloredLine);
-            }
-            noHintsItemMeta.setLore(coloredNoHintsItemLore);
             noHintsItem.setItemMeta(noHintsItemMeta);
             inv.setItem(noHintsItemSlot, noHintsItem);
         }
