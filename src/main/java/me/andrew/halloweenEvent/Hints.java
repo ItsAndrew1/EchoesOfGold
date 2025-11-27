@@ -129,13 +129,10 @@ public class Hints implements Listener {
         ItemMeta meta = clicked.getItemMeta();
         if (meta == null) return;
 
-        String bookId = meta.getPersistentDataContainer().get(this.key, PersistentDataType.STRING);
-        if (bookId == null) return;
-
         //If the player clicks on exitButton
         String exitButtonMaterialString = plugin.getConfig().getString("hints-gui.gui-exit-button.material");
         Material exitButtonMaterial = Material.matchMaterial(exitButtonMaterialString.toUpperCase());
-        if(clicked.getType().equals(exitButtonMaterial)){
+        if(clicked.getType() == exitButtonMaterial){
             String exitButtonSoundString = plugin.getConfig().getString("exit-button-sound");
             float ebsVolume = plugin.getConfig().getInt("ebs-volume");
             float ebsPitch = plugin.getConfig().getInt("ebs-pitch");
@@ -150,7 +147,7 @@ public class Hints implements Listener {
         //If the player clicks on noHintsItem
         String noHintsItemMaterialString = plugin.getConfig().getString("hints-gui.gui-no-hints-item.material");
         Material noHintsItemMaterial = Material.matchMaterial(noHintsItemMaterialString.toUpperCase());
-        if(clicked.getType().equals(noHintsItemMaterial)){
+        if(clicked.getType() == noHintsItemMaterial){
             String noHintsItemSoundString = plugin.getConfig().getString("no-hints-item-sound");
             float nhisVolume = plugin.getConfig().getInt("nhis-volume");
             float nhisPitch = plugin.getConfig().getInt("nhis-pitch");
@@ -164,6 +161,10 @@ public class Hints implements Listener {
             return;
         }
 
+        //Check if the clicked item is one of the book Hints
+        String bookId = meta.getPersistentDataContainer().get(this.key, PersistentDataType.STRING);
+        if (bookId == null) return;
+
         FileConfiguration books = plugin.getBooks().getConfig();
         FileConfiguration playerData = plugin.getPlayerData().getConfig();
 
@@ -173,6 +174,7 @@ public class Hints implements Listener {
 
         if (foundCount < unlockAfter) {
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("hint-not-found-yet")));
+            player.closeInventory();
             return;
         }
 
