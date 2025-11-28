@@ -24,10 +24,6 @@ public class ManageTreasuresGUI implements Listener{
         int invSize = 54;
         Inventory treasureManagerInv = Bukkit.createInventory(null, invSize, "Manage treasures");
 
-        //The item click sound
-        NamespacedKey clickSoundKey= NamespacedKey.minecraft("ui.button.click");
-        Sound clickButton = Registry.SOUNDS.get(clickSoundKey);
-
         //Decorations
         for(int i = 0; i<9; i++){
             if(i == 4){
@@ -56,7 +52,6 @@ public class ManageTreasuresGUI implements Listener{
             treasureManagerInv.setItem(i, blackStainedGlass);
         }
 
-        //19 21 23 25
         //Create treasures button
         int createTreasureSlot = 19;
         ItemStack createTreasureButton = new ItemStack(Material.SLIME_BALL);
@@ -124,6 +119,49 @@ public class ManageTreasuresGUI implements Listener{
         ItemMeta clickedItemMeta = clickedItem.getItemMeta();
         if(clickedItemMeta == null) return;
 
+        //The item click sound
+        NamespacedKey clickSoundKey= NamespacedKey.minecraft("ui.button.click");
+        Sound clickButtonSound = Registry.SOUNDS.get(clickSoundKey);
 
+        //If the player clicks on the return button
+        ItemStack returnButton = new ItemStack(Material.SPECTRAL_ARROW);
+        if(clickedItem.equals(returnButton)){
+            player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
+            player.closeInventory();
+            plugin.getManageGUI().showMainManageGui(player);
+        }
+
+        //If the player clicks on the createTreasure button
+        ItemStack createButton = new ItemStack(Material.SLIME_BALL);
+        if (clickedItem.equals(createButton)){
+
+        }
+
+        //If the player clicks on the deleteTreasure button
+        ItemStack deleteButton = new ItemStack(Material.BARRIER);
+        if(clickedItem.equals(deleteButton)){
+            player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
+            player.closeInventory();
+            plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
+            plugin.setTreasureManagerChoice("delete");
+        }
+
+        //If the player click on the setLocationTreasure button
+        ItemStack setLocationButton = new ItemStack(Material.COMPASS);
+        if(clickedItem.equals(setLocationButton)){
+            player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
+            player.closeInventory();
+            plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
+            plugin.setTreasureManagerChoice("setlocation");
+        }
+
+        //If the player clicks on the setWorld button
+        ItemStack setWorldButton = new ItemStack(Material.MAP);
+        if(clickedItem.equals(setWorldButton)){
+            player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
+            player.closeInventory();
+            plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
+            plugin.setTreasureManagerChoice("setworld");
+        }
     }
 }

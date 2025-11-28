@@ -1,6 +1,7 @@
 //Developed by _ItsAndrew_
 package me.andrew.halloweenEvent;
 
+import me.andrew.halloweenEvent.GUIs.AllTreasuresGUI;
 import me.andrew.halloweenEvent.GUIs.HintsGUI;
 import me.andrew.halloweenEvent.GUIs.MainManageGUI;
 
@@ -21,10 +22,17 @@ public final class TreasureHunt extends JavaPlugin{
     TreasureManager treasureManager;
     EventBossBar bar;
 
+    //Defining the GUIs
+    private  MainManageGUI manageGUI;
+    private ManageTreasuresGUI manageTreasuresGUI;
+    private AllTreasuresGUI allTreasuresGUI;
+    private String treasureManagerChoice;
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
         guiSize = getConfig().getInt("hints-gui.gui-rows") * 9;
+        HintsGUI hintsGUIAccess = new HintsGUI(this);
 
         //Defining the YML files and main objects
         treasures = new YMLfiles(this, "treasures.yml");
@@ -33,18 +41,20 @@ public final class TreasureHunt extends JavaPlugin{
         bar = new EventBossBar(this);
         playerdata = new YMLfiles(this, "playerdata.yml");
         scoreboardManager = new EventScoreboard(this);
-        HintsGUI hintsGUIAccess = new HintsGUI(this);
-        ManageTreasuresGUI manageTreasuresGUIaccess = new ManageTreasuresGUI(this);
-        MainManageGUI mainManageGUI = new MainManageGUI(this, manageTreasuresGUIaccess);
+
+        //Setting the GUIs
+        manageTreasuresGUI = new ManageTreasuresGUI(this);
+        manageGUI = new MainManageGUI(this);
+        allTreasuresGUI = new AllTreasuresGUI(this);
 
         //Setting the commands and their tabs
-        getCommand("treasurehunt").setExecutor(new CommandManager(this, hintsGUIAccess, mainManageGUI));
+        getCommand("treasurehunt").setExecutor(new CommandManager(this, hintsGUIAccess));
         getCommand("treasurehunt").setTabCompleter(new CommandTabs(this));
-        getCommand("hints").setExecutor(new CommandManager(this, hintsGUIAccess, mainManageGUI));
+        getCommand("hints").setExecutor(new CommandManager(this, hintsGUIAccess));
 
         //Setting the events
         getServer().getPluginManager().registerEvents(new TreasureClickEvent(this), this);
-        getServer().getPluginManager().registerEvents(new MainManageGUI(this, manageTreasuresGUIaccess), this);
+        getServer().getPluginManager().registerEvents(new MainManageGUI(this), this);
         getServer().getPluginManager().registerEvents(new HintsGUI(this), this);
 
         //Regaining data after a reload
@@ -175,5 +185,22 @@ public final class TreasureHunt extends JavaPlugin{
         return guiSize;
     }
 
+    //Getters for the GUIs
+    public MainManageGUI getManageGUI(){
+        return manageGUI;
+    }
+    public ManageTreasuresGUI getManageTreasuresGUI(){
+        return manageTreasuresGUI;
+    }
+    public AllTreasuresGUI getAllTreasuresGUI(){
+        return allTreasuresGUI;
+    }
 
+    //Setter and getter for treasureManagerChoice
+    public void setTreasureManagerChoice(String choice){
+        treasureManagerChoice = choice;
+    }
+    public String getTreasureManagerChoice(){
+        return treasureManagerChoice;
+    }
 }

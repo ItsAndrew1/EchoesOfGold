@@ -3,7 +3,6 @@ package me.andrew.halloweenEvent.GUIs;
 
 import me.andrew.halloweenEvent.TreasureHunt;
 import org.bukkit.*;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,11 +16,9 @@ import java.util.List;
 
 public class MainManageGUI implements Listener {
     TreasureHunt plugin;
-    private final ManageTreasuresGUI accessManageTreasuresGUI;
 
-    public MainManageGUI(TreasureHunt plugin, ManageTreasuresGUI accessManageTreasuresGUI){
+    public MainManageGUI(TreasureHunt plugin){
         this.plugin = plugin;
-        this.accessManageTreasuresGUI = accessManageTreasuresGUI;
     }
 
     //Shows the main GUI that open when you run /th treasures
@@ -106,11 +103,16 @@ public class MainManageGUI implements Listener {
 
         if(!(event.getWhoClicked() instanceof Player player)) return;
 
+        //If the  player clicks on nothing or black stained glass pane
         ItemStack clickedItem = event.getCurrentItem();
         if(clickedItem == null || clickedItem.getType().equals(Material.AIR) || clickedItem.getType().equals(Material.BLACK_STAINED_GLASS_PANE)) return;
 
         ItemMeta clickedItemMeta = clickedItem.getItemMeta();
         if(clickedItemMeta == null) return;
+
+        //If the player clicks on the infoSign
+        ItemStack infoSign = new ItemStack(Material.OAK_SIGN);
+        if(clickedItem.equals(infoSign)) return;
 
         //Sound for clicking on the items
         NamespacedKey exitButtonSoundCheck = NamespacedKey.minecraft("ui.button.click");
@@ -129,7 +131,7 @@ public class MainManageGUI implements Listener {
             player.playSound(player.getLocation(), clickItemSound, 1f, 1f);
             player.closeInventory();
 
-            accessManageTreasuresGUI.showTreasureManagersGUI(player);
+            plugin.getManageTreasuresGUI().showTreasureManagersGUI(player);
         }
 
         //If the player clicks on manageRewards

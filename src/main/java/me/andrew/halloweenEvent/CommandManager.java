@@ -22,12 +22,10 @@ import java.util.regex.Pattern;
 public class CommandManager implements CommandExecutor{
     TreasureHunt plugin;
     private final HintsGUI accessHintsGUI;
-    private final MainManageGUI mainManageGUI;
 
-    public CommandManager(TreasureHunt plugin, HintsGUI accessHintsGUI, MainManageGUI mainManageGUI){
+    public CommandManager(TreasureHunt plugin, HintsGUI accessHintsGUI){
         this.plugin = plugin;
         this.accessHintsGUI = accessHintsGUI;
-        this.mainManageGUI = mainManageGUI;
     }
 
     @Override
@@ -154,7 +152,7 @@ public class CommandManager implements CommandExecutor{
                         return true;
                     }
 
-                    mainManageGUI.showMainManageGui(player);
+                    plugin.getManageGUI().showMainManageGui(player);
                     break;
 
                 case "hints":
