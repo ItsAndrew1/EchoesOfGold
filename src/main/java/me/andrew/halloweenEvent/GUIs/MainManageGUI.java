@@ -26,8 +26,6 @@ public class MainManageGUI implements Listener {
 
     //Shows the main GUI that open when you run /th treasures
     public void showMainManageGui(Player player){
-        FileConfiguration treasures = plugin.getTreasures().getConfig();
-
         int invSize = 54;
         Inventory mainManageInv = Bukkit.createInventory(null, invSize, "Manage");
 
@@ -109,7 +107,7 @@ public class MainManageGUI implements Listener {
         if(!(event.getWhoClicked() instanceof Player player)) return;
 
         ItemStack clickedItem = event.getCurrentItem();
-        if(clickedItem == null || clickedItem.getType().equals(Material.AIR)) return;
+        if(clickedItem == null || clickedItem.getType().equals(Material.AIR) || clickedItem.getType().equals(Material.BLACK_STAINED_GLASS_PANE)) return;
 
         ItemMeta clickedItemMeta = clickedItem.getItemMeta();
         if(clickedItemMeta == null) return;
