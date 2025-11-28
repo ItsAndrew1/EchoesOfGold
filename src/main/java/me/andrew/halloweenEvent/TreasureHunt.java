@@ -1,6 +1,10 @@
 //Developed by _ItsAndrew_
 package me.andrew.halloweenEvent;
 
+import me.andrew.halloweenEvent.GUIs.HintsGUI;
+import me.andrew.halloweenEvent.GUIs.MainManageGUI;
+
+import me.andrew.halloweenEvent.GUIs.ManageTreasuresGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -30,7 +34,8 @@ public final class TreasureHunt extends JavaPlugin{
         playerdata = new YMLfiles(this, "playerdata.yml");
         scoreboardManager = new EventScoreboard(this);
         HintsGUI hintsGUIAccess = new HintsGUI(this);
-        ManageTreasuresGUIs mainManageGUI = new ManageTreasuresGUIs(this);
+        ManageTreasuresGUI manageTreasuresGUIaccess = new ManageTreasuresGUI(this);
+        MainManageGUI mainManageGUI = new MainManageGUI(this, manageTreasuresGUIaccess);
 
         //Setting the commands and their tabs
         getCommand("treasurehunt").setExecutor(new CommandManager(this, hintsGUIAccess, mainManageGUI));
@@ -39,7 +44,7 @@ public final class TreasureHunt extends JavaPlugin{
 
         //Setting the events
         getServer().getPluginManager().registerEvents(new TreasureClickEvent(this), this);
-        getServer().getPluginManager().registerEvents(new ManageTreasuresGUIs(this), this);
+        getServer().getPluginManager().registerEvents(new MainManageGUI(this, manageTreasuresGUIaccess), this);
         getServer().getPluginManager().registerEvents(new HintsGUI(this), this);
 
         //Regaining data after a reload
@@ -169,4 +174,6 @@ public final class TreasureHunt extends JavaPlugin{
     public int getGuiSize(){
         return guiSize;
     }
+
+
 }

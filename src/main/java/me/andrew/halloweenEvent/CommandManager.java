@@ -1,6 +1,8 @@
 //Developed by _ItsAndrew_
 package me.andrew.halloweenEvent;
 
+import me.andrew.halloweenEvent.GUIs.HintsGUI;
+import me.andrew.halloweenEvent.GUIs.MainManageGUI;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -20,9 +22,9 @@ import java.util.regex.Pattern;
 public class CommandManager implements CommandExecutor{
     TreasureHunt plugin;
     private final HintsGUI accessHintsGUI;
-    private final ManageTreasuresGUIs mainManageGUI;
+    private final MainManageGUI mainManageGUI;
 
-    public CommandManager(TreasureHunt plugin, HintsGUI accessHintsGUI, ManageTreasuresGUIs mainManageGUI){
+    public CommandManager(TreasureHunt plugin, HintsGUI accessHintsGUI, MainManageGUI mainManageGUI){
         this.plugin = plugin;
         this.accessHintsGUI = accessHintsGUI;
         this.mainManageGUI = mainManageGUI;
@@ -152,7 +154,7 @@ public class CommandManager implements CommandExecutor{
                         return true;
                     }
 
-                    mainManageGUI.showMainManageGui();
+                    mainManageGUI.showMainManageGui(player);
                     break;
 
                 case "hints":

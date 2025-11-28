@@ -1,10 +1,8 @@
 //Developed by _ItsAndrew_
-package me.andrew.halloweenEvent;
+package me.andrew.halloweenEvent.GUIs;
 
-import io.papermc.paper.event.player.AsyncChatCommandDecorateEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import me.andrew.halloweenEvent.TreasureHunt;
+import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,15 +15,17 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ManageTreasuresGUIs implements Listener {
+public class MainManageGUI implements Listener {
     TreasureHunt plugin;
+    private final ManageTreasuresGUI accessManageTreasuresGUI;
 
-    public ManageTreasuresGUIs(TreasureHunt plugin){
+    public MainManageGUI(TreasureHunt plugin, ManageTreasuresGUI accessManageTreasuresGUI){
         this.plugin = plugin;
+        this.accessManageTreasuresGUI = accessManageTreasuresGUI;
     }
 
     //Shows the main GUI that open when you run /th treasures
-    public void showMainManageGui(){
+    public void showMainManageGui(Player player){
         FileConfiguration treasures = plugin.getTreasures().getConfig();
 
         int invSize = 54;
@@ -98,6 +98,8 @@ public class ManageTreasuresGUIs implements Listener {
 
         manageTreasures.setItemMeta(manageRewardsMeta);
         mainManageInv.setItem(24, manageRewards);
+
+        player.openInventory(mainManageInv);
     }
 
     @EventHandler
@@ -112,6 +114,33 @@ public class ManageTreasuresGUIs implements Listener {
         ItemMeta clickedItemMeta = clickedItem.getItemMeta();
         if(clickedItemMeta == null) return;
 
-        //Will continue with the click event tomorrow
+        //Sound for clicking on the items
+        NamespacedKey exitButtonSoundCheck = NamespacedKey.minecraft("ui.button.click");
+        Sound clickItemSound = Registry.SOUNDS.get(exitButtonSoundCheck);
+
+        //If the player clicks on exitButton
+        ItemStack exitButton = new ItemStack(Material.RED_CONCRETE);
+        if(clickedItem.equals(exitButton)){
+            player.closeInventory();
+            player.playSound(player.getLocation(), clickItemSound, 1f, 1f);
+        }
+
+        //If the player clicks on manageTreasures
+        ItemStack manageTreasureButton = new ItemStack(Material.ENDER_CHEST);
+        if(clickedItem.equals(manageTreasureButton)){
+            player.playSound(player.getLocation(), clickItemSound, 1f, 1f);
+            player.closeInventory();
+
+            accessManageTreasuresGUI.showTreasureManagersGUI(player);
+        }
+
+        //If the player clicks on manageRewards
+        ItemStack manageRewardsButton = new ItemStack(Material.GOLD_INGOT);
+        if(clickedItem.equals(manageRewardsButton)){
+            player.playSound(player.getLocation(), clickItemSound, 1f, 1f);
+            player.closeInventory();
+
+
+        }
     }
 }

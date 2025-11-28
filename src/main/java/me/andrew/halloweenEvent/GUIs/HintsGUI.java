@@ -1,6 +1,7 @@
 //Developed by _ItsAndrew_
-package me.andrew.halloweenEvent;
+package me.andrew.halloweenEvent.GUIs;
 
+import me.andrew.halloweenEvent.TreasureHunt;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
