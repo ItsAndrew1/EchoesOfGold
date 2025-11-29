@@ -7,16 +7,26 @@ import me.andrew.halloweenEvent.GUIs.MainManageGUI;
 
 import me.andrew.halloweenEvent.GUIs.ManageTreasuresGUI;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class TreasureHunt extends JavaPlugin{
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Consumer;
+
+public final class TreasureHunt extends JavaPlugin implements Listener{
     private YMLfiles treasures;
     private YMLfiles books;
     private YMLfiles playerdata;
     private EventScoreboard scoreboardManager;
     private int guiSize;
+    private final Map<UUID, Consumer<String>> chatInput = new HashMap<>(); //This is for player's input in the treasure GUIs
     int bookCount = 0;
     boolean eventActive;
     TreasureManager treasureManager;
@@ -55,7 +65,10 @@ public final class TreasureHunt extends JavaPlugin{
         //Setting the events
         getServer().getPluginManager().registerEvents(new TreasureClickEvent(this), this);
         getServer().getPluginManager().registerEvents(new MainManageGUI(this), this);
+        getServer().getPluginManager().registerEvents(new ManageTreasuresGUI(this), this);
+        getServer().getPluginManager().registerEvents(new AllTreasuresGUI(this), this);
         getServer().getPluginManager().registerEvents(new HintsGUI(this), this);
+        getServer().getPluginManager().registerEvents(this, this);
 
         //Regaining data after a reload
         if(getConfig().contains("duration")){
@@ -160,6 +173,24 @@ public final class TreasureHunt extends JavaPlugin{
             getConfig().set("duration", null);
         }
         Bukkit.getLogger().info("HalloweenEvent shut down successfully!");
+    }
+
+    public void waitForPlayerInput(Player player, Consumer<String> callback){
+        chatInput.put(player.getUniqueId(), callback);
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lEnter a name for your treasure:"));
+    }
+
+    @EventHandler
+    public void onPlayerChat(AsyncPlayerChatEvent event){
+        Player player = event.getPlayer();
+        UUID playerUUID = player.getUniqueId();
+
+        if(!chatInput.containsKey(playerUUID)) return;
+        event.setCancelled(true);
+
+        String input = event.getMessage();
+        Consumer<String> callback = chatInput.remove(playerUUID);
+        Bukkit.getScheduler().runTask(this, () -> callback.accept(input));
     }
 
     //Getters

@@ -18,9 +18,3 @@
 
 max-treasures: 1 #Max treasures that you want in your game
 treasures:
-  treasure1:
-    facing: NORTH_EAST
-    world: world
-    x: 40
-    y: 76
-    z: -120

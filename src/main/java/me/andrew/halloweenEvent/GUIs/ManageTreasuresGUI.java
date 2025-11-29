@@ -1,17 +1,22 @@
 //Developed by _ItsAndrew_
 package me.andrew.halloweenEvent.GUIs;
 
+import io.papermc.paper.event.player.PlayerOpenSignEvent;
 import me.andrew.halloweenEvent.TreasureHunt;
 import org.bukkit.*;
+import org.bukkit.block.Sign;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.Consumer;
 
-import java.util.List;
+import java.util.*;
 
 public class ManageTreasuresGUI implements Listener{
     private final TreasureHunt plugin;
@@ -48,9 +53,18 @@ public class ManageTreasuresGUI implements Listener{
         int infoSignSlot = 4;
         ItemStack infoSign = new ItemStack(Material.OAK_SIGN);
         ItemMeta isMeta = infoSign.getItemMeta();
-        isMeta.setDisplayName("&f&lMANAGE YOUR TREASURES: ");
+        isMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&f&lMANAGE YOUR TREASURES: "));
 
-        //Continue with lore
+        List<String> coloredInfoSignLore = new ArrayList<>();
+        coloredInfoSignLore.add(ChatColor.translateAlternateColorCodes('&', ""));
+        coloredInfoSignLore.add(ChatColor.translateAlternateColorCodes('&', "&7 - &lcreate &7treasures"));
+        coloredInfoSignLore.add(ChatColor.translateAlternateColorCodes('&', "&7 - &ldelete &7treasures"));
+        coloredInfoSignLore.add(ChatColor.translateAlternateColorCodes('&', "&7 - &lsetWorld &7for treasures"));
+        coloredInfoSignLore.add(ChatColor.translateAlternateColorCodes('&', "&7 - &lsetLocation &7for treasures"));
+        isMeta.setLore(coloredInfoSignLore);
+
+        infoSign.setItemMeta(isMeta);
+        treasureManagerInv.setItem(infoSignSlot, infoSign);
 
         //Create treasures button
         int createTreasureSlot = 19;
@@ -136,7 +150,8 @@ public class ManageTreasuresGUI implements Listener{
         //If the player clicks on the createTreasure button
         Material createButton = Material.SLIME_BALL;
         if (clickedItem.getType() == createButton){
-
+            player.closeInventory();
+            createTreasure(player);
         }
 
         //If the player clicks on the deleteTreasure button
@@ -152,7 +167,6 @@ public class ManageTreasuresGUI implements Listener{
         Material setLocationButton = Material.COMPASS;
         if(clickedItem.getType() == setLocationButton){
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
-            player.closeInventory();
             plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
             plugin.setTreasureManagerChoice("setlocation");
         }
@@ -161,9 +175,48 @@ public class ManageTreasuresGUI implements Listener{
         Material setWorldButton = Material.MAP;
         if(clickedItem.getType() == setWorldButton){
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
-            player.closeInventory();
             plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
             plugin.setTreasureManagerChoice("setworld");
         }
+    }
+
+    //Saved the data of a treasure to treasures.yml
+    public void createTreasure(Player player) {
+        FileConfiguration treasures = plugin.getTreasures().getConfig();
+        String chatPrefix = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("chat-prefix"));
+
+        //Waits for the player input
+        plugin.waitForPlayerInput(player, input -> {
+            String treasureName = input.trim();
+
+            //Checks if the input is empty
+            if (treasureName.isEmpty()) {
+                Sound invalidSound = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.villager.no"));
+                player.playSound(player.getLocation(), invalidSound, 1f, 0.9f);
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe name cannot be empty!"));
+                return;
+            }
+
+            //Checks if there is a treasure with the input's name
+            if (treasures.isConfigurationSection("treasures") && treasures.getConfigurationSection("treasures").getKeys(false).contains(treasureName)) {
+                Sound duplicateSound = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.villager.no"));
+                player.playSound(player.getLocation(), duplicateSound, 1f, 0.9f);
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cA treasure with name &l"+treasureName+" &calready exists!"));
+                return;
+            }
+
+            String path = "treasures." + treasureName;
+            treasures.set(path + ".rewards", "");
+            treasures.set(path + ".facing", "");
+            treasures.set(path + ".world", "");
+            treasures.set(path + ".x", "");
+            treasures.set(path + ".y", "");
+            treasures.set(path + ".z", "");
+            plugin.getTreasures().saveConfig();
+
+            Sound successSound = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.experience_orb.pickup"));
+            player.playSound(player.getLocation(), successSound, 1f, 1f);
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSaved treasure &l"+treasureName+"&a!"));
+        });
     }
 }
