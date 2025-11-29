@@ -28,20 +28,11 @@ public class MainManageGUI implements Listener {
 
         //Set decorations and info sign
         for(int i = 0; i<9; i++){
-            if(i == 4){
-                int infoSignSlot = 4;
-                ItemStack infoSign = new ItemStack(Material.OAK_SIGN);
-                ItemMeta infoSignMeta = infoSign.getItemMeta();
-
-                infoSignMeta.setDisplayName("&f&lMANAGE TREASURES AND REWARDS");
-                infoSign.setItemMeta(infoSignMeta);
-
-                mainManageInv.setItem(infoSignSlot, infoSign);
-            }
+            if(i == 4) continue;
             ItemStack blackGlassPane = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
             ItemMeta blackGlassPaneMeta = blackGlassPane.getItemMeta();
 
-            blackGlassPaneMeta.setDisplayName("");
+            blackGlassPaneMeta.setDisplayName(" ");
             blackGlassPane.setItemMeta(blackGlassPaneMeta);
 
             mainManageInv.setItem(i, blackGlassPane);
@@ -50,26 +41,33 @@ public class MainManageGUI implements Listener {
             ItemStack blackGlassPane = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
             ItemMeta blackGlassPaneMeta = blackGlassPane.getItemMeta();
 
-            blackGlassPaneMeta.setDisplayName("");
+            blackGlassPaneMeta.setDisplayName(" ");
             blackGlassPane.setItemMeta(blackGlassPaneMeta);
 
             mainManageInv.setItem(i, blackGlassPane);
         }
 
+        //Info sign button
+        ItemStack infoSignButton = new ItemStack(Material.OAK_SIGN);
+        ItemMeta isbMeta = infoSignButton.getItemMeta();
+        isbMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&f&lManage treasures and rewards!"));
+        infoSignButton.setItemMeta(isbMeta);
+        mainManageInv.setItem(4, infoSignButton);
+
         //Exit button
         ItemStack exitButton = new ItemStack(Material.RED_CONCRETE);
         ItemMeta exitButtonMeta = exitButton.getItemMeta();
-        exitButtonMeta.setDisplayName("&c&lEXIT");
+        exitButtonMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&c&lEXIT"));
         exitButton.setItemMeta(exitButtonMeta);
         mainManageInv.setItem(40, exitButton);
-
 
         //Manage Treasures button
         ItemStack manageTreasures = new ItemStack(Material.ENDER_CHEST);
         ItemMeta manageTreasuresMeta = manageTreasures.getItemMeta();
-        manageTreasuresMeta.setDisplayName("&a&lMANAGE TREASURES");
+        manageTreasuresMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&a&lMANAGE TREASURES"));
 
         List<String> manageTreasuresLore = new ArrayList<>();
+        manageTreasuresLore.add("");
         manageTreasuresLore.add(ChatColor.translateAlternateColorCodes('&', "&7Click to manage: "));
         manageTreasuresLore.add(ChatColor.translateAlternateColorCodes('&', "&7&l - creating treasures"));
         manageTreasuresLore.add(ChatColor.translateAlternateColorCodes('&', "&7&l - deleting treasures"));
@@ -83,15 +81,16 @@ public class MainManageGUI implements Listener {
         //Manage Rewards button
         ItemStack manageRewards = new ItemStack(Material.GOLD_INGOT);
         ItemMeta manageRewardsMeta = manageRewards.getItemMeta();
-        manageRewardsMeta.setDisplayName("&aMANAGE REWARDS");
+        manageRewardsMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&a&lMANAGE REWARDS"));
 
         List<String> manageRewardsLore = new ArrayList<>();
-        manageTreasuresLore.add(ChatColor.translateAlternateColorCodes('&', "&7Click to manage: "));
-        manageTreasuresLore.add(ChatColor.translateAlternateColorCodes('&', "&7&l - adding items to treasures"));
-        manageTreasuresLore.add(ChatColor.translateAlternateColorCodes('&', "&7&l - deleting items from treasures"));
-        manageTreasuresMeta.setLore(manageRewardsLore);
+        manageRewardsLore.add("");
+        manageRewardsLore.add(ChatColor.translateAlternateColorCodes('&', "&7Click to manage: "));
+        manageRewardsLore.add(ChatColor.translateAlternateColorCodes('&', "&7&l - adding items to treasures"));
+        manageRewardsLore.add(ChatColor.translateAlternateColorCodes('&', "&7&l - deleting items from treasures"));
+        manageRewardsMeta.setLore(manageRewardsLore);
 
-        manageTreasures.setItemMeta(manageRewardsMeta);
+        manageRewards.setItemMeta(manageRewardsMeta);
         mainManageInv.setItem(24, manageRewards);
 
         player.openInventory(mainManageInv);
@@ -100,7 +99,6 @@ public class MainManageGUI implements Listener {
     @EventHandler
     public void onMainManageGuiClick(InventoryClickEvent event){
         event.setCancelled(true);
-
         if(!(event.getWhoClicked() instanceof Player player)) return;
 
         //If the  player clicks on nothing or black stained glass pane
@@ -119,27 +117,23 @@ public class MainManageGUI implements Listener {
         Sound clickItemSound = Registry.SOUNDS.get(exitButtonSoundCheck);
 
         //If the player clicks on exitButton
-        ItemStack exitButton = new ItemStack(Material.RED_CONCRETE);
-        if(clickedItem.equals(exitButton)){
-            player.closeInventory();
+        Material exitButton = Material.RED_CONCRETE;
+        if(clickedItem.getType() == exitButton){
             player.playSound(player.getLocation(), clickItemSound, 1f, 1f);
+            player.closeInventory();
         }
 
         //If the player clicks on manageTreasures
-        ItemStack manageTreasureButton = new ItemStack(Material.ENDER_CHEST);
-        if(clickedItem.equals(manageTreasureButton)){
+        Material manageTreasureButton = Material.ENDER_CHEST;
+        if(clickedItem.getType() == manageTreasureButton){
             player.playSound(player.getLocation(), clickItemSound, 1f, 1f);
-            player.closeInventory();
-
             plugin.getManageTreasuresGUI().showTreasureManagersGUI(player);
         }
 
         //If the player clicks on manageRewards
-        ItemStack manageRewardsButton = new ItemStack(Material.GOLD_INGOT);
-        if(clickedItem.equals(manageRewardsButton)){
+        Material manageRewardsButton = Material.GOLD_INGOT;
+        if(clickedItem.getType() == manageRewardsButton){
             player.playSound(player.getLocation(), clickItemSound, 1f, 1f);
-            player.closeInventory();
-
 
         }
     }

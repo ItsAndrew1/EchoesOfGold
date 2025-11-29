@@ -26,19 +26,11 @@ public class ManageTreasuresGUI implements Listener{
 
         //Decorations
         for(int i = 0; i<9; i++){
-            if(i == 4){
-                ItemStack infoSignItem = new ItemStack(Material.OAK_SIGN);
-                ItemMeta infoSignMeta = infoSignItem.getItemMeta();
-                infoSignMeta.setDisplayName("&f&lMANAGE TREASURES");
-
-                int slot = 4;
-                infoSignItem.setItemMeta(infoSignMeta);
-                treasureManagerInv.setItem(slot, infoSignItem);
-            }
+            if(i == 4) continue;
 
             ItemStack blackStainedGlass = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
             ItemMeta blackStainedGlassMeta = blackStainedGlass.getItemMeta();
-            blackStainedGlassMeta.setDisplayName("");
+            blackStainedGlassMeta.setDisplayName(" ");
             blackStainedGlass.setItemMeta(blackStainedGlassMeta);
 
             treasureManagerInv.setItem(i, blackStainedGlass);
@@ -46,18 +38,26 @@ public class ManageTreasuresGUI implements Listener{
         for(int i = 45; i<54; i++){
             ItemStack blackStainedGlass = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
             ItemMeta blackStainedGlassMeta = blackStainedGlass.getItemMeta();
-            blackStainedGlassMeta.setDisplayName("");
+            blackStainedGlassMeta.setDisplayName(" ");
             blackStainedGlass.setItemMeta(blackStainedGlassMeta);
 
             treasureManagerInv.setItem(i, blackStainedGlass);
         }
+
+        //InfoSign button
+        int infoSignSlot = 4;
+        ItemStack infoSign = new ItemStack(Material.OAK_SIGN);
+        ItemMeta isMeta = infoSign.getItemMeta();
+        isMeta.setDisplayName("&f&lMANAGE YOUR TREASURES: ");
+
+        //Continue with lore
 
         //Create treasures button
         int createTreasureSlot = 19;
         ItemStack createTreasureButton = new ItemStack(Material.SLIME_BALL);
         ItemMeta ctbMeta = createTreasureButton.getItemMeta();
 
-        ctbMeta.setDisplayName("&a&lCREATE TREASURE");
+        ctbMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&a&lCREATE TREASURE"));
         ctbMeta.setLore(List.of("", ChatColor.translateAlternateColorCodes('&', "&7Create a new treasure!")));
         createTreasureButton.setItemMeta(ctbMeta);
 
@@ -68,8 +68,8 @@ public class ManageTreasuresGUI implements Listener{
         ItemStack deleteTreasureButton = new ItemStack(Material.BARRIER);
         ItemMeta dtbMeta = deleteTreasureButton.getItemMeta();
 
-        dtbMeta.setDisplayName("&c&lDELETE TREASURE");
-        dtbMeta.setLore(List.of("", ChatColor.translateAlternateColorCodes('&', "&7")));
+        dtbMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&4&lDELETE TREASURE"));
+        dtbMeta.setLore(List.of("", ChatColor.translateAlternateColorCodes('&', "&7Delete one of the treasures!")));
         deleteTreasureButton.setItemMeta(dtbMeta);
 
         treasureManagerInv.setItem(deleteTreasuresSlot, deleteTreasureButton);
@@ -79,8 +79,8 @@ public class ManageTreasuresGUI implements Listener{
         ItemStack setLocationButton = new ItemStack(Material.COMPASS);
         ItemMeta slbMeta = setLocationButton.getItemMeta();
 
-        slbMeta.setDisplayName("&d&lSET LOCATION TREASURE");
-        slbMeta.setLore(List.of(ChatColor.translateAlternateColorCodes('&', "&7Set the world for a treasure!")));
+        slbMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&d&lSET TREASURE LOCATION"));
+        slbMeta.setLore(List.of("", ChatColor.translateAlternateColorCodes('&', "&7Set the &llocation&7 for a treasure!")));
         setLocationButton.setItemMeta(slbMeta);
 
         treasureManagerInv.setItem(setLocationSlot, setLocationButton);
@@ -90,8 +90,8 @@ public class ManageTreasuresGUI implements Listener{
         ItemMeta swbMeta = setWorldButton.getItemMeta();
         int setWorldSlot = 25;
 
-        swbMeta.setDisplayName("&b&lSET WORLD TREASURE");
-        swbMeta.setLore(List.of(ChatColor.translateAlternateColorCodes('&', "&7Set the world for a treasure!")));
+        swbMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&b&lSET TREASURE WORLD"));
+        swbMeta.setLore(List.of("", ChatColor.translateAlternateColorCodes('&', "&7Set the world for a treasure!")));
         setWorldButton.setItemMeta(swbMeta);
 
         treasureManagerInv.setItem(setWorldSlot, setWorldButton);
@@ -101,10 +101,12 @@ public class ManageTreasuresGUI implements Listener{
         ItemStack returnButton = new ItemStack(Material.SPECTRAL_ARROW);
         ItemMeta rbMeta = returnButton.getItemMeta();
 
-        rbMeta.setDisplayName("&c&lRETURN");
+        rbMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&c&lRETURN"));
         returnButton.setItemMeta(rbMeta);
 
         treasureManagerInv.setItem(returnButtonSlot, returnButton);
+
+        player.openInventory(treasureManagerInv);
     }
 
     @EventHandler
@@ -124,22 +126,22 @@ public class ManageTreasuresGUI implements Listener{
         Sound clickButtonSound = Registry.SOUNDS.get(clickSoundKey);
 
         //If the player clicks on the return button
-        ItemStack returnButton = new ItemStack(Material.SPECTRAL_ARROW);
-        if(clickedItem.equals(returnButton)){
+        Material returnButton = Material.SPECTRAL_ARROW;
+        if(clickedItem.getType() == returnButton){
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
             player.closeInventory();
             plugin.getManageGUI().showMainManageGui(player);
         }
 
         //If the player clicks on the createTreasure button
-        ItemStack createButton = new ItemStack(Material.SLIME_BALL);
-        if (clickedItem.equals(createButton)){
+        Material createButton = Material.SLIME_BALL;
+        if (clickedItem.getType() == createButton){
 
         }
 
         //If the player clicks on the deleteTreasure button
-        ItemStack deleteButton = new ItemStack(Material.BARRIER);
-        if(clickedItem.equals(deleteButton)){
+        Material deleteButton = Material.BARRIER;
+        if(clickedItem.getType() == deleteButton){
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
             player.closeInventory();
             plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
@@ -147,8 +149,8 @@ public class ManageTreasuresGUI implements Listener{
         }
 
         //If the player click on the setLocationTreasure button
-        ItemStack setLocationButton = new ItemStack(Material.COMPASS);
-        if(clickedItem.equals(setLocationButton)){
+        Material setLocationButton = Material.COMPASS;
+        if(clickedItem.getType() == setLocationButton){
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
             player.closeInventory();
             plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
@@ -156,8 +158,8 @@ public class ManageTreasuresGUI implements Listener{
         }
 
         //If the player clicks on the setWorld button
-        ItemStack setWorldButton = new ItemStack(Material.MAP);
-        if(clickedItem.equals(setWorldButton)){
+        Material setWorldButton = Material.MAP;
+        if(clickedItem.getType() == setWorldButton){
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
             player.closeInventory();
             plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);

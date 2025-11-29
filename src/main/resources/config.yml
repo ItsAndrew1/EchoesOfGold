@@ -23,7 +23,7 @@ hints-gui:
   #Configure the exit-button
   gui-exit-button:
     toggle: true #true(yes) / false(no)
-    slot:
+    slot: 40
     material: red_concrete #The item that the button will have
     title: "&c&lEXIT"
 
@@ -32,7 +32,7 @@ hints-gui:
     toggle: true #true(yes) / false(no)
     chat-message: "&cThere are no hints configured for this event!"
     material: oak_sign
-    slot:
+    slot: 13
     title: "&cThere are no hints configured"
     lore: #You can use '&' styles!
       - ""
