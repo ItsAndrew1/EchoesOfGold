@@ -4,6 +4,7 @@
 #============[STRUCTURE]============
 #treasures:
 #  treasure1:
+#     title:
 #     rewards:
 #       diamond_sword:
 #         material: diamond_sword

@@ -158,25 +158,24 @@ public class ManageTreasuresGUI implements Listener{
         Material deleteButton = Material.BARRIER;
         if(clickedItem.getType() == deleteButton){
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
-            player.closeInventory();
-            plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
             plugin.setTreasureManagerChoice("delete");
+            plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
         }
 
         //If the player click on the setLocationTreasure button
         Material setLocationButton = Material.COMPASS;
         if(clickedItem.getType() == setLocationButton){
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
-            plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
             plugin.setTreasureManagerChoice("setlocation");
+            plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
         }
 
         //If the player clicks on the setWorld button
         Material setWorldButton = Material.MAP;
         if(clickedItem.getType() == setWorldButton){
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
-            plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
             plugin.setTreasureManagerChoice("setworld");
+            plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
         }
     }
 
@@ -207,6 +206,7 @@ public class ManageTreasuresGUI implements Listener{
 
             String path = "treasures." + treasureName;
             treasures.set(path + ".rewards", "");
+            treasures.set(path + ".title", treasureName);
             treasures.set(path + ".facing", "");
             treasures.set(path + ".world", "");
             treasures.set(path + ".x", "");
