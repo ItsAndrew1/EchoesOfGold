@@ -1,20 +1,17 @@
 //Developed by _ItsAndrew_
 package me.andrew.halloweenEvent.GUIs;
 
-import io.papermc.paper.event.player.PlayerOpenSignEvent;
 import me.andrew.halloweenEvent.TreasureHunt;
 import org.bukkit.*;
-import org.bukkit.block.Sign;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.util.Consumer;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
@@ -182,7 +179,7 @@ public class ManageTreasuresGUI implements Listener{
     //Saved the data of a treasure to treasures.yml
     public void createTreasure(Player player) {
         FileConfiguration treasures = plugin.getTreasures().getConfig();
-        String chatPrefix = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("chat-prefix"));
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter a name for your treasure:"));
 
         //Waits for the player input
         plugin.waitForPlayerInput(player, input -> {
@@ -192,7 +189,7 @@ public class ManageTreasuresGUI implements Listener{
             if (treasureName.isEmpty()) {
                 Sound invalidSound = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.villager.no"));
                 player.playSound(player.getLocation(), invalidSound, 1f, 0.9f);
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe name cannot be empty!"));
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThe name cannot be empty!"));
                 return;
             }
 
@@ -200,7 +197,7 @@ public class ManageTreasuresGUI implements Listener{
             if (treasures.isConfigurationSection("treasures") && treasures.getConfigurationSection("treasures").getKeys(false).contains(treasureName)) {
                 Sound duplicateSound = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.villager.no"));
                 player.playSound(player.getLocation(), duplicateSound, 1f, 0.9f);
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cA treasure with name &l"+treasureName+" &calready exists!"));
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cA treasure with name &l"+treasureName+" &calready exists!"));
                 return;
             }
 
@@ -217,6 +214,14 @@ public class ManageTreasuresGUI implements Listener{
             Sound successSound = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.experience_orb.pickup"));
             player.playSound(player.getLocation(), successSound, 1f, 1f);
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSaved treasure &l"+treasureName+"&a!"));
+
+            //Re-opens the manageTreasuresGUI after 0.5 secs
+            new BukkitRunnable(){
+                @Override
+                public void run(){
+                    plugin.getManageTreasuresGUI().showTreasureManagersGUI(player);
+                }
+            }.runTaskLater(plugin, 10L);
         });
     }
 }

@@ -177,7 +177,6 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
 
     public void waitForPlayerInput(Player player, Consumer<String> callback){
         chatInput.put(player.getUniqueId(), callback);
-        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lEnter a name for your treasure:"));
     }
 
     @EventHandler

@@ -1,3 +1,4 @@
+//Developed by _ItsAndrew_
 package me.andrew.halloweenEvent.GUIs;
 
 import me.andrew.halloweenEvent.TreasureHunt;
@@ -10,15 +11,20 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AllTreasuresGUI implements Listener{
     private final TreasureHunt plugin;
+    private final NamespacedKey container;
 
     public AllTreasuresGUI(TreasureHunt plugin){
         this.plugin = plugin;
+        this.container = new NamespacedKey(plugin, "treasure-id");
     }
 
     public void showAllTreasuresGUI(Player player){
@@ -99,6 +105,9 @@ public class AllTreasuresGUI implements Listener{
             coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&7 - World: &l"+treasureWorld));
             tiMeta.setLore(coloredLore);
 
+            //Adding the treasure to the data container
+            tiMeta.getPersistentDataContainer().set(this.container, PersistentDataType.STRING, treasure);
+
             treasureItem.setItemMeta(tiMeta);
             allTreasuresGUI.setItem(slot, treasureItem);
             slot++;
@@ -120,7 +129,161 @@ public class AllTreasuresGUI implements Listener{
 
         NamespacedKey clickSoundKey = NamespacedKey.minecraft("ui.button.click");
         Sound clickSound = Registry.SOUNDS.get(clickSoundKey);
+        String manageTreasureChoice = plugin.getTreasureManagerChoice();
 
+        //If the player clicks on the return button
+        Material returnButton = Material.SPECTRAL_ARROW;
+        if(clickedItem.getType().equals(returnButton)){
+            player.playSound(player.getLocation(), clickSound, 1f, 1f);
+            plugin.getManageTreasuresGUI().showTreasureManagersGUI(player);
+        }
 
+        //If the player clicks on the infoSign item
+        Material infoSign = Material.OAK_SIGN;
+        if(clickedItem.getType().equals(infoSign)) return;
+
+        //If the player clicks on noTreasures item
+        Material noTreasures = Material.BARRIER;
+        if(clickedItem.getType().equals(noTreasures)) return;
+
+        String treasureID = clickedItemMeta.getPersistentDataContainer().get(this.container, PersistentDataType.STRING);
+        if(treasureID == null) return;
+
+        FileConfiguration treasures = plugin.getTreasures().getConfig();
+        String chatPrefix = plugin.getConfig().getString("chat-prefix");
+        String treasurePath = "treasures."+treasureID;
+
+        Sound invalidCoord = Registry.SOUNDS.get(NamespacedKey.minecraft("block.note_block.bass"));
+        Sound goodValue = Registry.SOUNDS.get(NamespacedKey.minecraft("block.note_block.pling"));
+        switch(manageTreasureChoice){
+            case "delete":
+                treasures.set(treasurePath, null);
+                plugin.getTreasures().saveConfig();
+
+                Sound deleteSound = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.player.levelup"));
+                player.playSound(player.getLocation(), deleteSound, 1f, 1.4f);
+                player.closeInventory();
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aTreasure &l"+treasureID+" &adeleted successfully."));
+
+                //Re-opens the manageTreasuresGUI after 0.5 secs
+                new BukkitRunnable(){
+                    @Override
+                    public void run(){
+                        plugin.getManageTreasuresGUI().showTreasureManagersGUI(player);
+                    }
+                }.runTaskLater(plugin, 10L);
+                break;
+
+            case "setlocation":
+                player.closeInventory();
+
+                //Setting the coordinates
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter the X coord of the location:"));
+                plugin.waitForPlayerInput(player, input1 -> {
+                    //Coordinate X
+                    int coordX;
+                    try{
+                        coordX = Integer.parseInt(input1);
+                    } catch (Exception e){
+                        player.playSound(player.getLocation(), invalidCoord, 1.3f, 1f);
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe coordinate must be a number."));
+
+                        //Re-opens the manageTreasuresGUI after 0.5 secs
+                        new BukkitRunnable(){
+                            @Override
+                            public void run(){
+                                plugin.getManageTreasuresGUI().showTreasureManagersGUI(player);
+                            }
+                        }.runTaskLater(plugin, 10L);
+                        return;
+                    }
+
+                    treasures.set(treasurePath+".x", coordX);
+                    player.playSound(player.getLocation(), goodValue, 1f, 1f);
+                    plugin.getTreasures().saveConfig();
+
+                    //Coordinate Y
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter the Y coord of the location:"));
+                    plugin.waitForPlayerInput(player, input2 -> {
+                        int coordY;
+                        try{
+                            coordY = Integer.parseInt(input2);
+                        } catch (Exception e){
+                            player.playSound(player.getLocation(), invalidCoord, 1.3f, 1f);
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe coordinate must be a number."));
+
+                            //Re-opens the manageTreasuresGUI after 0.5 secs
+                            new BukkitRunnable(){
+                                @Override
+                                public void run(){
+                                    plugin.getManageTreasuresGUI().showTreasureManagersGUI(player);
+                                }
+                            }.runTaskLater(plugin, 10L);
+                            return;
+                        }
+
+                        treasures.set(treasurePath+".y", coordY);
+                        plugin.getTreasures().saveConfig();
+                        player.playSound(player.getLocation(), goodValue, 1f, 1f);
+
+                        //Coordinate Z
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter the Z coord of the location: "));
+                        plugin.waitForPlayerInput(player, input3 -> {
+                            int coordZ;
+                            try{
+                                coordZ = Integer.parseInt(input3);
+                            } catch (Exception e){
+                                player.playSound(player.getLocation(), invalidCoord, 1.3f, 1f);
+                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe coordinate must be a number."));
+
+                                //Re-opens the manageTreasuresGUI after 0.5 secs
+                                new BukkitRunnable(){
+                                    @Override
+                                    public void run(){
+                                        plugin.getManageTreasuresGUI().showTreasureManagersGUI(player);
+                                    }
+                                }.runTaskLater(plugin, 10L);
+                                return;
+                            }
+
+                            treasures.set(treasurePath+".z", coordZ);
+                            plugin.getTreasures().saveConfig();
+                            player.playSound(player.getLocation(), goodValue, 1f, 1f);
+
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aLocation &l"+input1+" "+input2+" "+input3+" &asaved for treasure &l"+treasureID+"&a!"));
+
+                            //Re-opens the manageTreasuresGUI after 0.5 secs
+                            new BukkitRunnable(){
+                                @Override
+                                public void run(){
+                                    plugin.getManageTreasuresGUI().showTreasureManagersGUI(player);
+                                }
+                            }.runTaskLater(plugin, 10L);
+                        });
+                    });
+                });
+                break;
+
+            case "setworld":
+                player.closeInventory();
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter the world for treasure "+treasureID+":"));
+
+                //Setting the world for the treasure
+                plugin.waitForPlayerInput(player, input -> {
+                    treasures.set(treasurePath+".world", input);
+                    plugin.getTreasures().saveConfig();
+                    player.playSound(player.getLocation(), goodValue, 1f, 1f);
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aWorld saved for treasure &l"+treasureID+"&a!"));
+
+                    //Re-opens the manageTreasuresGUI after 0.5 secs
+                    new BukkitRunnable(){
+                        @Override
+                        public void run(){
+                            plugin.getManageTreasuresGUI().showTreasureManagersGUI(player);
+                        }
+                    }.runTaskLater(plugin, 10L);
+                });
+                break;
+        }
     }
 }
