@@ -102,7 +102,7 @@ public class ManageTreasuresGUI implements Listener{
         int setWorldSlot = 25;
 
         swbMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&b&lSET TREASURE WORLD"));
-        swbMeta.setLore(List.of("", ChatColor.translateAlternateColorCodes('&', "&7Set the world for a treasure!")));
+        swbMeta.setLore(List.of("", ChatColor.translateAlternateColorCodes('&', "&7Set the &lworld &7for a treasure!")));
         setWorldButton.setItemMeta(swbMeta);
 
         treasureManagerInv.setItem(setWorldSlot, setWorldButton);
@@ -122,9 +122,10 @@ public class ManageTreasuresGUI implements Listener{
 
     @EventHandler
     public void onTreasureManagerClick(InventoryClickEvent event){
-        event.setCancelled(true);
-
         if(!(event.getWhoClicked() instanceof Player player)) return;
+        if(!event.getView().getTitle().equals("Manage treasures")) return;
+
+        event.setCancelled(true);
 
         ItemStack clickedItem = event.getCurrentItem();
         if(clickedItem == null || clickedItem.getType().equals(Material.AIR) || clickedItem.getType().equals(Material.BLACK_STAINED_GLASS_PANE)) return;
@@ -140,7 +141,6 @@ public class ManageTreasuresGUI implements Listener{
         Material returnButton = Material.SPECTRAL_ARROW;
         if(clickedItem.getType() == returnButton){
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
-            player.closeInventory();
             plugin.getManageGUI().showMainManageGui(player);
         }
 
@@ -176,7 +176,7 @@ public class ManageTreasuresGUI implements Listener{
         }
     }
 
-    //Saved the data of a treasure to treasures.yml
+    //Saves the data of a treasure to treasures.yml
     public void createTreasure(Player player) {
         FileConfiguration treasures = plugin.getTreasures().getConfig();
         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter a name for your treasure:"));

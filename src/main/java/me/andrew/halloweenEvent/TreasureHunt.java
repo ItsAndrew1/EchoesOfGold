@@ -1,13 +1,9 @@
 //Developed by _ItsAndrew_
 package me.andrew.halloweenEvent;
 
-import me.andrew.halloweenEvent.GUIs.AllTreasuresGUI;
-import me.andrew.halloweenEvent.GUIs.HintsGUI;
-import me.andrew.halloweenEvent.GUIs.MainManageGUI;
+import me.andrew.halloweenEvent.GUIs.*;
 
-import me.andrew.halloweenEvent.GUIs.ManageTreasuresGUI;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -36,6 +32,7 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
     private  MainManageGUI manageGUI;
     private ManageTreasuresGUI manageTreasuresGUI;
     private AllTreasuresGUI allTreasuresGUI;
+    private RewardsGUI rewardsGUI;
     private String treasureManagerChoice;
 
     @Override
@@ -56,6 +53,7 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
         manageTreasuresGUI = new ManageTreasuresGUI(this);
         manageGUI = new MainManageGUI(this);
         allTreasuresGUI = new AllTreasuresGUI(this);
+        rewardsGUI = new RewardsGUI(this);
 
         //Setting the commands and their tabs
         getCommand("treasurehunt").setExecutor(new CommandManager(this, hintsGUIAccess));
@@ -64,11 +62,12 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
 
         //Setting the events
         getServer().getPluginManager().registerEvents(new TreasureClickEvent(this), this);
-        getServer().getPluginManager().registerEvents(new MainManageGUI(this), this);
-        getServer().getPluginManager().registerEvents(new ManageTreasuresGUI(this), this);
-        getServer().getPluginManager().registerEvents(new AllTreasuresGUI(this), this);
+        getServer().getPluginManager().registerEvents(manageGUI, this);
+        getServer().getPluginManager().registerEvents(manageTreasuresGUI, this);
+        getServer().getPluginManager().registerEvents(allTreasuresGUI, this);
         getServer().getPluginManager().registerEvents(new HintsGUI(this), this);
         getServer().getPluginManager().registerEvents(this, this);
+        getServer().getPluginManager().registerEvents(rewardsGUI, this);
 
         //Regaining data after a reload
         if(getConfig().contains("duration")){
@@ -224,6 +223,9 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
     }
     public AllTreasuresGUI getAllTreasuresGUI(){
         return allTreasuresGUI;
+    }
+    public RewardsGUI getRewardsGUI(){
+        return rewardsGUI;
     }
 
     //Setter and getter for treasureManagerChoice

@@ -98,8 +98,9 @@ public class MainManageGUI implements Listener {
 
     @EventHandler
     public void onMainManageGuiClick(InventoryClickEvent event){
-        event.setCancelled(true);
         if(!(event.getWhoClicked() instanceof Player player)) return;
+        if(!event.getView().getTitle().equalsIgnoreCase("Manage")) return;
+        event.setCancelled(true);
 
         //If the  player clicks on nothing or black stained glass pane
         ItemStack clickedItem = event.getCurrentItem();
@@ -135,6 +136,7 @@ public class MainManageGUI implements Listener {
         if(clickedItem.getType() == manageRewardsButton){
             player.playSound(player.getLocation(), clickItemSound, 1f, 1f);
             plugin.setTreasureManagerChoice("rewards");
+            plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
         }
     }
 }

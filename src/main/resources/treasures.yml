@@ -8,8 +8,10 @@
 #     rewards:
 #       diamond_sword:
 #         material: diamond_sword
+#         quantity:
 #         enchantments:
-#           - ...
+#           sharpness: 5
+#           ...
 #       ...
 #     facing: <EAST/SOUTH/NORTH/WEST/NORTH-WEST...>
 #     world: <world/world_nether/world_the_end> !!You need to look in your server's folder for the world's name
