@@ -4,7 +4,6 @@ package me.andrew.halloweenEvent.GUIs;
 import me.andrew.halloweenEvent.TreasureHunt;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,16 +18,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RewardsGUI implements Listener {
+public class AddRewardsGUI implements Listener {
     private final TreasureHunt plugin;
     private String treasure;
     private Inventory rewards;
 
-    public RewardsGUI(TreasureHunt plugin){
+    public AddRewardsGUI(TreasureHunt plugin){
         this.plugin = plugin;
     }
 
-    public void showRewardsGUI(Player player, String treasureID){
+    public void showAddRewardsGUI(Player player, String treasureID){
         int rewardsGUIsize = 9;
         this.treasure = treasureID;
         rewards = Bukkit.createInventory(null, rewardsGUIsize, "Enter rewards");
@@ -113,7 +112,7 @@ public class RewardsGUI implements Listener {
             if(rewardsItems.isEmpty()){
                 player.closeInventory();
                 player.playSound(player.getLocation(), buttonSound, 1f, 1f);
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix+" &aSaved no rewards in treasure &l"+treasure+"&a!"));
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix+" &aSaved &cno rewards&a in treasure &l"+treasure+"&a!"));
 
                 //Opens the main GUI after 0.5 secs
                 new BukkitRunnable(){

@@ -28,11 +28,14 @@ public class CommandTabs implements TabCompleter {
             }
             else if(args.length == 3 && args[1].equalsIgnoreCase("manage")){
                 FileConfiguration books = plugin.getBooks().getConfig();
-                List<String> hints = new ArrayList<>();
-                hints.addAll(books.getConfigurationSection("books").getKeys(false));
-                if(hints.isEmpty()){
+
+                //Check if there are any hints configured
+                if(books.getConfigurationSection("books") == null || books.getConfigurationSection("books").getKeys(false).isEmpty()){
                     return Collections.emptyList();
                 }
+
+                List<String> hints = new ArrayList<>();
+                hints.addAll(books.getConfigurationSection("books").getKeys(false));
                 return hints;
             }
             else if(args.length == 4 && args[1].equalsIgnoreCase("manage")){

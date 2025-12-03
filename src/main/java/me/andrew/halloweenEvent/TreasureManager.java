@@ -28,8 +28,10 @@ public class TreasureManager{
         String valueOfCustomHead = plugin.getConfig().getString("custom-head");
         FileConfiguration treasures = plugin.getTreasures().getConfig();
 
-        if(!treasures.isConfigurationSection("treasures")){
+        //Checks if there are any treasures configured
+        if(treasures.getConfigurationSection("treasures") == null || treasures.getConfigurationSection("treasures").getKeys(false).isEmpty()){
             Bukkit.getLogger().warning("No treasures found in treasures.yml");
+
             return;
         }
 

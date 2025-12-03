@@ -3,6 +3,7 @@ package me.andrew.halloweenEvent.GUIs;
 
 import me.andrew.halloweenEvent.TreasureHunt;
 import org.bukkit.*;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,6 +17,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class AllTreasuresGUI implements Listener{
     private final TreasureHunt plugin;
@@ -65,10 +67,9 @@ public class AllTreasuresGUI implements Listener{
         returnItem.setItemMeta(riMeta);
         allTreasuresGUI.setItem(40, returnItem);
 
-
         //Displaying the treasures
         //Check if there are treasures configured
-        if(!treasures.isConfigurationSection("treasures")){
+        if(treasures.getConfigurationSection("treasures") == null || treasures.getConfigurationSection("treasures").getKeys(false).isEmpty()){
             //NoTreasures item
             ItemStack noTreasuresItem = new ItemStack(Material.BARRIER);
             ItemMeta ntiMeta = noTreasuresItem.getItemMeta();
@@ -82,7 +83,7 @@ public class AllTreasuresGUI implements Listener{
         }
 
         //If the staff clicked on manage rewards
-        if(plugin.getTreasureManagerChoice().equalsIgnoreCase("rewards")){
+        if(plugin.getTreasureManagerChoice().equalsIgnoreCase("add rewards") || plugin.getTreasureManagerChoice().equalsIgnoreCase("remove rewards")){
             int slot = 10;
             for(String treasure : treasures.getConfigurationSection("treasures").getKeys(false)){
                 if(slot == 17 || slot == 26) slot+=2; //This is for decoration purpose
@@ -151,7 +152,8 @@ public class AllTreasuresGUI implements Listener{
         List<String> coloredLore = new ArrayList<>();
 
         //Check if there are any rewards for the treasure
-        if(!treasures.isConfigurationSection("treasures."+treasureID+".rewards")){
+        ConfigurationSection rewardsSection = treasures.getConfigurationSection("treasures."+treasureID+".rewards");
+        if(rewardsSection == null || rewardsSection.getKeys(false).isEmpty()){
             coloredLore.add("");
             coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&cThere are no rewards for this treasure!"));
             return coloredLore;
@@ -206,6 +208,7 @@ public class AllTreasuresGUI implements Listener{
         Material noTreasures = Material.BARRIER;
         if(clickedItem.getType().equals(noTreasures)) return;
 
+        //Gets the treasure that it is clicked
         treasureID = clickedItemMeta.getPersistentDataContainer().get(this.container, PersistentDataType.STRING);
         if(treasureID == null) return;
 
@@ -345,9 +348,68 @@ public class AllTreasuresGUI implements Listener{
                 });
                 break;
 
-            case "rewards":
+            case "add rewards":
                 player.playSound(player.getLocation(), clickSound, 1f, 1f);
-                plugin.getRewardsGUI().showRewardsGUI(player, treasureID);
+                plugin.getRewardsGUI().showAddRewardsGUI(player, treasureID);
+                break;
+
+            case "remove rewards":
+                player.closeInventory();
+                Sound removeRewardsSound = Registry.SOUNDS.get(NamespacedKey.minecraft("block.note_block.pling"));
+
+                //Check if the treasure has items in it
+                if(!treasures.isConfigurationSection("treasures."+treasureID+".rewards")){
+                    Sound noItemsFound = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.villager.no"));
+                    player.playSound(player.getLocation(), noItemsFound, 1f, 0.8f);
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThere are no rewards in treasure &l"+treasureID+"&c!"));
+
+                    //Shows the mainManageGUI to the player after 0.5 secs
+                    new BukkitRunnable(){
+                        @Override
+                        public void run(){
+                            plugin.getManageGUI().showMainManageGui(player);
+                        }
+                    }.runTaskLater(plugin, 10L);
+                    return;
+                }
+
+                player.playSound(player.getLocation(), removeRewardsSound, 1f, 1f);
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter an item to &lremove &afrom treasure &l"+treasureID+"&a:"));
+                plugin.waitForPlayerInput(player, input -> {
+                    String itemToDelete = input;
+
+                    //Check if the item exists in the designated treasure
+                    if(!Objects.requireNonNull(treasures.getConfigurationSection("treasures."+treasureID+".rewards")).contains(itemToDelete)){
+                        Sound itemNotFound = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.enderman.teleport"));
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cItem &l"+itemToDelete+" &cnot found in treasure &l"+treasureID+"&c!"));
+                        player.playSound(player.getLocation(), itemNotFound, 1f, 1f);
+
+                        //Shows the mainManageGUI to the player after 0.5 secs
+                        new BukkitRunnable(){
+                            @Override
+                            public void run(){
+                                plugin.getManageGUI().showMainManageGui(player);
+                            }
+                        }.runTaskLater(plugin, 10L);
+                        return;
+                    }
+
+                    //Sets the reward section to null
+                    treasures.set("treasures."+treasureID+".rewards."+itemToDelete, null);
+                    plugin.getTreasures().saveConfig();
+
+                    Sound itemDeleted = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.villager.celebrate"));
+                    player.playSound(player.getLocation(), itemDeleted, 1f, 1.2f);
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aItem &l"+itemToDelete+" &aremoved from treasure &l"+treasureID+"&a!"));
+
+                    //Shows the mainManageGUI to the player after 0.5 secs
+                    new BukkitRunnable(){
+                        @Override
+                        public void run(){
+                            plugin.getManageGUI().showMainManageGui(player);
+                        }
+                    }.runTaskLater(plugin, 10L);
+                });
                 break;
         }
     }

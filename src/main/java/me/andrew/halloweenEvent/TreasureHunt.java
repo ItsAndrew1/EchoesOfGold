@@ -29,10 +29,11 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
     EventBossBar bar;
 
     //Defining the GUIs
-    private  MainManageGUI manageGUI;
+    private MainManageGUI manageGUI;
+    private RewardsChoiceGUI rewardsChoiceGUI;
     private ManageTreasuresGUI manageTreasuresGUI;
     private AllTreasuresGUI allTreasuresGUI;
-    private RewardsGUI rewardsGUI;
+    private AddRewardsGUI addRewardsGUI;
     private String treasureManagerChoice;
 
     @Override
@@ -51,9 +52,10 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
 
         //Setting the GUIs
         manageTreasuresGUI = new ManageTreasuresGUI(this);
+        rewardsChoiceGUI = new RewardsChoiceGUI(this);
         manageGUI = new MainManageGUI(this);
         allTreasuresGUI = new AllTreasuresGUI(this);
-        rewardsGUI = new RewardsGUI(this);
+        addRewardsGUI = new AddRewardsGUI(this);
 
         //Setting the commands and their tabs
         getCommand("treasurehunt").setExecutor(new CommandManager(this, hintsGUIAccess));
@@ -64,10 +66,11 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
         getServer().getPluginManager().registerEvents(new TreasureClickEvent(this), this);
         getServer().getPluginManager().registerEvents(manageGUI, this);
         getServer().getPluginManager().registerEvents(manageTreasuresGUI, this);
+        getServer().getPluginManager().registerEvents(rewardsChoiceGUI, this);
         getServer().getPluginManager().registerEvents(allTreasuresGUI, this);
         getServer().getPluginManager().registerEvents(new HintsGUI(this), this);
         getServer().getPluginManager().registerEvents(this, this);
-        getServer().getPluginManager().registerEvents(rewardsGUI, this);
+        getServer().getPluginManager().registerEvents(addRewardsGUI, this);
 
         //Regaining data after a reload
         if(getConfig().contains("duration")){
@@ -224,8 +227,11 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
     public AllTreasuresGUI getAllTreasuresGUI(){
         return allTreasuresGUI;
     }
-    public RewardsGUI getRewardsGUI(){
-        return rewardsGUI;
+    public AddRewardsGUI getRewardsGUI(){
+        return addRewardsGUI;
+    }
+    public RewardsChoiceGUI getRewardsChoiceGUI(){
+        return rewardsChoiceGUI;
     }
 
     //Setter and getter for treasureManagerChoice

@@ -219,7 +219,7 @@ public class ManageTreasuresGUI implements Listener{
             new BukkitRunnable(){
                 @Override
                 public void run(){
-                    plugin.getManageTreasuresGUI().showTreasureManagersGUI(player);
+                    plugin.getManageGUI().showMainManageGui(player);
                 }
             }.runTaskLater(plugin, 10L);
         });

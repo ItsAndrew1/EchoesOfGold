@@ -169,6 +169,12 @@ public class CommandManager implements CommandExecutor{
 
                     switch(strings[1].toLowerCase()){
                         case "manage":
+                            //Checking if there are any hints configured
+                            if(books.getConfigurationSection("books") == null || books.getConfigurationSection("books").getKeys(false).isEmpty()){
+                                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThere are no hints configured!"));
+                                return true;
+                            }
+
                             if(strings.length < 3){
                                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt hints manage <hint> ..."));
                                 return true;

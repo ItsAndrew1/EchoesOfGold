@@ -135,8 +135,7 @@ public class MainManageGUI implements Listener {
         Material manageRewardsButton = Material.GOLD_INGOT;
         if(clickedItem.getType() == manageRewardsButton){
             player.playSound(player.getLocation(), clickItemSound, 1f, 1f);
-            plugin.setTreasureManagerChoice("rewards");
-            plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
+            plugin.getRewardsChoiceGUI().showRewardsChoiceGUI(player);
         }
     }
 }

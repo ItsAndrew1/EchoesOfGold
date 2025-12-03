@@ -1,7 +1,5 @@
 #Developed by: _ItsAndrew_
 #This .yml file is for configuring the Books GUI.
 
-#Here you can configure all of your created books.
-#The start-book is the book when you run /treasurehunt enable.
 books:
 
