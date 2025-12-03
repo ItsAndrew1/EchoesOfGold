@@ -2,6 +2,7 @@
 #This file is for configuring the main parts of the plugin
 
 chat-prefix: "&f&l[&6&lTH&f&l]" #This is the prefix that shows up in the chat
+toggle-fireworks-effect: true #Toggle the fireworks effect when a player clicks on a treasure
 
 #Configure the start-book. It is the book that appears right after you enable the event.
 start-book:
@@ -57,22 +58,26 @@ tfs-pitch: 1
 
 treasure-has-no-items-sound: "entity.villager.no"
 thni-volume: 1
-thni-pitch: 0.8
+thni-pitch: 1
 
 no-inventory-space-sound: "entity.enderman.teleport"
 niss-volume: 1
 niss-pitch: 1
 
+treasure-click-sound: "entity.experience_orb.pickup"
+tcs-volume: 1
+tcs-pitch: 1.2
+
 #Configure the /treasurehunt enable command
-teleport-location-x:
-teleport-location-y:
-teleport-location-z:
+teleport-location-x: 39
+teleport-location-y: 76
+teleport-location-z: -119
 title: "" #Use "&" for style
 subtitle: "" #Use "&" for style
 
 #Configure the treasures custom head
 #For this you need to go to "https://minecraft-heads.com/", search for a desired custom head, then copy and paste the VALUE
-custom-head: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjExOTY3M2RiNjFlY2JkNDJiYjE0ZmJjYjU2MjMwZmM1ZDhkZjA4OWEwODE3ZWI5MDg4OWQ1MzhiOGExNzM4YiJ9fX0="
+custom-head: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGJmNzJiNmZjZGM4Zjk1ZGYyOGYwNmY0MTUyZWE4YzliZTM4ZGEyODViMmNlZTA0ZTViZWQyMTUzYjM4OWQ5YiJ9fX0="
 
 #Configure the particles that will spawn around the custom head. The structure is "Particle.<name in CAPS>", so only change the <>
 #https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Particle.html <- go here for all available particles (CAPS matter)

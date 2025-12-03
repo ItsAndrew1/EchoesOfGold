@@ -57,7 +57,10 @@ public class TreasureManager{
                 public void run() {
                     if (!(block.getState() instanceof Skull skull)) return;
 
-                    skull.setRotation(BlockFace.valueOf(treasures.getString(path + ".facing")));
+                    //Set the treasure rotation if the 'facing' of the treasure isn't null
+                    if(treasures.getString(path+".facing") != null){
+                        skull.setRotation(BlockFace.valueOf(treasures.getString(path + ".facing").toUpperCase()));
+                    }
 
                     PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
                     profile.setProperty(new ProfileProperty("textures", valueOfCustomHead));

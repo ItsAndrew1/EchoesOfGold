@@ -6,6 +6,8 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,6 +15,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -32,6 +35,10 @@ public class TreasureClickEvent implements Listener {
         if(event.getClickedBlock() == null) return;
         if(event.getClickedBlock().getType() != Material.PLAYER_HEAD) return;
 
+        //Check if there are any treasures
+        ConfigurationSection treasuresSection = treasures.getConfigurationSection("treasures");
+        if(treasuresSection == null || treasuresSection.getKeys(false).isEmpty()) return;
+
         Player player = event.getPlayer();
         Block block = event.getClickedBlock();
         Location loc = block.getLocation();
@@ -44,13 +51,21 @@ public class TreasureClickEvent implements Listener {
             String worldName = treasures.getString(path + ".world");
 
             if(loc.getWorld().getName().equalsIgnoreCase(worldName) && loc.getBlockX() == x && loc.getBlockY() == y && loc.getBlockZ() == z){
+                //Sound and firework
+                Sound treasureClick = Registry.SOUNDS.get(NamespacedKey.minecraft(plugin.getConfig().getString("treasure-click-sound").toLowerCase()));
+                float tcsVolume = plugin.getConfig().getInt("tcs-volume");
+                float tcsPitch = plugin.getConfig().getInt("tcs-pitch");
+
+                player.playSound(player.getLocation(), treasureClick, tcsVolume, tcsPitch);
+                spawnFirework(player);
+
+                //Handling the rewards and other data
                 handleTreasureFound(player, key);
                 if(plugin.getPlayerData().getConfig().getBoolean("players." + player.getName() + ".found." + true)) continue;
                 plugin.getPlayerData().saveConfig();
                 plugin.getPlayerData().reloadConfig();
                 plugin.getScoreboardManager().refreshAll();
                 event.setCancelled(true);
-                return;
             }
         }
     }
@@ -88,6 +103,15 @@ public class TreasureClickEvent implements Listener {
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("treasure-has-no-rewards")));
             return;
         }
+
+        //Sound and firework
+        Sound treasureClick = Registry.SOUNDS.get(NamespacedKey.minecraft(plugin.getConfig().getString("treasure-click-sound").toLowerCase()));
+        float tcsVolume = plugin.getConfig().getInt("tcs-volume");
+        float tcsPitch = plugin.getConfig().getInt("tcs-pitch");
+
+        player.playSound(player.getLocation(), treasureClick, tcsVolume, tcsPitch);
+        spawnFirework(player);
+
         for(String item : treasures.getConfigurationSection(mainRewardsPath).getKeys(false)){
             int itemQuantity = treasures.getInt(mainRewardsPath+"."+item+".quantity");
             Material itemMaterial = Material.matchMaterial(item.toUpperCase());
@@ -134,6 +158,27 @@ public class TreasureClickEvent implements Listener {
         }
 
         player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("treasure-found")));
+    }
+
+    public void spawnFirework(Player player){
+        boolean toggleFireworks = plugin.getConfig().getBoolean("toggle-fireworks-effect");
+        if(!toggleFireworks) return;
+
+        Firework firework =  (Firework) player.getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK_ROCKET);
+        FireworkMeta fwMeta = firework.getFireworkMeta();
+
+        //Adding the colors and effects
+        fwMeta.addEffect(FireworkEffect.builder()
+                        .withColor(Color.AQUA, Color.PURPLE)
+                        .with(FireworkEffect.Type.BALL)
+                        .flicker(true)
+                        .trail(true)
+                        .build());
+        fwMeta.setPower(1);
+        firework.setFireworkMeta(fwMeta);
+
+        //Detonating the firework
+        Bukkit.getScheduler().runTaskLater(plugin, firework::detonate, 1L);
     }
 
     @EventHandler

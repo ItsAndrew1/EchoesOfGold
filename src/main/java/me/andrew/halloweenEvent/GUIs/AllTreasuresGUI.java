@@ -129,11 +129,13 @@ public class AllTreasuresGUI implements Listener{
             int treasureY = treasures.getInt(mainPath+".y");
             int treasureZ = treasures.getInt(mainPath+".z");
             String treasureWorld = treasures.getString(mainPath+".world");
+            String treasureFacing = treasures.getString(mainPath+".facing");
 
             List<String> coloredLore = new ArrayList<>();
             coloredLore.add(" ");
             coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&7 - Location: &l"+treasureX+" "+treasureY+" "+treasureZ));
             coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&7 - World: &l"+treasureWorld));
+            coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&7 - Facing: &l"+treasureFacing));
             tiMeta.setLore(coloredLore);
 
             //Adding the treasure to the data container
@@ -217,14 +219,13 @@ public class AllTreasuresGUI implements Listener{
         String treasurePath = "treasures."+treasureID;
 
         Sound invalidCoord = Registry.SOUNDS.get(NamespacedKey.minecraft("block.note_block.bass"));
-        Sound goodValue = Registry.SOUNDS.get(NamespacedKey.minecraft("block.note_block.pling"));
+        Sound goodValue = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.player.levelup"));
         switch(manageTreasureChoice){
             case "delete":
                 treasures.set(treasurePath, null);
                 plugin.getTreasures().saveConfig();
 
-                Sound deleteSound = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.player.levelup"));
-                player.playSound(player.getLocation(), deleteSound, 1f, 1.4f);
+                player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
                 player.closeInventory();
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aTreasure &l"+treasureID+" &adeleted successfully."));
 
@@ -237,7 +238,7 @@ public class AllTreasuresGUI implements Listener{
                 }.runTaskLater(plugin, 10L);
                 break;
 
-            case "setlocation":
+            case "set location":
                 player.closeInventory();
 
                 //Setting the coordinates
@@ -248,7 +249,7 @@ public class AllTreasuresGUI implements Listener{
                     try{
                         coordX = Integer.parseInt(input1);
                     } catch (Exception e){
-                        player.playSound(player.getLocation(), invalidCoord, 1.3f, 1f);
+                        player.playSound(player.getLocation(), invalidCoord, 1.2f, 1f);
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe coordinate must be a number."));
 
                         //Re-opens the manageTreasuresGUI after 0.5 secs
@@ -262,7 +263,7 @@ public class AllTreasuresGUI implements Listener{
                     }
 
                     treasures.set(treasurePath+".x", coordX);
-                    player.playSound(player.getLocation(), goodValue, 1f, 1f);
+                    player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
                     plugin.getTreasures().saveConfig();
 
                     //Coordinate Y
@@ -287,7 +288,7 @@ public class AllTreasuresGUI implements Listener{
 
                         treasures.set(treasurePath+".y", coordY);
                         plugin.getTreasures().saveConfig();
-                        player.playSound(player.getLocation(), goodValue, 1f, 1f);
+                        player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
 
                         //Coordinate Z
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter the Z coord of the location: "));
@@ -311,7 +312,7 @@ public class AllTreasuresGUI implements Listener{
 
                             treasures.set(treasurePath+".z", coordZ);
                             plugin.getTreasures().saveConfig();
-                            player.playSound(player.getLocation(), goodValue, 1f, 1f);
+                            player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
 
                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aLocation &l"+input1+" "+input2+" "+input3+" &asaved for treasure &l"+treasureID+"&a!"));
 
@@ -327,18 +328,55 @@ public class AllTreasuresGUI implements Listener{
                 });
                 break;
 
-            case "setworld":
+            case "set world":
                 player.closeInventory();
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter the world for treasure "+treasureID+":"));
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter the world for treasure &l"+treasureID+"&a:"));
 
                 //Setting the world for the treasure
                 plugin.waitForPlayerInput(player, input -> {
                     treasures.set(treasurePath+".world", input);
                     plugin.getTreasures().saveConfig();
-                    player.playSound(player.getLocation(), goodValue, 1f, 1f);
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aWorld saved for treasure &l"+treasureID+"&a!"));
+                    player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aWorld &l"+input+" &asaved for treasure &l"+treasureID+"&a!"));
 
-                    //Re-opens the manageTreasuresGUI after 0.5 secs
+                    //Re-opens the mainManageGUI after 0.5 secs
+                    new BukkitRunnable(){
+                        @Override
+                        public void run(){
+                            plugin.getManageGUI().showMainManageGui(player);
+                        }
+                    }.runTaskLater(plugin, 10L);
+                });
+                break;
+
+            case "set facing":
+                player.closeInventory();
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter the facing for treasure &l"+treasureID+"&a:"));
+
+                //Setting the facing for the treasure
+                plugin.waitForPlayerInput(player, input -> {
+                    //Checking if the facing is valid (long if xD)
+                    if(input.equalsIgnoreCase("NORTH") || input.equalsIgnoreCase("SOUTH") || input.equalsIgnoreCase("EAST") || input.equalsIgnoreCase("WEST") || input.equalsIgnoreCase("SOUTH_WEST") || input.equalsIgnoreCase("SOUTH_EAST") || input.equalsIgnoreCase("NORTH_EAST") || input.equalsIgnoreCase("NORTH_WEST")){
+                        treasures.set(treasurePath+".facing", input);
+                        plugin.getTreasures().saveConfig();
+
+                        player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aFacing &l"+input+" &asaved for treasure &l"+treasureID+"&a!"));
+
+                        //Re-opens the mainManageGUI after 0.5 secs
+                        new BukkitRunnable(){
+                            @Override
+                            public void run(){
+                                plugin.getManageGUI().showMainManageGui(player);
+                            }
+                        }.runTaskLater(plugin, 10L);
+                        return;
+                    }
+
+                    player.playSound(player.getLocation(), invalidCoord, 1.3f, 1f);
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe value for facing is invalid!"));
+
+                    //Re-opens the mainManageGUI after 0.5 secs
                     new BukkitRunnable(){
                         @Override
                         public void run(){
