@@ -239,6 +239,13 @@ public class HintsGUI implements Listener {
         realBook.setItemMeta(realMeta);
 
         player.closeInventory();
+
+        String openHintSound = plugin.getConfig().getString("hint-open-sound");
+        float ohsVolume = plugin.getConfig().getInt("hos-volume");
+        float ohsPitch = plugin.getConfig().getInt("hos-pitch");
+        Sound openHint = Registry.SOUNDS.get(NamespacedKey.minecraft(openHintSound.toLowerCase()));
+
+        player.playSound(player.getLocation(), openHint, ohsVolume, ohsPitch);
         player.openBook(realBook);
     }
 }

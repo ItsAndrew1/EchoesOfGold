@@ -25,8 +25,8 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
     private final Map<UUID, Consumer<String>> chatInput = new HashMap<>(); //This is for player's input in the treasure GUIs
     int bookCount = 0;
     boolean eventActive;
-    TreasureManager treasureManager;
-    EventBossBar bar;
+    private TreasureManager treasureManager;
+    private EventBossBar bar;
 
     //Defining the GUIs
     private MainManageGUI manageGUI;
@@ -34,13 +34,13 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
     private ManageTreasuresGUI manageTreasuresGUI;
     private AllTreasuresGUI allTreasuresGUI;
     private AddRewardsGUI addRewardsGUI;
+    private HintsGUI hintsGUI;
     private String treasureManagerChoice;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         hintsGuiSize = getConfig().getInt("hints-gui.gui-rows") * 9;
-        HintsGUI hintsGUIAccess = new HintsGUI(this);
 
         //Defining the YML files and main objects
         treasures = new YMLfiles(this, "treasures.yml");
@@ -49,6 +49,7 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
         bar = new EventBossBar(this);
         playerdata = new YMLfiles(this, "playerdata.yml");
         scoreboardManager = new EventScoreboard(this);
+        hintsGUI = new HintsGUI(this);
 
         //Setting the GUIs
         manageTreasuresGUI = new ManageTreasuresGUI(this);
@@ -58,9 +59,9 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
         addRewardsGUI = new AddRewardsGUI(this);
 
         //Setting the commands and their tabs
-        getCommand("treasurehunt").setExecutor(new CommandManager(this, hintsGUIAccess));
+        getCommand("treasurehunt").setExecutor(new CommandManager(this));
         getCommand("treasurehunt").setTabCompleter(new CommandTabs(this));
-        getCommand("hints").setExecutor(new CommandManager(this, hintsGUIAccess));
+        getCommand("hints").setExecutor(new CommandManager(this));
 
         //Setting the events
         getServer().getPluginManager().registerEvents(new TreasureClickEvent(this), this);
@@ -79,7 +80,7 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
 
             if(remaining > 0){
                 eventActive = true;
-                bar.start(remaining);
+                bar.startBossBar(remaining);
                 getScoreboardManager().updateScoreboard();
 
                 for (Player p : Bukkit.getOnlinePlayers()){
@@ -94,7 +95,6 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
                 for(Player p : Bukkit.getOnlinePlayers()){
                     p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
                 }
-                getLogger().info("[TREASUREHUNT] Event had already ended before a restart.");
             }
         }
 
@@ -265,6 +265,9 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
     }
     public RewardsChoiceGUI getRewardsChoiceGUI(){
         return rewardsChoiceGUI;
+    }
+    public HintsGUI getHintsGUI(){
+        return hintsGUI;
     }
 
     //Setter and getter for treasureManagerChoice

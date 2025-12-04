@@ -87,10 +87,14 @@ treasure-click-sound: "entity.experience_orb.pickup"
 tcs-volume: 1
 tcs-pitch: 1.2
 
+hint-open-sound: "item.book.page_turn"
+hos-volume: 1
+hos-pitch: 1
+
 #Configure the /treasurehunt enable command
-teleport-location-x: 39
-teleport-location-y: 76
-teleport-location-z: -119
+teleport-location-x:
+teleport-location-y:
+teleport-location-z:
 title: "" #Use "&" for style
 subtitle: "" #Use "&" for style
 
@@ -149,10 +153,11 @@ scoreboard-lines:
 help-message:
   title: "&f&l====[&6&lTREASURE HUNT HELP&f&l]===="
   lines:
+    - ""
     - "&l/th enable &r-> enables the event"
     - "&l/th disable &r-> disables the event"
     - "&l/th reload &r-> reloads the config of the plugin"
     - "&l/th treasures &r-> opens the treasure manager"
-    - "&l/th books create <name> &r-> creates a book with that name"
-    - "&l/th books delete <name> &r-> deletes the book with that name"
-    - "&l/th books list &r-> gives a list of the created books"
+    - "&l/th hints create <name> &r-> creates a book with that name"
+    - "&l/th hints delete <name> &r-> deletes the book with that name"
+    - "&l/th hints manage <name> &r-> helps managing the hints"

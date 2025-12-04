@@ -20,13 +20,15 @@ public class EventBossBar{
         this.plugin = plugin;
     }
 
-    public void start(long durationMillis){
+    public void startBossBar(long durationMillis){
         bossBar = Bukkit.createBossBar(ChatColor.GOLD + plugin.getConfig().getString("bar-title"), BarColor.PURPLE, BarStyle.SOLID);
 
+        //Displays the bar to every player
         for(Player p : Bukkit.getOnlinePlayers()){
             bossBar.addPlayer(p);
         }
 
+        //Handles the timer
         this.endTime = System.currentTimeMillis() + durationMillis;
         task = new BukkitRunnable() {
             @Override
@@ -49,8 +51,8 @@ public class EventBossBar{
         task.runTaskTimer(plugin, 0L, 20L);
     }
 
-    //Formats the time
-    public String formatTime(long millis){
+    //Builds the string for displaying the timer
+    private String formatTime(long millis){
         long seconds = millis/1000;
         long days = seconds / 86000;
         long hours = (seconds % 86400) / 3600;

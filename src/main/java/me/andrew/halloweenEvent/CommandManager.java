@@ -1,7 +1,6 @@
 //Developed by _ItsAndrew_
 package me.andrew.halloweenEvent;
 
-import me.andrew.halloweenEvent.GUIs.HintsGUI;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -20,11 +19,9 @@ import java.util.regex.Pattern;
 
 public class CommandManager implements CommandExecutor{
     TreasureHunt plugin;
-    private final HintsGUI accessHintsGUI;
 
-    public CommandManager(TreasureHunt plugin, HintsGUI accessHintsGUI){
+    public CommandManager(TreasureHunt plugin){
         this.plugin = plugin;
-        this.accessHintsGUI = accessHintsGUI;
     }
 
     @Override
@@ -32,13 +29,20 @@ public class CommandManager implements CommandExecutor{
         FileConfiguration books = plugin.getBooks().getConfig();
         Player player = (Player) commandSender;
         String chatPrefix = plugin.getConfig().getString("chat-prefix");
+
+        //Defining the sounds
+        Sound goodValue = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.player.levelup"));
+        Sound invalidValue = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.enderman.teleport"));
+
         if(command.getName().equalsIgnoreCase("treasurehunt")){
             if(!commandSender.hasPermission("treasurehunt.admin")){
                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou don't have permission to run this command!"));
+                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                 return true;
             }
             if(strings.length == 0){
-                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt <enable | disable | reload | books | help>"));
+                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt <enable | disable | treasures | reload | hints | help>"));
+                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                 return true;
             }
 
@@ -46,6 +50,7 @@ public class CommandManager implements CommandExecutor{
                 case "enable":
                     if(plugin.eventActive){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe game is &lalready active&c!"));
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         break;
                     }
                     else{
@@ -89,7 +94,7 @@ public class CommandManager implements CommandExecutor{
                             long duration = parseDuration(plugin.getConfig().getString("bar-timer"));
                             long endTime = System.currentTimeMillis() + duration;
 
-                            plugin.getBossBar().start(duration);
+                            plugin.getBossBar().startBossBar(duration);
                             plugin.getConfig().set("duration", endTime);
                             plugin.saveConfig();
                         }
@@ -103,27 +108,28 @@ public class CommandManager implements CommandExecutor{
 
                 case "disable":
                     if(!plugin.eventActive){
-                        Bukkit.getLogger().info("[TREASUREHUNT] The game is already disabled!");
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe game is &lalready disabled&c!"));
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                        return true;
                     }
-                    else{
-                        for(Player p : Bukkit.getOnlinePlayers()){
-                            plugin.getScoreboardManager().stopScoreboard(p);
-                        }
-                        plugin.getTreasureManager().removeTreasures();
-                        plugin.getTreasureManager().cancelAllTreasureParticles();
-                        plugin.getPlayerData().getConfig().set("players", null);
-                        plugin.getPlayerData().saveConfig();
-                        plugin.getBossBar().stop();
-                        Bukkit.getLogger().info("[TREASUREHUNT] Treasure Hunt successfully disabled!");
-                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aTreasure Hunt successfully &ldisabled&a!"));
-                        plugin.eventActive = false;
+                    for(Player p : Bukkit.getOnlinePlayers()){
+                        plugin.getScoreboardManager().stopScoreboard(p);
                     }
+                    plugin.getTreasureManager().removeTreasures();
+                    plugin.getTreasureManager().cancelAllTreasureParticles();
+                    plugin.getPlayerData().getConfig().set("players", null);
+                    plugin.getPlayerData().saveConfig();
+                    plugin.getBossBar().stop();
+                    Bukkit.getLogger().info("[TREASUREHUNT] Treasure Hunt successfully disabled!");
+                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aTreasure Hunt successfully &ldisabled&a!"));
+                    player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
+                    plugin.eventActive = false;
                     break;
 
                 case "reload":
                     if(plugin.eventActive){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou must disable the event to use this command!"));
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         return true;
                     }
 
@@ -131,11 +137,12 @@ public class CommandManager implements CommandExecutor{
                     plugin.getBooks().reloadConfig();
                     plugin.getTreasures().reloadConfig();
                     plugin.getPlayerData().reloadConfig();
-                    Bukkit.getLogger().info("[TREASUREHUNT] Treasure Hunt reloaded successfully!");
                     commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aTreasure Hunt reloaded successfully!"));
+                    player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
                     break;
 
                 case "help":
+                    player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("help-message.title")));
                     for(String line : plugin.getConfig().getStringList("help-message.lines")){
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', line));
@@ -145,20 +152,24 @@ public class CommandManager implements CommandExecutor{
                 case "treasures":
                     if(strings.length > 1){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt treasures"));
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         return true;
                     }
 
                     plugin.getManageGUI().showMainManageGui(player);
+                    player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                     break;
 
                 case "hints":
-                    ItemStack item = player.getInventory().getItemInMainHand();
+                    ItemStack item = player.getInventory().getItemInMainHand(); //Gets the item that the player is holding in the main hand
                     if(strings.length < 2){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt books <create | delete | manage>"));
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         return true;
                     }
                     if(plugin.eventActive){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou must disable the event to use this command!"));
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         return true;
                     }
 
@@ -167,11 +178,13 @@ public class CommandManager implements CommandExecutor{
                             //Checking if there are any hints configured
                             if(books.getConfigurationSection("books") == null || books.getConfigurationSection("books").getKeys(false).isEmpty()){
                                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThere are no hints configured!"));
+                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                 return true;
                             }
 
                             if(strings.length < 3){
                                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt hints manage <hint> ..."));
+                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                 return true;
                             }
 
@@ -179,6 +192,7 @@ public class CommandManager implements CommandExecutor{
                                 case "setauthor":
                                     if(strings.length < 5){
                                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/th hints manage <hint> setauthor <author>"));
+                                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                         return true;
                                     }
                                     String author = strings[4];
@@ -186,11 +200,13 @@ public class CommandManager implements CommandExecutor{
                                     plugin.getBooks().saveConfig();
 
                                     commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aAuthor &r"+author+" &asaved for book &l"+strings[2]+"&a!"));
+                                    player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
                                     break;
 
                                 case "settitle":
                                     if(strings.length < 5){
                                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/th hints manage <hint> settitle <title>"));
+                                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                         return true;
                                     }
 
@@ -199,10 +215,12 @@ public class CommandManager implements CommandExecutor{
                                     plugin.getBooks().saveConfig();
 
                                     commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aTitle &r"+title+" &asaved for book &l"+strings[2]+"&a!"));
+                                    player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
                                     break;
 
                                 default:
                                     commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/treasurehunt help &cfor info."));
+                                    player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                     break;
                             }
                             break;
@@ -210,10 +228,12 @@ public class CommandManager implements CommandExecutor{
                         case "create":
                             if(strings.length < 3){
                                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt books create <name>"));
+                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                 return true;
                             }
                             if(item.getType() != Material.WRITTEN_BOOK){
                                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou must hold a &lwritten book &cin your main hand!"));
+                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                 return true;
                             }
                             String name = strings[2];
@@ -229,15 +249,18 @@ public class CommandManager implements CommandExecutor{
                             plugin.getBooks().saveConfig();
                             plugin.bookCount++;
                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aBook &l"+name+"&a saved to &lbooks.yml!"));
+                            player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
                             break;
 
                         case "delete":
                             if(!books.isConfigurationSection("books")){
                                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou have no books created!"));
+                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                 return true;
                             }
                             else if(strings.length < 3){
                                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt books delete <name>"));
+                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                 return true;
                             }
                             else{
@@ -247,21 +270,25 @@ public class CommandManager implements CommandExecutor{
                                     plugin.getBooks().saveConfig();
                                     plugin.bookCount--;
                                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aBook &l" + bookName + "&a successfully deleted!"));
+                                    player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
                                 }
                                 else{
                                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cBook &l" + bookName + "&c doesn't exit!"));
+                                    player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                 }
                             }
                             break;
 
                         default:
                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/treasurehunt help &cfor info."));
+                            player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                             break;
                     }
                     break;
 
                 default:
                     commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/treasurehunt help &cfor info."));
+                    player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                     break;
             }
             return true;
@@ -271,18 +298,22 @@ public class CommandManager implements CommandExecutor{
         if(command.getName().equalsIgnoreCase("hints")){
             if(!commandSender.hasPermission("treasurehunt.use")){
                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou don't have permission to run this command!"));
+                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                 return true;
             }
             if(!plugin.eventActive){
                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThe event is not enabled."));
+                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                 return true;
             }
             if(strings.length > 0){
                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cUsage: &l/hints"));
+                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                 return true;
             }
 
-            accessHintsGUI.hintsGUI(player);
+            plugin.getHintsGUI().hintsGUI(player);
+            player.playSound(player.getLocation(), invalidValue, 1f, 1f);
             return true;
         }
         return false;
