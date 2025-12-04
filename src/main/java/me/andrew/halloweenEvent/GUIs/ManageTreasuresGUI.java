@@ -103,7 +103,7 @@ public class ManageTreasuresGUI implements Listener{
         int setWorldSlot = 24;
 
         swbMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&b&lSET TREASURE WORLD"));
-        swbMeta.setLore(List.of("", ChatColor.translateAlternateColorCodes('&', "&7Set the &lworld &7for a treasure!")));
+        swbMeta.setLore(List.of("", ChatColor.translateAlternateColorCodes('&', "&7Set the &lworld &7for a treasure!"), ChatColor.translateAlternateColorCodes('&', "&e&lTIP: &eLook for the world name in your server's folder.")));;
         setWorldButton.setItemMeta(swbMeta);
 
         treasureManagerInv.setItem(setWorldSlot, setWorldButton);

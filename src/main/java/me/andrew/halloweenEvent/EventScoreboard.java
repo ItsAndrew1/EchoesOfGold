@@ -86,6 +86,10 @@ public class EventScoreboard{
         player.setScoreboard(scoreboard);
     }
     public void stopScoreboard(Player player){
+        //If scoreboard isn't toggled, it returns
+        boolean toggleScoreboard = plugin.getConfig().getBoolean("scoreboard");
+        if(!toggleScoreboard) return;
+
         task.cancel();
         player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
     }

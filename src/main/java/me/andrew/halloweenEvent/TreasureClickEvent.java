@@ -56,7 +56,12 @@ public class TreasureClickEvent implements Listener {
                 if(plugin.getPlayerData().getConfig().getBoolean("players." + player.getName() + ".found." + true)) continue;
                 plugin.getPlayerData().saveConfig();
                 plugin.getPlayerData().reloadConfig();
-                plugin.getScoreboardManager().refreshAll();
+
+                //Refreshes the scoreboard if it is toggled
+                boolean toggleScoreboard = plugin.getConfig().getBoolean("scoreboard");
+                if(toggleScoreboard){
+                    plugin.getScoreboardManager().refreshAll();
+                }
                 event.setCancelled(true);
             }
         }
