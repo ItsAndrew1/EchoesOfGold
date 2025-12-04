@@ -7,6 +7,11 @@ Players search for hidden treasures, collect rewards, and compete for the top sp
 
 ---
 
+## ‼️New Release!
+Check out the **new release**, v1.1, [here](https://github.com/ItsAndrew1/TreasureHuntPlugin/issues)!
+
+---
+
 ## ⚙️ Features
 - 💎 Fully configurable treasures, via interactive GUIs
 - 📜 Custom hints with clues or lore (via `books.yml`)  
