@@ -2,16 +2,17 @@
 #This file is for configuring the main parts of the plugin
 
 chat-prefix: "&f&l[&6&lTH&f&l]" #This is the prefix that shows up in the chat
+
 toggle-fireworks-effect: true #Toggle the fireworks effect when a player clicks on a treasure
+fw-main-color: "#5d30bf"  #Use HEX COLORS
+fw-second-color: "#23bad9" #Use HEX COLORS
 
 #Configure the start-book. It is the book that appears right after you enable the event.
 start-book:
   toggle: true #true(yes) / #false(no)
-  delay: 3 #In seconds
-  gui-slot: 13
+  delay: 2 #In seconds
   author: "&cServer Staffs"
   title: "&6&lTREASURE HUNT - INFO"
-  unlock-after: 0
   pages: #Use '\n' to go on a new line in a page
     - "&5Welcome, adventurer!\n\n&6The night of terror begins...\n3 cursed chests await for you in the Overworld.\n\n&cFind them before they find you."
     - "&7Each chest holds &eancient treasures&7.\nBut beware...\nSome are guarded by monsters.\n\n&4Good luck!"
@@ -20,6 +21,23 @@ start-book:
 hints-gui:
   gui-rows: 6 #Value must be between 1 and 6. Each row has 9 slots => 9 slots-minimum, 54 slots-maximum
   gui-title: "Hints" #You can use & styles!
+
+  known-hint-lore:
+    - ""
+    - "&a✔ Unlocked"
+
+  unknown-hint-title: "&c&l???"
+  unknown-hint-lore:
+    - ""
+    - "&e🔒 &lLocked"
+
+  toggle-decorations: true #true(yes)/false(no)
+  decoration-material: black_stained_glass_pane
+
+  info-item-toggle: true #true(yes)/false(no)
+  info-item-slot: 4 #The slot for the info item
+  info-item-title: "&fChoose a hint to open" #Use '&' for styles
+  info-item-material: oak_sign #The material for the info item
 
   #Configure the exit-button
   gui-exit-button:
@@ -30,13 +48,10 @@ hints-gui:
 
   #Configure the no-hints-item. It appears if there aren't any hints created
   gui-no-hints-item:
-    toggle: true #true(yes) / false(no)
     chat-message: "&cThere are no hints configured for this event!"
-    material: oak_sign
-    slot: 13
+    material: barrier
+    slot: 22
     title: "&cThere are no hints configured"
-    lore: #You can use '&' styles!
-      - ""
 
 #Configure every sound for the plugin. For checking AND hearing every sound, run /playsound in minecraft, then write what is after "minecraft:"
 #As for the volume and pitch, the default value is 1
@@ -47,6 +62,10 @@ ses-pitch: 1
 exit-button-sound: "ui.button.click"
 ebs-volume: 1
 ebs-pitch: 1
+
+player-clicked-on-unknown-hint-sound: "entity.enderman.teleport"
+pcouhs-volume: 1
+pcouhs-pitch: 1
 
 no-hints-item-sound: "entity.villager.no"
 nhis-volume: 1
@@ -82,6 +101,7 @@ custom-head: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3
 #Configure the particles that will spawn around the custom head. The structure is "Particle.<name in CAPS>", so only change the <>
 #https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Particle.html <- go here for all available particles (CAPS matter)
 particle: PORTAL
+treasure-found-particle: CRIT
 
 #Configure the Messages. Use "&" for style
 treasure-already-found: "&cYou have &lalready found &cthis treasure!" #Use & for style
@@ -92,7 +112,6 @@ no-inventory-space-message:
 
 hints-no-books-configured: "&cThere are no books configured."
 hint-not-found-yet: "&cYou have not found this hint yet!"
-hints-locked-lore: "&8🔒 Locked"
 
 #BOSS BAR
 boss-bar: true #true(yes)/false(no)
@@ -128,11 +147,12 @@ scoreboard-lines:
 #Configure the help command message
 #Use '&' for color codes
 help-message:
-  title: "&f&l[&6&lTREASURE HUNT HELP&f&l]"
+  title: "&f&l====[&6&lTREASURE HUNT HELP&f&l]===="
   lines:
-    - "&l/treasurehunt enable &r-> enables the event"
-    - "&l/treasurehunt disable &r-> disables the event"
-    - "&l/treasurehunt reload &r-> reloads the config of the plugin"
-    - "&l/treasurehunt books create <name> &r-> creates a book with that name" #The books will save in books.yml
-    - "&l/treasurehunt books delete <name> &r-> deletes the book with that name"
-    - "&l/treasurehunt books list &r-> gives a list of the created books"
+    - "&l/th enable &r-> enables the event"
+    - "&l/th disable &r-> disables the event"
+    - "&l/th reload &r-> reloads the config of the plugin"
+    - "&l/th treasures &r-> opens the treasure manager"
+    - "&l/th books create <name> &r-> creates a book with that name"
+    - "&l/th books delete <name> &r-> deletes the book with that name"
+    - "&l/th books list &r-> gives a list of the created books"

@@ -39,7 +39,7 @@ public class CommandTabs implements TabCompleter {
                 return hints;
             }
             else if(args.length == 4 && args[1].equalsIgnoreCase("manage")){
-                return Arrays.asList("settitle", "setguislot", "setauthor");
+                return Arrays.asList("settitle", "setauthor");
             }
         }
         return new ArrayList<>();

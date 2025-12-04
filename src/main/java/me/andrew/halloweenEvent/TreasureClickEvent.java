@@ -51,14 +51,6 @@ public class TreasureClickEvent implements Listener {
             String worldName = treasures.getString(path + ".world");
 
             if(loc.getWorld().getName().equalsIgnoreCase(worldName) && loc.getBlockX() == x && loc.getBlockY() == y && loc.getBlockZ() == z){
-                //Sound and firework
-                Sound treasureClick = Registry.SOUNDS.get(NamespacedKey.minecraft(plugin.getConfig().getString("treasure-click-sound").toLowerCase()));
-                float tcsVolume = plugin.getConfig().getInt("tcs-volume");
-                float tcsPitch = plugin.getConfig().getInt("tcs-pitch");
-
-                player.playSound(player.getLocation(), treasureClick, tcsVolume, tcsPitch);
-                spawnFirework(player);
-
                 //Handling the rewards and other data
                 handleTreasureFound(player, key);
                 if(plugin.getPlayerData().getConfig().getBoolean("players." + player.getName() + ".found." + true)) continue;
@@ -87,6 +79,14 @@ public class TreasureClickEvent implements Listener {
             float tafVolume = plugin.getConfig().getInt("tfs-volume");
             float tafPitch = plugin.getConfig().getInt("tfs-pitch");
 
+            //Spawning the particle
+            double treasureX = treasures.getDouble("treasures."+treasureID+".x") + 0.5;
+            double treasureY = treasures.getDouble("treasures."+treasureID+".y");
+            double treasureZ = treasures.getDouble("treasures."+treasureID+".z") + 0.5;
+
+            Location loc = new Location(Bukkit.getWorld("treasures."+treasureID+".world"), treasureX, treasureY, treasureZ);
+            player.spawnParticle(getParticleFromConfig(), loc, 35, 0.2, 0.4, 0.2, 0);
+
             player.playSound(player.getLocation(), treasureAlreadyFound, tafVolume, tafPitch);
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("treasure-already-found")));
             return;
@@ -94,25 +94,39 @@ public class TreasureClickEvent implements Listener {
 
         //Giving the rewards to players
         String mainRewardsPath = "treasures."+treasureID+".rewards";
-        if(treasures.getConfigurationSection(mainRewardsPath) == null || treasures.getConfigurationSection(mainRewardsPath).getKeys(false).isEmpty()){ //Checking if the treasure has rewards or not
-            Sound treasureHasNoItems = Registry.SOUNDS.get(NamespacedKey.minecraft(plugin.getConfig().getString("treasure-has-no-items-sound").toLowerCase()));
-            float thniVolume = plugin.getConfig().getInt("thni-volume");
-            float thniPitch = plugin.getConfig().getInt("thni-pitch");
-
-            player.playSound(player.getLocation(), treasureHasNoItems, thniVolume, thniPitch);
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("treasure-has-no-rewards")));
-            return;
-        }
-
-        //Sound and firework
         Sound treasureClick = Registry.SOUNDS.get(NamespacedKey.minecraft(plugin.getConfig().getString("treasure-click-sound").toLowerCase()));
         float tcsVolume = plugin.getConfig().getInt("tcs-volume");
         float tcsPitch = plugin.getConfig().getInt("tcs-pitch");
 
-        player.playSound(player.getLocation(), treasureClick, tcsVolume, tcsPitch);
-        spawnFirework(player);
+        //If there aren't any rewards to that treasure
+        ConfigurationSection treasureRewards = treasures.getConfigurationSection(mainRewardsPath);
+        if(treasureRewards == null || treasureRewards.getKeys(false).isEmpty()){
+            //Sound and firework
+            player.playSound(player.getLocation(), treasureClick, tcsVolume, tcsPitch);
+            spawnFirework(player, treasureID);
 
-        for(String item : treasures.getConfigurationSection(mainRewardsPath).getKeys(false)){
+            //Setting the data for the player in 'playerdata.yml'
+            data.set(playerPath + ".found." + treasureID, true);
+            foundCount = data.getInt(playerPath +".treasures-found", 0) + 1;
+            data.set(playerPath + ".treasures-found", foundCount);
+            plugin.getPlayerData().saveConfig();
+
+            //If they found all rewards
+            if(foundCount == treasures.getInt("max-treasures")){
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("player-found-all-treasures")));
+                foundCount++;
+                return;
+            }
+
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("treasure-found")));
+            return;
+        }
+
+        //Sound and firework
+        player.playSound(player.getLocation(), treasureClick, tcsVolume, tcsPitch);
+        spawnFirework(player, treasureID);
+
+        for(String item : treasureRewards.getKeys(false)){
             int itemQuantity = treasures.getInt(mainRewardsPath+"."+item+".quantity");
             Material itemMaterial = Material.matchMaterial(item.toUpperCase());
 
@@ -160,16 +174,22 @@ public class TreasureClickEvent implements Listener {
         player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("treasure-found")));
     }
 
-    public void spawnFirework(Player player){
+    private void spawnFirework(Player player, String treasure){
+        FileConfiguration treasures = plugin.getTreasures().getConfig();
+
         boolean toggleFireworks = plugin.getConfig().getBoolean("toggle-fireworks-effect");
+        String fwMainColor = plugin.getConfig().getString("fw-main-color");
+        String fwSecondaryColor = plugin.getConfig().getString("fw-second-color");
+
         if(!toggleFireworks) return;
 
-        Firework firework =  (Firework) player.getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK_ROCKET);
+        Location playerLocation = new Location(Bukkit.getWorld(treasures.getString("treasures."+treasure+".world")), player.getX(), player.getY()+1.5, player.getZ());
+        Firework firework =  (Firework) player.getWorld().spawnEntity(playerLocation, EntityType.FIREWORK_ROCKET);
         FireworkMeta fwMeta = firework.getFireworkMeta();
 
         //Adding the colors and effects
         fwMeta.addEffect(FireworkEffect.builder()
-                        .withColor(Color.AQUA, Color.PURPLE)
+                        .withColor(getColorFromHex(fwMainColor.toUpperCase()), getColorFromHex(fwSecondaryColor.toUpperCase()))
                         .with(FireworkEffect.Type.BALL)
                         .flicker(true)
                         .trail(true)
@@ -179,6 +199,21 @@ public class TreasureClickEvent implements Listener {
 
         //Detonating the firework
         Bukkit.getScheduler().runTaskLater(plugin, firework::detonate, 1L);
+    }
+
+    //Gets the color from 'config.yml' for the firework
+    private Color getColorFromHex(String hex){
+        return Color.fromRGB(
+                Integer.valueOf(hex.substring(1, 3), 16),
+                Integer.valueOf(hex.substring(3, 5), 16),
+                Integer.valueOf(hex.substring(5, 7), 16)
+        );
+    }
+
+    //Gets the particle from 'config.yml'
+    private Particle getParticleFromConfig(){
+        Particle p = Particle.valueOf(plugin.getConfig().getString("treasure-found-particle"));
+        return p;
     }
 
     @EventHandler

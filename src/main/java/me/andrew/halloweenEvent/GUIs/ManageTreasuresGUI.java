@@ -235,11 +235,11 @@ public class ManageTreasuresGUI implements Listener{
             treasures.set(path + ".z", "");
             plugin.getTreasures().saveConfig();
 
-            Sound successSound = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.experience_orb.pickup"));
-            player.playSound(player.getLocation(), successSound, 1f, 1f);
+            Sound successSound = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.player.levelup"));
+            player.playSound(player.getLocation(), successSound, 1f, 1.4f);
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSaved treasure &l"+treasureName+"&a!"));
 
-            //Re-opens the manageTreasuresGUI after 0.5 secs
+            //Re-opens the mainManageGUI after 0.5 secs
             new BukkitRunnable(){
                 @Override
                 public void run(){
