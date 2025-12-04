@@ -8,7 +8,7 @@ Players search for hidden treasures, collect rewards, and compete for the top sp
 ---
 
 ## ‼️New Release!
-Check out the **new release**, v1.1, [here](https://github.com/ItsAndrew1/TreasureHuntPlugin/issues)!
+Check out the **new release**, v1.1, [here](https://github.com/ItsAndrew1/TreasureHuntPlugin/releases/tag/v1.1)!
 
 ---
 
