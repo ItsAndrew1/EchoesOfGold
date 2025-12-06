@@ -89,14 +89,15 @@ public class CommandManager implements CommandExecutor{
                         plugin.getTreasureManager().spawnTreasures();
                         plugin.getTreasureManager().spawnChestParticles();
 
+                        //Starts the duration
+                        long duration = parseDuration(plugin.getConfig().getString("bar-timer"));
+                        long endTime = System.currentTimeMillis() + duration;
+                        plugin.getConfig().set("duration", endTime);
+                        plugin.saveConfig();
+
                         //If the value of boss-bar is true, spawns the boss bar with the timer.
                         if(plugin.getConfig().getString("boss-bar").equalsIgnoreCase("true")){
-                            long duration = parseDuration(plugin.getConfig().getString("bar-timer"));
-                            long endTime = System.currentTimeMillis() + duration;
-
                             plugin.getBossBar().startBossBar(duration);
-                            plugin.getConfig().set("duration", endTime);
-                            plugin.saveConfig();
                         }
 
                         //If the value of scoreboard is true, it shows up on the screen.

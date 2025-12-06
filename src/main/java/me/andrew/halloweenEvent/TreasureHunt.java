@@ -80,15 +80,20 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
 
             if(remaining > 0){
                 eventActive = true;
-                bar.startBossBar(remaining);
-                getScoreboardManager().updateScoreboard();
 
-                for (Player p : Bukkit.getOnlinePlayers()){
-                    bar.addPlayer(p);
-                    getTreasureManager().spawnChestParticles();
+                //Restart the boss bar (if it is toggled)
+                boolean toggleBossBar = getConfig().getBoolean("boss-bar");
+                if(toggleBossBar){
+                    bar.startBossBar(remaining);
+                    for(Player p : Bukkit.getOnlinePlayers()) bar.addPlayer(p);
                 }
+
+                //Restart the scoreboard (if it is toggled)
+                boolean toggleScoreboard = getConfig().getBoolean("scoreboard");
+                if(toggleScoreboard) scoreboardManager.updateScoreboard();
+
                 treasureManager.spawnTreasures();
-                getLogger().info("[TREASUREHUNT] Resumed event countdown and treasures.");
+                getLogger().warning("Resumed event!");
             }
             else{
                 eventActive = false;
@@ -199,12 +204,7 @@ public final class TreasureHunt extends JavaPlugin implements Listener{
         playerdata.saveConfig();
         books.saveConfig();
         treasures.saveConfig();
-        if(bar != null && bar.isActive()){
-            eventActive = true;
-            getConfig().set("duration", bar.getEndTime());
-            saveConfig();
-        }
-        else{
+        if(!eventActive){
             getConfig().set("duration", null);
         }
         Bukkit.getLogger().info("HalloweenEvent shut down successfully!");

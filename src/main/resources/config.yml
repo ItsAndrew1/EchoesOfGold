@@ -117,10 +117,12 @@ no-inventory-space-message:
 hints-no-books-configured: "&cThere are no books configured."
 hint-not-found-yet: "&cYou have not found this hint yet!"
 
+#This is the duration of the whole game. It is advised NOT TO MODIFY ANYTHING!
+duration:
+
 #BOSS BAR
 boss-bar: true #true(yes)/false(no)
 bar-timer: "5m" #d - days; h - hours; m - minutes; s - seconds
-duration: #DO NOT MODIFY
 bar-title: "&6&Treasure Hunt Active!"
 bar-title-ended: "&c&lTreasure Hunt Ended! Thanks for your participation. "
 bar-title-time-left: "&5&lTime left: "
