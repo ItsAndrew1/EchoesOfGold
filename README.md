@@ -1,7 +1,6 @@
 
 <img width="1080" height="720" alt="BannerTreasureHuntFinal" src="https://github.com/user-attachments/assets/23e69c68-bf3c-49d1-83fc-d85b72820651" />
 
-#  Echoes of Gold v1.1
 **Echoes of Gold** is a fully customizable treasure-hunting minigame plugin designed to bring exploration and adventure to your Minecraft server.  
 Players search for hidden treasures, collect rewards, and compete for the top spot on the leaderboard!
 
@@ -25,40 +24,36 @@ Check out the **new release**, v1.1, [here](https://github.com/ItsAndrew1/Treasu
 ## 🪄 Commands
 | Command                             | Description | Permission |
 |-------------------------------------|--------------|-------------|
-| `/treasurehunt enable`              | Starts the event | `treasurehunt.admin` |
-| `/treasurehunt disable`             | Stops the event | `treasurehunt.admin` |
-| `/treasurehunt reload`              | Reloads the event | `treasurehunt.admin` |
-| `/treasurehunt treasures` | Opens the  treasure manager | `treasurehunt.admin` |
-| `/treasurehunt hints create <name>` | Creates the book (for hints) | `treasurehunt.admin` |
-| `/treasurehunt hints delete <name>` | Deletes the desired book | `treasurehunt.admin` |
-| `/treasurehunt hints manage <name> ...` | Helps managing all hints | `treasurehunt.admin` |
-| `/treasurehunt help`                | Opens the help menu | `treasurehunt.admin` |
-| `/hints`                            | Opens the hints GUI | `treasurehunt.use` |
+| `/eog enable`              | Starts the event | `eog.admin` |
+| `/eog disable`             | Stops the event | `eog.admin` |
+| `/eog reload`              | Reloads the event | `eog.admin` |
+| `/eog treasures` | Opens the  treasure manager | `eog.admin` |
+| `/eog hints create <name>` | Creates the book (for hints) | `eog.admin` |
+| `/eog hints delete <name>` | Deletes the desired book | `eog.admin` |
+| `/eog hints manage <name> ...` | Helps managing all hints | `eog.admin` |
+| `/eog help`                | Opens the help menu | `eog.admin` |
+| `/hints`                            | Opens the hints GUI | `eog.use` |
 
 ---
 
 ## 📁 Configuration Files
 
 ### `config.yml`
-Contains general settings for sounds, GUIs, scoreboard, boss bar and much more.
+Contains *important settings* for the plugin:
+- Configuring the **sounds** and their *volume* and *pitch*
+- Configuring the scoreboard
+- Configuring the boss bar
+- Configure the messages  
+  And much more!
 
 ### `treasures.yml`
-Defines all treasure chest locations, including world, coordinates, and identifiers.
+Stores all the treasures that you may create. 
 
 ### `books.yml`
 Stores the in-game hint books that players can unlock as they progress.
 
 ### `playerdata.yml`
 Tracks player progress and the treasures they’ve discovered.
-
----
-
-## 🧱 Installation
-1. Download the latest release from [GitHub Releases](#).  
-2. Drop the `.jar` file into your server’s `plugins` folder.  
-3. Start your server to generate configuration files.  
-4. Configure all the *.yml* files to your liking.
-5. Run `/treasurehunt enable` and let the hunt begin!
 
 ---
 
