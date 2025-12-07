@@ -105,7 +105,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
 
         //Check if the hintsGUI size is good
         if(hintsGuiSize < 9 || hintsGuiSize > 54){
-            Bukkit.getLogger().warning("[TREASUREHUNT] The value gui-rows is invalid. The value must be between 1 and 6.");
+            Bukkit.getLogger().warning("[E.O.G] The value gui-rows is invalid. The value must be between 1 and 6.");
         }
 
         //Check if everything for hintsGUI in 'config.yml' is right.
@@ -118,14 +118,14 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
                 int exitButtonSlot = getConfig().getInt("hints-gui.gui-exit-button.slot");
 
                 if(exitButtonMaterial == null){
-                    Bukkit.getLogger().warning("[TREASUREHUNT] Invalid material for gui-exit-button.material.");
+                    Bukkit.getLogger().warning("[E.O.G] Invalid material for gui-exit-button.material.");
                 }
                 if(exitButtonSlot < 1 || exitButtonSlot > getHintsGUISize()){
-                    Bukkit.getLogger().warning("[TREASUREHUNT] Invalid value for gui-exit-button.slot! The value must be between 1 and "+ getHintsGUISize()+"!");
+                    Bukkit.getLogger().warning("[E.O.G] Invalid value for gui-exit-button.slot! The value must be between 1 and "+ getHintsGUISize()+"!");
                 }
             }
         } catch (Exception e){
-            Bukkit.getLogger().warning("[TREASUREHUNT] "+e.getMessage()); //This is if the value for gui-exit-button.toggle and slot are not valid
+            Bukkit.getLogger().warning("[E.O.G] "+e.getMessage()); //This is if the value for gui-exit-button.toggle and slot are not valid
         }
 
         try{
@@ -135,13 +135,13 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
             int noHintsItemSlot = getConfig().getInt("hints-gui.gui-no-hints-item.slot");
 
             if(noHintsItemMaterial == null){
-                Bukkit.getLogger().warning("[TREASUREHUNT] Invalid material for gui-no-hints-item.material.");
+                Bukkit.getLogger().warning("[E.O.G] Invalid material for gui-no-hints-item.material.");
             }
             if(noHintsItemSlot < 1 || noHintsItemSlot > getHintsGUISize()){
-                Bukkit.getLogger().warning("[TREASUREHUNT] Invalid value for gui-no-hints-item.slot! The value must be between 1 and "+ getHintsGUISize()+"!");
+                Bukkit.getLogger().warning("[E.O.G] Invalid value for gui-no-hints-item.slot! The value must be between 1 and "+ getHintsGUISize()+"!");
             }
         } catch (Exception e){
-            Bukkit.getLogger().warning("[TREASUREHUNT] "+e.getMessage()); //Checking the boolean and for the slot
+            Bukkit.getLogger().warning("[E.O.G] "+e.getMessage()); //Checking the boolean and for the slot
         }
 
         try{
@@ -152,11 +152,11 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
                 Material decorationItem = Material.matchMaterial(decorationItemString.toUpperCase());
 
                 if(decorationItem == null){
-                    Bukkit.getLogger().warning("[TREASUREHUNT] Invalid material for the decoration item in hintsGUI.");
+                    Bukkit.getLogger().warning("[E.O.G] Invalid material for the decoration item in hintsGUI.");
                 }
             }
         } catch (Exception e){
-            Bukkit.getLogger().warning("[TREASUREHUNT] "+e.getMessage()); //This is for checking the boolean!
+            Bukkit.getLogger().warning("[E.O.G] "+e.getMessage()); //This is for checking the boolean!
         }
 
         try{
@@ -169,14 +169,14 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
 
                 //Checks the material and the slot
                 if(infoItem == null){
-                    Bukkit.getLogger().warning("[TREASUREHUNT] Invalid material for the info item in hintsGUI.");
+                    Bukkit.getLogger().warning("[E.O.G] Invalid material for the info item in hintsGUI.");
                 }
                 if(infoItemSlot < 1 || infoItemSlot > getHintsGUISize()){
-                    Bukkit.getLogger().warning("[TREASUREHUNT] Invalid slot for the info item in hintsGUI.");
+                    Bukkit.getLogger().warning("[E.O.G] Invalid slot for the info item in hintsGUI.");
                 }
             }
         } catch (Exception e){
-            Bukkit.getLogger().warning("[TREASUREHUNT] "+e.getMessage()); //This is for the boolean and for the slot
+            Bukkit.getLogger().warning("[E.O.G] "+e.getMessage()); //This is for the boolean and for the slot
         }
 
         //Check if the coordonates of the enable command are ok
@@ -189,12 +189,12 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
                 int intCoordY = Integer.parseInt(coordY);
                 int intCoordZ = Integer.parseInt(coordZ);
             } catch (NumberFormatException e){
-                Bukkit.getLogger().warning("[TH] The enable command coordonates MUST be a number!");
-                Bukkit.getLogger().warning("[TH] Error message: "+e.getMessage());
+                Bukkit.getLogger().warning("[E.O.G] The enable command coordonates MUST be a number!");
+                Bukkit.getLogger().warning("[E.O.G] Error message: "+e.getMessage());
             }
         }
         else{
-            Bukkit.getLogger().warning("[TH] One/more coordonates from the enable command are null!");
+            Bukkit.getLogger().warning("[E.O.G] One/more coordonates from the enable command are null!");
         }
     }
 
@@ -207,7 +207,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         if(!eventActive){
             getConfig().set("duration", null);
         }
-        Bukkit.getLogger().info("HalloweenEvent shut down successfully!");
+        Bukkit.getLogger().info("Echoes of Gold shut down successfully!");
     }
 
     public void waitForPlayerInput(Player player, Consumer<String> callback){
