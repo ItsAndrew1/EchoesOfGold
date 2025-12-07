@@ -1,24 +1,23 @@
-name: TreasureHunt
+name: EchoesOfGold
 version: '1.1'
-main: me.andrew.halloweenEvent.TreasureHunt
+main: me.andrew.EchoesOfGold.EchoesOfGold
 api-version: '1.21'
 author: ItsAndrew
 
 permissions:
-  treasurehunt.admin:
+  eog.admin:
     description: Gives access to commands
     default: op
-  treasurehunt.use:
+  eog.use:
     description: Gives access to hints
     default: true
 
 commands:
-  treasurehunt:
-    usage: /treasurehunt <enable | disable | books | reload | helps>
+  eog:
+    usage: /eog help
     description: The commands for the event
-    permission: treasurehunt.admin
-    aliases: [th]
+    permission: eog.admin
   hints:
     usage: /hints
     description: Allows you to access the hints
-    permission: treasurehunt.use
+    permission: eog.use
