@@ -1,5 +1,5 @@
 name: EchoesOfGold
-version: '1.1'
+version: '1.1.1'
 main: me.andrew.EchoesOfGold.EchoesOfGold
 api-version: '1.21'
 author: ItsAndrew
