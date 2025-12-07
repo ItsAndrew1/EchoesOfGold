@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
@@ -27,7 +28,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     boolean eventActive;
     private TreasureManager treasureManager;
     private EventBossBar bar;
-
     //Defining the GUIs
     private MainManageGUI manageGUI;
     private RewardsChoiceGUI rewardsChoiceGUI;
@@ -64,7 +64,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         getCommand("hints").setExecutor(new CommandManager(this));
 
         //Setting the events
-        getServer().getPluginManager().registerEvents(new TreasureClickEvent(this), this);
         getServer().getPluginManager().registerEvents(manageGUI, this);
         getServer().getPluginManager().registerEvents(manageTreasuresGUI, this);
         getServer().getPluginManager().registerEvents(rewardsChoiceGUI, this);
@@ -225,6 +224,19 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         String input = event.getMessage();
         Consumer<String> callback = chatInput.remove(playerUUID);
         Bukkit.getScheduler().runTask(this, () -> callback.accept(input));
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event){
+        if(!eventActive) return; //If the event isn't active returns.
+        Player player = event.getPlayer();
+
+        //Check if the boss bar and scoreboard are toggled
+        boolean toggleBossBar = getConfig().getBoolean("boss-bar");
+        boolean toggleScoreboard = getConfig().getBoolean("scoreboard");
+        if(toggleBossBar) getBossBar().addPlayer(player);
+        if(toggleScoreboard) getScoreboardManager().createScoreboard(player);
+        getTreasureManager().spawnChestParticles();
     }
 
     //Getters

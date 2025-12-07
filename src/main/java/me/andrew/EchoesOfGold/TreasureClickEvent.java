@@ -20,7 +20,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitTask;
 
 
-public class TreasureClickEvent implements Listener {
+public class TreasureClickEvent{
     EchoesOfGold plugin;
     int foundCount;
 
@@ -219,13 +219,5 @@ public class TreasureClickEvent implements Listener {
     private Particle getParticleFromConfig(){
         Particle p = Particle.valueOf(plugin.getConfig().getString("treasure-found-particle"));
         return p;
-    }
-
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event){
-        if(!plugin.eventActive) return;
-
-        plugin.getBossBar().addPlayer(event.getPlayer());
-        plugin.getTreasureManager().spawnChestParticles();
     }
 }
