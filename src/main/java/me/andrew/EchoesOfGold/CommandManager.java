@@ -5,6 +5,7 @@ import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,8 +15,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class CommandManager implements CommandExecutor{
     EchoesOfGold plugin;
@@ -27,6 +26,7 @@ public class CommandManager implements CommandExecutor{
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         FileConfiguration books = plugin.getBooks().getConfig();
+        FileConfiguration treasures = plugin.getTreasures().getConfig();
         Player player = (Player) commandSender;
         String chatPrefix = plugin.getConfig().getString("chat-prefix");
 
@@ -48,67 +48,96 @@ public class CommandManager implements CommandExecutor{
 
             switch(strings[0].toLowerCase()){
                 case "enable":
-                    if(plugin.eventActive){
+                    if(plugin.isEventActive()){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe game is &lalready active&c!"));
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         break;
                     }
-                    else{
-                        plugin.eventActive = true;
 
-                        //Gets all the details about the start-event-sound. Prints an error if the sound is invalid
-                        String startEventSoundString = plugin.getConfig().getString("start-event-sound");
-                        float startEventSoundVolume = plugin.getConfig().getInt("ses-volume");
-                        float startEventSoundPitch = plugin.getConfig().getInt("ses-pitch");
-                        Sound startEventSound;
+                    //Check if the coordonates of the enable command are ok
+                    String coordX = plugin.getConfig().getString("teleport-location-x");
+                    String coordY = plugin.getConfig().getString("teleport-location-x");
+                    String coordZ = plugin.getConfig().getString("teleport-location-z");
+                    if(coordX != null && coordY != null && coordZ != null){
                         try{
-                            NamespacedKey checkStartEventSound = NamespacedKey.minecraft(startEventSoundString.toLowerCase());
-                            startEventSound = Registry.SOUNDS.get(checkStartEventSound);
-                        } catch (Exception e){
-                            commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThere is a problem with &lstart-event-sound &c!"));
-                            Bukkit.getLogger().warning("[TREASUREHUNT] "+e.getMessage());
+                            int intCoordX = Integer.parseInt(coordX);
+                            int intCoordY = Integer.parseInt(coordY);
+                            int intCoordZ = Integer.parseInt(coordZ);
+                        } catch (NumberFormatException e){
+                            player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cOne/More values of the teleport coordinates are &linvalid&c!"));
                             return true;
                         }
-
-                        //Gets all the players and opens the book after openBookDelay seconds
-                        getPlayers();
-                        long openBookDelay = plugin.getConfig().getInt("start-book.delay") * 20L;
-                        for(Player p : Bukkit.getOnlinePlayers()){
-                            teleportPlayers(p);
-                            p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
-                            p.sendTitle(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("title")), ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("subtitle")), 10, 60, 20);
-
-                            new BukkitRunnable(){
-                                @Override
-                                public void run(){
-                                    openStartBook(p);
-                                }
-                            }.runTaskLater(plugin, openBookDelay);
-                            p.playSound(p.getLocation(), startEventSound, startEventSoundVolume, startEventSoundPitch);
-                        }
-                        plugin.getTreasureManager().spawnTreasures();
-                        plugin.getTreasureManager().spawnChestParticles();
-
-                        //Starts the duration
-                        long duration = parseDuration(plugin.getConfig().getString("bar-timer"));
-                        long endTime = System.currentTimeMillis() + duration;
-                        plugin.getConfig().set("duration", endTime);
-                        plugin.saveConfig();
-
-                        //If the value of boss-bar is true, spawns the boss bar with the timer.
-                        if(plugin.getConfig().getString("boss-bar").equalsIgnoreCase("true")){
-                            plugin.getBossBar().startBossBar(duration);
-                        }
-
-                        //If the value of scoreboard is true, it shows up on the screen.
-                        if(plugin.getConfig().getString("scoreboard").equalsIgnoreCase("true")){
-                            plugin.getScoreboardManager().updateScoreboard();
-                        }
                     }
+                    else{
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cOne/More coordinates of the teleport location are &lnull&c!"));
+                        return true;
+                    }
+
+                    //Check if the event has treasures configured.
+                    ConfigurationSection treasureSection = treasures.getConfigurationSection("treasures");
+                    if(treasureSection == null || treasureSection.getKeys(false).isEmpty()){
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThere are no treasures configured! Use &l/eog treasures &cto set up some."));
+                        return true;
+                    }
+
+                    //Get all the details about the start-event-sound. Prints an error if the sound is invalid
+                    String startEventSoundString = plugin.getConfig().getString("start-event-sound");
+                    float startEventSoundVolume = plugin.getConfig().getInt("ses-volume");
+                    float startEventSoundPitch = plugin.getConfig().getInt("ses-pitch");
+                    Sound startEventSound;
+                    try{
+                        NamespacedKey checkStartEventSound = NamespacedKey.minecraft(startEventSoundString.toLowerCase());
+                        startEventSound = Registry.SOUNDS.get(checkStartEventSound);
+                    } catch (Exception e){
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThere is a problem with &lstart-event-sound&c!"));
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &c"+e.getMessage()));
+                        return true;
+                    }
+
+                    //Starts the event
+                    plugin.setEventActive(true);
+                    //Gets all the players and opens the book after openBookDelay seconds
+                    getPlayers();
+                    long openBookDelay = plugin.getConfig().getInt("start-book.delay") * 20L;
+                    for(Player p : Bukkit.getOnlinePlayers()){
+                        teleportPlayers(p);
+                        p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+                        p.sendTitle(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("title")), ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("subtitle")), 10, 60, 20);
+
+                        new BukkitRunnable(){
+                            @Override
+                            public void run(){
+                                openStartBook(p);
+                            }
+                        }.runTaskLater(plugin, openBookDelay);
+                        p.playSound(p.getLocation(), startEventSound, startEventSoundVolume, startEventSoundPitch);
+                    }
+                    plugin.getTreasureManager().spawnTreasures();
+                    plugin.getTreasureManager().spawnChestParticles();
+
+                    //Starts the duration
+                    String durationString = plugin.getConfig().getString("event-duration");
+                    plugin.getEventProgressManager().startEvent(durationString);
+
+                    //If the value boss-bar is toggled, spawns the boss bar with the timer.
+                    if(plugin.getConfig().getString("boss-bar").equalsIgnoreCase("true")){
+                        plugin.getBossBar().startBossBar();
+                    }
+
+                    //If the scoreboard is toggled, it shows up on the screen.
+                    if(plugin.getConfig().getString("scoreboard").equalsIgnoreCase("true")){
+                        plugin.getScoreboardManager().updateScoreboard();
+                    }
+
+                    Bukkit.getLogger().info("[ECHOES OF GOLD] Event started successfully");
                     break;
 
                 case "disable":
-                    if(!plugin.eventActive){
+                    if(!plugin.isEventActive()){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe game is &lalready disabled&c!"));
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         return true;
@@ -120,15 +149,20 @@ public class CommandManager implements CommandExecutor{
                     plugin.getTreasureManager().cancelAllTreasureParticles();
                     plugin.getPlayerData().getConfig().set("players", null);
                     plugin.getPlayerData().saveConfig();
-                    plugin.getBossBar().stop();
-                    Bukkit.getLogger().info("[TREASUREHUNT] Treasure Hunt successfully disabled!");
-                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aTreasure Hunt successfully &ldisabled&a!"));
+
+                    //Disable the boss bar if it is toggled
+                    boolean toggleBossBar = plugin.getConfig().getBoolean("boss-bar");
+                    if(toggleBossBar) plugin.getBossBar().stopBossBar();
+
+                    Bukkit.getLogger().info("[ECHOES OF GOLD] Event successfully disabled!");
+                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aEvent successfully &ldisabled&a!"));
                     player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
-                    plugin.eventActive = false;
+                    plugin.getEventProgressManager().stopEvent();
+                    plugin.setEventActive(false);
                     break;
 
                 case "reload":
-                    if(plugin.eventActive){
+                    if(plugin.isEventActive()){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou must disable the event to use this command!"));
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         return true;
@@ -168,7 +202,7 @@ public class CommandManager implements CommandExecutor{
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         return true;
                     }
-                    if(plugin.eventActive){
+                    if(plugin.isEventActive()){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou must disable the event to use this command!"));
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         return true;
@@ -302,7 +336,7 @@ public class CommandManager implements CommandExecutor{
                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                 return true;
             }
-            if(!plugin.eventActive){
+            if(!plugin.isEventActive()){
                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThe event is not enabled."));
                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                 return true;
@@ -365,21 +399,5 @@ public class CommandManager implements CommandExecutor{
             }
         }
         plugin.getPlayerData().saveConfig();
-    }
-
-    //Parses the duration of the event from config.yml (bar-timer)
-    public long parseDuration(String input) {
-        long millis = 0;
-        Matcher m = Pattern.compile("(\\d+)([dhms])").matcher(input.toLowerCase());
-        while (m.find()) {
-            int value = Integer.parseInt(m.group(1));
-            switch (m.group(2)) {
-                case "d" -> millis += value * 86400000L;
-                case "h" -> millis += value * 3600000L;
-                case "m" -> millis += value * 60000L;
-                case "s" -> millis += value * 1000L;
-            }
-        }
-        return millis;
     }
 }

@@ -7,15 +7,65 @@ toggle-fireworks-effect: true #Toggle the fireworks effect when a player clicks 
 fw-main-color: "#5d30bf"  #Use HEX COLORS
 fw-second-color: "#23bad9" #Use HEX COLORS
 
+#Configure the /eog enable command
+teleport-location-x:
+teleport-location-y:
+teleport-location-z:
+title: "" #Use "&" for style
+subtitle: "" #Use "&" for style
+
 #Configure the start-book. It is the book that appears right after you enable the event.
 start-book:
   toggle: true #true(yes) / #false(no)
   delay: 2 #In seconds
   author: "&cServer Staffs"
-  title: "&6&lTREASURE HUNT - INFO"
+  title: "&6&lECHOES OF GOLD - INFO"
   pages: #Use '\n' to go on a new line in a page
     - "&5Welcome, adventurer!\n\n&6The night of terror begins...\n3 cursed chests await for you in the Overworld.\n\n&cFind them before they find you."
     - "&7Each chest holds &eancient treasures&7.\nBut beware...\nSome are guarded by monsters.\n\n&4Good luck!"
+
+#Configure general messages. Use "&" for style
+treasure-already-found: "&cYou have &lalready found &cthis treasure!" #Use & for style
+treasure-found: "&aYou have found a &ltreasure&a!"
+player-found-all-treasures: "&6&lGG! &6You have found all the treasures!"
+treasure-has-no-rewards: "&cThis treasure does not have any rewards. Contact the server administrators about this!"
+no-inventory-space-message:
+hints-no-books-configured: "&cThere are no books configured."
+hint-not-found-yet: "&cYou have not found this hint yet!"
+
+#Configure the messages/titles/subtitles during the event. Use '&' for style.
+toggle-event-messages: true
+event-three-quarters-time:
+  toggle: true
+  chat-message-lines: #Use %three_quarters_time% to display 3/4 of the time left
+    - "&a&lTIME LEFT: &a%three_quarters_time%"
+    - "&aHurry!"
+  toggle-title-subtitle: true
+  title:
+    message: "&aHURRY!"
+  subtitle:
+    message: "&aOnly &l%three_quarters_time% seconds &aleft!"
+
+event-half-time:
+  toggle: true
+  chat-message-lines: #Use %half_time% to display 1/2 of the time left
+    - "&a&lTIME LEFT: &a%half_time%"
+    - "&aHurry!"
+  toggle-title-subtitle: true
+  title:
+    message: "&aHURRY!"
+  subtitle:
+    message: "&aOnly &l%half_time% &aleft!"
+
+event-one-quarter-time:
+  toggle: true
+  chat-message-lines: #Use %one_quarter_time% to display 1/4 of the time left
+    - ""
+  toggle-title-subtitle: false
+  title:
+    message: ""
+  subtitle:
+    message: ""
 
 #Configure the Hints GUI settings
 hints-gui:
@@ -59,6 +109,18 @@ start-event-sound: "entity.wither.spawn"
 ses-volume: 1
 ses-pitch: 1
 
+event-three-quarter-time-sound: "block.note_block.pling"
+etqts-volume: 1
+etqts-pitch: 1
+
+event-half-time-sound: "block.note_block.pling"
+ehts-volume: 1
+ehts-pitch: 1
+
+event-one-quarter-time-sound: "block.note_block.pling"
+eoqts-volume: 1
+eoqts-pitch: 1
+
 exit-button-sound: "ui.button.click"
 ebs-volume: 1
 ebs-pitch: 1
@@ -91,43 +153,23 @@ hint-open-sound: "item.book.page_turn"
 hos-volume: 1
 hos-pitch: 1
 
-#Configure the /treasurehunt enable command
-teleport-location-x:
-teleport-location-y:
-teleport-location-z:
-title: "" #Use "&" for style
-subtitle: "" #Use "&" for style
-
 #Configure the treasures custom head
 #For this you need to go to "https://minecraft-heads.com/", search for a desired custom head, then copy and paste the VALUE
 custom-head: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGJmNzJiNmZjZGM4Zjk1ZGYyOGYwNmY0MTUyZWE4YzliZTM4ZGEyODViMmNlZTA0ZTViZWQyMTUzYjM4OWQ5YiJ9fX0="
 
-#Configure the particles that will spawn around the custom head. The structure is "Particle.<name in CAPS>", so only change the <>
+#Configure the particles.
 #https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Particle.html <- go here for all available particles (CAPS matter)
-particle: PORTAL
+treasures-particle: PORTAL
 treasure-found-particle: CRIT
 
-#Configure the Messages. Use "&" for style
-treasure-already-found: "&cYou have &lalready found &cthis treasure!" #Use & for style
-treasure-found: "&aYou have found a &ltreasure&a!"
-player-found-all-treasures: "&6&lGG! &6You have found all the treasures!"
-treasure-has-no-rewards: "&cThis treasure does not have any rewards. Contact the server administrators about this!"
-no-inventory-space-message:
-
-hints-no-books-configured: "&cThere are no books configured."
-hint-not-found-yet: "&cYou have not found this hint yet!"
-
-#This is the duration of the whole game. It is advised NOT TO MODIFY ANYTHING!
-duration:
+#This is the duration of the whole event.
+event-duration: "1m" #d -> days; h -> hours; m -> minutes; s -> seconds
 
 #BOSS BAR
 boss-bar: true #true(yes)/false(no)
-bar-timer: "5m" #d - days; h - hours; m - minutes; s - seconds
 bar-title: "&6&Treasure Hunt Active!"
 bar-title-ended: "&c&lTreasure Hunt Ended! Thanks for your participation. "
-bar-title-time-left: "&5&lTime left: "
-time-left-style: "&5&l" #This is ONLY for styles
-bar-after-time: "&5  TIP: Use &l/hints"
+bar-title-time-left: "&5&lTime left: %time_left%. &5TIP: Use &l/hints" #Use '%time_left%' for displaying the time.
 
 #SCOREBOARD
 #AVAILABLE PLACEHOLDERS:

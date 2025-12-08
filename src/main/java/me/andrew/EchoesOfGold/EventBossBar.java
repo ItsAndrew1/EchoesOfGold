@@ -9,18 +9,22 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public class EventBossBar{
     private final EchoesOfGold plugin;
     private BossBar bossBar;
-    private long endTime;
+    private long duration;
+    private long fullDuration;
     private BukkitRunnable task;
 
     public EventBossBar(EchoesOfGold plugin){
         this.plugin = plugin;
     }
 
-    public void startBossBar(long durationMillis){
+    public void startBossBar(){
         bossBar = Bukkit.createBossBar(ChatColor.GOLD + plugin.getConfig().getString("bar-title"), BarColor.PURPLE, BarStyle.SOLID);
 
         //Displays the bar to every player
@@ -28,32 +32,37 @@ public class EventBossBar{
             bossBar.addPlayer(p);
         }
 
-        //Handles the timer
-        this.endTime = System.currentTimeMillis() + durationMillis;
+        String eventDuration = plugin.getConfig().getString("event-duration");
+        fullDuration = getFullDuration(eventDuration);
+        //Displays the timer on the boss bar
         task = new BukkitRunnable() {
             @Override
             public void run() {
-                long remaining = endTime - System.currentTimeMillis();
-                if(remaining <= 0){
+                duration = plugin.getEventProgressManager().getDuration();
+                if(duration == 0){
                     bossBar.setProgress(0);
-                    plugin.getTreasureManager().removeTreasures();
-                    plugin.getTreasureManager().cancelAllTreasureParticles();
                     bossBar.setTitle(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("bar-title-ended")));
                     cancel();
                     return;
                 }
-                String timeLeft = formatTime(remaining);
-                bossBar.setTitle(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("bar-title-time-left") + plugin.getConfig().getString("time-left-style") + timeLeft + plugin.getConfig().getString("bar-after-time")));
-                double progress = (double) remaining / durationMillis;
-                bossBar.setProgress(Math.max(0.0, Math.min(1.0, progress)));
+
+                try{
+                    String timeLeft = formatTime(duration);
+                    bossBar.setTitle(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("bar-title-time-left").replace("%time_left%", timeLeft)));
+                    double progress = (double) duration / fullDuration;
+                    bossBar.setProgress(Math.max(0.0, Math.min(1.0, progress)));
+                } catch (Exception e){
+                    Bukkit.getLogger().warning("[ECHOES OF GOLD] There was an error with the boss bar.");
+                    Bukkit.getLogger().warning("[ECHOES OF GOLD] "+e.getMessage());
+                    task.cancel();
+                }
             }
         };
         task.runTaskTimer(plugin, 0L, 20L);
     }
 
     //Builds the string for displaying the timer
-    private String formatTime(long millis){
-        long seconds = millis/1000;
+    private String formatTime(long seconds){
         long days = seconds / 86000;
         long hours = (seconds % 86400) / 3600;
         long minutes = (seconds % 3600) / 60;
@@ -69,17 +78,27 @@ public class EventBossBar{
         return sb.toString().trim();
     }
 
-    public void stop(){
+    //Helps to get the full duration of the event
+    private long getFullDuration(String input){
+        long seconds = 0;
+        Matcher m = Pattern.compile("(\\d+)([dhms])").matcher(input.toLowerCase());
+        while (m.find()) {
+            int value = Integer.parseInt(m.group(1));
+            switch (m.group(2)) {
+                case "d" -> seconds += value * 86400L;
+                case "h" -> seconds += value * 3600L;
+                case "m" -> seconds += value * 60L;
+                case "s" -> seconds += value;
+            }
+        }
+        return seconds;
+    }
+
+    public void stopBossBar(){
         if(task!=null) task.cancel();
         if(bossBar!= null) bossBar.removeAll();
     }
 
-    public boolean isActive(){
-        return task != null && !task.isCancelled();
-    }
-    public long getEndTime(){
-        return endTime;
-    }
     public void addPlayer(Player player){
         if(bossBar != null) bossBar.addPlayer(player);
     }

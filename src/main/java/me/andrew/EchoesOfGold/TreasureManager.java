@@ -171,8 +171,8 @@ public class TreasureManager{
         treasureParticleTasks.clear();
     }
 
-    public Particle getParticleFromConfig(){
-        Particle p = Particle.valueOf(plugin.getConfig().getString("particle"));
+    private Particle getParticleFromConfig(){
+        Particle p = Particle.valueOf(plugin.getConfig().getString("treasures-particle"));
         return p;
     }
 }

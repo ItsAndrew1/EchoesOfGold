@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -20,7 +19,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitTask;
 
 
-public class TreasureClickEvent{
+public class TreasureClickEvent implements Listener{
     EchoesOfGold plugin;
     int foundCount;
 
@@ -53,6 +52,7 @@ public class TreasureClickEvent{
             if(loc.getWorld().getName().equalsIgnoreCase(worldName) && loc.getBlockX() == x && loc.getBlockY() == y && loc.getBlockZ() == z){
                 //Handling the rewards and other data
                 handleTreasureFound(player, key);
+                player.sendMessage("Clicked!");
                 if(plugin.getPlayerData().getConfig().getBoolean("players." + player.getName() + ".found." + true)) continue;
                 plugin.getPlayerData().saveConfig();
                 plugin.getPlayerData().reloadConfig();

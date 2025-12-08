@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
@@ -22,12 +21,16 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     private YMLfiles books;
     private YMLfiles playerdata;
     private EventScoreboard scoreboardManager;
+    private EventProgress eventProgressManager;
     private int hintsGuiSize;
     private final Map<UUID, Consumer<String>> chatInput = new HashMap<>(); //This is for player's input in the treasure GUIs
     int bookCount = 0;
-    boolean eventActive;
     private TreasureManager treasureManager;
-    private EventBossBar bar;
+    private EventBossBar bossBar;
+
+    private boolean eventActive;
+    private long eventDuration;
+
     //Defining the GUIs
     private MainManageGUI manageGUI;
     private RewardsChoiceGUI rewardsChoiceGUI;
@@ -46,59 +49,54 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         treasures = new YMLfiles(this, "treasures.yml");
         books = new YMLfiles(this, "books.yml");
         treasureManager = new TreasureManager(this);
-        bar = new EventBossBar(this);
+        bossBar = new EventBossBar(this);
         playerdata = new YMLfiles(this, "playerdata.yml");
         scoreboardManager = new EventScoreboard(this);
-        hintsGUI = new HintsGUI(this);
+        eventProgressManager = new EventProgress(this);
 
-        //Setting the GUIs
+        //Defining the GUIs
         manageTreasuresGUI = new ManageTreasuresGUI(this);
         rewardsChoiceGUI = new RewardsChoiceGUI(this);
         manageGUI = new MainManageGUI(this);
         allTreasuresGUI = new AllTreasuresGUI(this);
         addRewardsGUI = new AddRewardsGUI(this);
+        hintsGUI = new HintsGUI(this);
 
         //Setting the commands and their tabs
         getCommand("eog").setExecutor(new CommandManager(this));
         getCommand("eog").setTabCompleter(new CommandTabs(this));
         getCommand("hints").setExecutor(new CommandManager(this));
 
-        //Setting the events
-        getServer().getPluginManager().registerEvents(manageGUI, this);
-        getServer().getPluginManager().registerEvents(manageTreasuresGUI, this);
-        getServer().getPluginManager().registerEvents(rewardsChoiceGUI, this);
-        getServer().getPluginManager().registerEvents(allTreasuresGUI, this);
-        getServer().getPluginManager().registerEvents(new HintsGUI(this), this);
-        getServer().getPluginManager().registerEvents(this, this);
-        getServer().getPluginManager().registerEvents(addRewardsGUI, this);
+        getServer().getPluginManager().registerEvents(manageGUI, this); //Events of mainManageGUI
+        getServer().getPluginManager().registerEvents(manageTreasuresGUI, this); //Events of manageTreasuresGUI
+        getServer().getPluginManager().registerEvents(rewardsChoiceGUI, this); //Events of rewardsChoiceGUI
+        getServer().getPluginManager().registerEvents(allTreasuresGUI, this); //Events of allTreasuresGUI
+        getServer().getPluginManager().registerEvents(hintsGUI, this); //Events of hints GUI
+        getServer().getPluginManager().registerEvents(new TreasureClickEvent(this), this); //Events of treasure click
+        getServer().getPluginManager().registerEvents(this, this); //Events of the main plugin class
+        getServer().getPluginManager().registerEvents(eventProgressManager, this); //Events of EventProgress class
+        getServer().getPluginManager().registerEvents(addRewardsGUI, this); //Events of AddRewards GUI
 
         //Regaining data after a reload
-        if(getConfig().contains("duration")){
-            long endTime = getConfig().getLong("duration");
-            long remaining = endTime - System.currentTimeMillis();
+        if(eventDuration > 0){
+            eventActive = true;
 
-            if(remaining > 0){
-                eventActive = true;
+            //Restart the boss bar (if it is toggled)
+            boolean toggleBossBar = getConfig().getBoolean("boss-bar");
+            if(toggleBossBar) bossBar.startBossBar();
 
-                //Restart the boss bar (if it is toggled)
-                boolean toggleBossBar = getConfig().getBoolean("boss-bar");
-                if(toggleBossBar){
-                    bar.startBossBar(remaining);
-                    for(Player p : Bukkit.getOnlinePlayers()) bar.addPlayer(p);
-                }
+            //Restart the scoreboard (if it is toggled)
+            boolean toggleScoreboard = getConfig().getBoolean("scoreboard");
+            if(toggleScoreboard) scoreboardManager.updateScoreboard();
 
-                //Restart the scoreboard (if it is toggled)
-                boolean toggleScoreboard = getConfig().getBoolean("scoreboard");
-                if(toggleScoreboard) scoreboardManager.updateScoreboard();
-
-                treasureManager.spawnTreasures();
-                getLogger().warning("Resumed event!");
-            }
-            else{
-                eventActive = false;
-                for(Player p : Bukkit.getOnlinePlayers()){
-                    p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
-                }
+            treasureManager.spawnTreasures();
+            treasureManager.spawnChestParticles();
+            getLogger().warning("Resumed event!");
+        }
+        else{
+            eventActive = false;
+            for(Player p : Bukkit.getOnlinePlayers()){
+                p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
             }
         }
 
@@ -177,24 +175,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         } catch (Exception e){
             Bukkit.getLogger().warning("[E.O.G] "+e.getMessage()); //This is for the boolean and for the slot
         }
-
-        //Check if the coordonates of the enable command are ok
-        String coordX = getConfig().getString("teleport-location-x");
-        String coordY = getConfig().getString("teleport-location-x");
-        String coordZ = getConfig().getString("teleport-location-z");
-        if(coordX != null && coordY != null && coordZ != null){
-            try{
-                int intCoordX = Integer.parseInt(coordX);
-                int intCoordY = Integer.parseInt(coordY);
-                int intCoordZ = Integer.parseInt(coordZ);
-            } catch (NumberFormatException e){
-                Bukkit.getLogger().warning("[E.O.G] The enable command coordonates MUST be a number!");
-                Bukkit.getLogger().warning("[E.O.G] Error message: "+e.getMessage());
-            }
-        }
-        else{
-            Bukkit.getLogger().warning("[E.O.G] One/more coordonates from the enable command are null!");
-        }
     }
 
     //Saving data after shutting down the server
@@ -203,9 +183,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         playerdata.saveConfig();
         books.saveConfig();
         treasures.saveConfig();
-        if(!eventActive){
-            getConfig().set("duration", null);
-        }
         Bukkit.getLogger().info("Echoes of Gold shut down successfully!");
     }
 
@@ -226,19 +203,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         Bukkit.getScheduler().runTask(this, () -> callback.accept(input));
     }
 
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event){
-        if(!eventActive) return; //If the event isn't active returns.
-        Player player = event.getPlayer();
-
-        //Check if the boss bar and scoreboard are toggled
-        boolean toggleBossBar = getConfig().getBoolean("boss-bar");
-        boolean toggleScoreboard = getConfig().getBoolean("scoreboard");
-        if(toggleBossBar) getBossBar().addPlayer(player);
-        if(toggleScoreboard) getScoreboardManager().createScoreboard(player);
-        getTreasureManager().spawnChestParticles();
-    }
-
     //Getters
     public YMLfiles getTreasures(){
         return treasures;
@@ -253,13 +217,32 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         return playerdata;
     }
     public EventBossBar getBossBar(){
-        return bar;
+        return bossBar;
     }
     public EventScoreboard getScoreboardManager(){
         return scoreboardManager;
     }
+    public EventProgress getEventProgressManager(){
+        return eventProgressManager;
+    }
     public int getHintsGUISize(){
         return hintsGuiSize;
+    }
+
+    //Getter and setter for eventActive boolean
+    public boolean isEventActive(){
+        return eventActive;
+    }
+    public void setEventActive(boolean value){
+        eventActive = value;
+    }
+
+    //Getter and setter for eventDuration
+    public long getEventDuration(){
+        return eventDuration;
+    }
+    public void setEventDuration(long duration){
+        eventDuration = duration;
     }
 
     //Getters for the GUIs
