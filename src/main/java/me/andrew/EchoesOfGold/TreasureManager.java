@@ -31,7 +31,6 @@ public class TreasureManager{
         //Checks if there are any treasures configured
         if(treasures.getConfigurationSection("treasures") == null || treasures.getConfigurationSection("treasures").getKeys(false).isEmpty()){
             Bukkit.getLogger().warning("No treasures found in treasures.yml");
-
             return;
         }
 

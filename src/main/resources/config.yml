@@ -29,43 +29,67 @@ treasure-already-found: "&cYou have &lalready found &cthis treasure!" #Use & for
 treasure-found: "&aYou have found a &ltreasure&a!"
 player-found-all-treasures: "&6&lGG! &6You have found all the treasures!"
 treasure-has-no-rewards: "&cThis treasure does not have any rewards. Contact the server administrators about this!"
-no-inventory-space-message:
+no-inventory-space-message: "&cYou don't have enough inventory space!"
 hints-no-books-configured: "&cThere are no books configured."
 hint-not-found-yet: "&cYou have not found this hint yet!"
 
 #Configure the messages/titles/subtitles during the event. Use '&' for style.
 toggle-event-messages: true
-event-three-quarters-time:
+event-three-quarters-time: #Configure the messages for the 3/4 of the time left
   toggle: true
   chat-message-lines: #Use %three_quarters_time% to display 3/4 of the time left
     - "&a&lTIME LEFT: &a%three_quarters_time%"
     - "&aHurry!"
   toggle-title-subtitle: true
   title:
-    message: "&aHURRY!"
+    message: "&f&lHURRY!"
   subtitle:
     message: "&aOnly &l%three_quarters_time% seconds &aleft!"
 
-event-half-time:
+event-half-time: #Configure the messages for the 1/2 of the time left
   toggle: true
   chat-message-lines: #Use %half_time% to display 1/2 of the time left
     - "&a&lTIME LEFT: &a%half_time%"
     - "&aHurry!"
   toggle-title-subtitle: true
   title:
-    message: "&aHURRY!"
-  subtitle:
-    message: "&aOnly &l%half_time% &aleft!"
+    message: "&f&lHURRY!"
+  subtitle: #Same is this
+    message: "&aOnly &l%half_time% &aseconds left!"
 
-event-one-quarter-time:
+event-one-quarter-time: #Configure the messages for the 1/4 of the time left
   toggle: true
   chat-message-lines: #Use %one_quarter_time% to display 1/4 of the time left
-    - ""
-  toggle-title-subtitle: false
+    - "&a&lTIME LEFT: &a%one_quarter_time% seconds!"
+  toggle-title-subtitle: true
   title:
-    message: ""
+    message: "&f&lHURRY!"
   subtitle:
-    message: ""
+    message: "&aOnly &a&l%one_quarter_time% &aseconds left!"
+
+event-final-time: #This is the time when the event ends
+  finish-event-message:
+    toggle: true
+    #PLACEHOLDERS:
+    # - %topN_name% -> The top N player's IGN (N = {1,2,3})
+    # - %topN_count% -> The top N player's treasures found (N = {1,2,3})
+    message-lines:
+      - "      &c&lEVENT FINISHED"
+      - ""
+      - ""
+      - "  &e1) &l%top1_name% &e- &l%top1_count% &etreasures"
+      - "  &72) &l%top2_name% &7- &l%top2_count% &7treasures"
+      - "  &63) &l%top3_name% &6- &l%top3_count% &6treasures"
+      - ""
+      - ""
+      - " &d&lTHANK YOU FOR PARTICIPATING!"
+  final-countdown:
+    seconds-to-start: 10 #Set the seconds from when the countdown will begin
+    title: "&d&l%cooldown_time%" #Use %cooldown_time% to display the timer
+    subtitle: ""
+  #This is the title/subtitle that appears when the event finishes
+  finish-event-title: "&e&lTREASURE HUNT IS FINISHED!"
+  finish-event-subtitle: "&aCongrats %player_name% for your progress." #Use %player_name% to display the player's name
 
 #Configure the Hints GUI settings
 hints-gui:
@@ -109,15 +133,23 @@ start-event-sound: "entity.wither.spawn"
 ses-volume: 1
 ses-pitch: 1
 
-event-three-quarter-time-sound: "block.note_block.pling"
+countdown-sound: "block.note_block.hat"
+cs-volume: 1
+cs-pitch: 1
+
+event-finish-sound: "entity.ender_dragon.death"
+efs-volume: 1
+efs-pitch: 1
+
+event-three-quarter-time-sound: "block.note_block.hat"
 etqts-volume: 1
 etqts-pitch: 1
 
-event-half-time-sound: "block.note_block.pling"
+event-half-time-sound: "block.note_block.hat"
 ehts-volume: 1
 ehts-pitch: 1
 
-event-one-quarter-time-sound: "block.note_block.pling"
+event-one-quarter-time-sound: "block.note_block.hat"
 eoqts-volume: 1
 eoqts-pitch: 1
 
@@ -170,6 +202,7 @@ boss-bar: true #true(yes)/false(no)
 bar-title: "&6&Treasure Hunt Active!"
 bar-title-ended: "&c&lTreasure Hunt Ended! Thanks for your participation. "
 bar-title-time-left: "&5&lTime left: %time_left%. &5TIP: Use &l/hints" #Use '%time_left%' for displaying the time.
+stop-boss-bar-interval: 10 #Stop the boss bar after <interval> seconds when event ends
 
 #SCOREBOARD
 #AVAILABLE PLACEHOLDERS:
@@ -205,3 +238,6 @@ help-message:
     - "&l/th hints create <name> &r-> creates a book with that name"
     - "&l/th hints delete <name> &r-> deletes the book with that name"
     - "&l/th hints manage <name> &r-> helps managing the hints"
+
+#This is for saving the duration over time (in case of a server reload)
+saving-duration:

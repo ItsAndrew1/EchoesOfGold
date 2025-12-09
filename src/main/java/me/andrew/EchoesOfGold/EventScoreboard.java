@@ -21,21 +21,21 @@ public class EventScoreboard{
         this.plugin = plugin;
     }
 
-    public void updateScoreboard(){
+    public void startScoreboard(){
         int interval = plugin.getConfig().getInt("scoreboard-interval") * 20;
 
         task = new BukkitRunnable(){
             @Override
             public void run(){
                 for(Player player : Bukkit.getOnlinePlayers()){
-                    createScoreboard(player);
+                    updateScoreboard(player);
                 }
             }
         };
         task.runTaskTimer(plugin, 0L, interval);
     }
 
-    public void createScoreboard(Player player){
+    public void updateScoreboard(Player player){
         plugin.getTreasures().reloadConfig();
         plugin.getPlayerData().reloadConfig();
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
@@ -97,7 +97,7 @@ public class EventScoreboard{
         plugin.getTreasures().reloadConfig();
         plugin.getPlayerData().reloadConfig();
         for(Player player : Bukkit.getOnlinePlayers()){
-            createScoreboard(player);
+            updateScoreboard(player);
         }
     }
 }

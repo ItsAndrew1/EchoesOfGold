@@ -52,7 +52,6 @@ public class TreasureClickEvent implements Listener{
             if(loc.getWorld().getName().equalsIgnoreCase(worldName) && loc.getBlockX() == x && loc.getBlockY() == y && loc.getBlockZ() == z){
                 //Handling the rewards and other data
                 handleTreasureFound(player, key);
-                player.sendMessage("Clicked!");
                 if(plugin.getPlayerData().getConfig().getBoolean("players." + player.getName() + ".found." + true)) continue;
                 plugin.getPlayerData().saveConfig();
                 plugin.getPlayerData().reloadConfig();

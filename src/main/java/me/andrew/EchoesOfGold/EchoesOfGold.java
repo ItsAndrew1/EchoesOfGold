@@ -23,6 +23,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     private EventScoreboard scoreboardManager;
     private EventProgress eventProgressManager;
     private int hintsGuiSize;
+    private int savedDuration = getConfig().getInt("saving-duration");
     private final Map<UUID, Consumer<String>> chatInput = new HashMap<>(); //This is for player's input in the treasure GUIs
     int bookCount = 0;
     private TreasureManager treasureManager;
@@ -78,7 +79,9 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         getServer().getPluginManager().registerEvents(addRewardsGUI, this); //Events of AddRewards GUI
 
         //Regaining data after a reload
-        if(eventDuration > 0){
+        if(savedDuration > 0){
+            eventDuration = savedDuration;
+            getEventProgressManager().startEvent(formatTime(eventDuration));
             eventActive = true;
 
             //Restart the boss bar (if it is toggled)
@@ -87,11 +90,11 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
 
             //Restart the scoreboard (if it is toggled)
             boolean toggleScoreboard = getConfig().getBoolean("scoreboard");
-            if(toggleScoreboard) scoreboardManager.updateScoreboard();
+            if(toggleScoreboard) scoreboardManager.startScoreboard();
 
             treasureManager.spawnTreasures();
             treasureManager.spawnChestParticles();
-            getLogger().warning("Resumed event!");
+            getLogger().warning("[ECHOES OF GOLD] Resumed event!");
         }
         else{
             eventActive = false;
@@ -180,14 +183,33 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     //Saving data after shutting down the server
     @Override
     public void onDisable(){
+        saveConfig();
         playerdata.saveConfig();
         books.saveConfig();
         treasures.saveConfig();
+
+        savedDuration = getConfig().getInt("saved-duration");
         Bukkit.getLogger().info("Echoes of Gold shut down successfully!");
     }
 
     public void waitForPlayerInput(Player player, Consumer<String> callback){
         chatInput.put(player.getUniqueId(), callback);
+    }
+
+    private String formatTime(long seconds){
+        long days = seconds / 86000;
+        long hours = (seconds % 86400) / 3600;
+        long minutes = (seconds % 3600) / 60;
+        long secs = seconds % 60;
+
+        StringBuilder sb = new StringBuilder();
+
+        if(days > 0) sb.append(days).append("d ");
+        if(hours > 0 || days > 0) sb.append(hours).append("h ");
+        if(minutes > 0 || hours > 0 || days > 0) sb.append(minutes).append("m ");
+        sb.append(secs).append("s ");
+
+        return sb.toString().trim();
     }
 
     @EventHandler

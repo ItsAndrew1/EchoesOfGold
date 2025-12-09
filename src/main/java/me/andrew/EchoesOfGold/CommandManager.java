@@ -130,7 +130,7 @@ public class CommandManager implements CommandExecutor{
 
                     //If the scoreboard is toggled, it shows up on the screen.
                     if(plugin.getConfig().getString("scoreboard").equalsIgnoreCase("true")){
-                        plugin.getScoreboardManager().updateScoreboard();
+                        plugin.getScoreboardManager().startScoreboard();
                     }
 
                     Bukkit.getLogger().info("[ECHOES OF GOLD] Event started successfully");

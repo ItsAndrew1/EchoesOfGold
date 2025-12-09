@@ -1,6 +1,5 @@
 package me.andrew.EchoesOfGold;
 
-import io.papermc.paper.event.player.AsyncChatCommandDecorateEvent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -8,8 +7,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,6 +16,7 @@ public class EventProgress implements Listener {
     private final EchoesOfGold plugin;
     private long duration;
     private long fullDuration;
+    private int countDownValue;
     private BukkitRunnable task;
 
     public EventProgress(EchoesOfGold plugin){
@@ -25,9 +25,12 @@ public class EventProgress implements Listener {
 
     public void startEvent(String durationString){
         duration = parseDuration(durationString);
-        fullDuration = parseDuration(durationString);
+
+        String fullDurationString = plugin.getConfig().getString("event-duration");
+        fullDuration = parseDuration(fullDurationString);
         plugin.setEventDuration(duration);
 
+        countDownValue = plugin.getConfig().getInt("event-final-time.final-countdown.seconds-to-start");
         eventProgress();
     }
 
@@ -37,9 +40,50 @@ public class EventProgress implements Listener {
             public void run() {
                 duration--;
                 plugin.setEventDuration(duration);
+                plugin.getConfig().set("saving-duration", duration);
+                plugin.saveConfig();
+
+                //Starts the cooldown event
+                if(duration <= countDownValue && duration > 0){
+                    //Getting the sound and sound's volume/pitch
+                    Sound countdownSound = Registry.SOUNDS.get(NamespacedKey.minecraft(plugin.getConfig().getString("countdown-sound").toLowerCase()));
+                    float csVolume = plugin.getConfig().getInt("cs-volume");
+                    float csPitch = plugin.getConfig().getInt("cs-pitch");
+
+                    //Getting the title/subtitle and replacing the %% placeholder
+                    String countdownTitle = plugin.getConfig().getString("event-final-time.final-countdown.title");
+                    String countdownSubtitle = plugin.getConfig().getString("event-final-time.final-countdown.subtitle");
+                    if(countdownTitle.contains("%cooldown_time%")) countdownTitle =  countdownTitle.replace("%cooldown_time%", String.valueOf(duration));
+                    if(countdownSubtitle.contains("%cooldown_time%"))countdownSubtitle = countdownSubtitle.replace("%cooldown_time%", String.valueOf(duration));
+
+                    for(Player p : Bukkit.getOnlinePlayers()){
+                        p.sendTitle(ChatColor.translateAlternateColorCodes('&', countdownTitle), ChatColor.translateAlternateColorCodes('&', countdownSubtitle));
+                        p.playSound(p.getLocation(), countdownSound, csVolume, csPitch);
+                    }
+                }
+
+                //Finishes the event
                 if(duration == 0){
-                    eventFinishMessage();
-                    stopEvent();
+                    eventFinishChatMessage();
+
+                    plugin.getTreasureManager().removeTreasures();
+                    plugin.getTreasureManager().cancelAllTreasureParticles();
+                    plugin.getPlayerData().getConfig().set("players", null);
+                    plugin.getPlayerData().saveConfig();
+
+                    //Stops the boss bar/scoreboard
+                    long bossBarDelay = plugin.getConfig().getLong("stop-boss-bar-interval");
+                    new BukkitRunnable(){
+                        @Override
+                        public void run() {
+                            plugin.getBossBar().stopBossBar();
+                        }
+                    }.runTaskLater(plugin, bossBarDelay*20L);
+                    for(Player p : Bukkit.getOnlinePlayers()){
+                        plugin.getScoreboardManager().stopScoreboard(p);
+                    }
+                    task.cancel();
+                    plugin.setEventActive(false);
                 }
 
                 //Displays messages in chat based on the timer
@@ -71,9 +115,8 @@ public class EventProgress implements Listener {
             for(Player p : Bukkit.getOnlinePlayers()){
                 for(String messageLine : threeQmessageLines){ //Displays the message
                     //Replaces the %% placeholder if the line contains it
-                    String phMessage;
                     if(messageLine.contains("%three_quarters_time%")){
-                        phMessage = ChatColor.translateAlternateColorCodes('&', messageLine.replace("%three_quarters_time%", String.valueOf(threeQuartersTime)));
+                        String phMessage = ChatColor.translateAlternateColorCodes('&', messageLine.replace("%three_quarters_time%", String.valueOf(threeQuartersTime)));
                         p.sendMessage(phMessage);
                     }
                     else{
@@ -118,9 +161,8 @@ public class EventProgress implements Listener {
             for(Player p : Bukkit.getOnlinePlayers()){
                 for(String messageLine : messageLines){ //Displays the message
                     //Replaces the %% placeholder if the line contains it
-                    String phMessage;
                     if(messageLine.contains("%half_time%")){
-                        phMessage = ChatColor.translateAlternateColorCodes('&', messageLine.replace("%half_time%", String.valueOf(halfTime)));
+                        String phMessage = ChatColor.translateAlternateColorCodes('&', messageLine.replace("%half_time%", String.valueOf(halfTime)));
                         p.sendMessage(phMessage);
                     }
                     else{
@@ -136,7 +178,7 @@ public class EventProgress implements Listener {
                     title = plugin.getConfig().getString("event-half-time.title.message");
                     subtitle = plugin.getConfig().getString("event-half-time.subtitle.message");
 
-                    //Check if the title has the %% placeholder
+                    //Check if the title/subtitle has the %% placeholder
                     if(title.contains("%half_time%")) title = title.replace("%half_time%", String.valueOf(halfTime));
                     if(subtitle.contains("%half_time%")) subtitle = subtitle.replace("%half_time%", String.valueOf(halfTime));
 
@@ -147,12 +189,87 @@ public class EventProgress implements Listener {
             }
             return;
         }
+
+        if(plugin.getEventDuration() == oneQuarterTime){
+            //Check if the oneQuarterTime message is toggled
+            boolean oqtToggle = plugin.getConfig().getBoolean("event-one-quarter-time.toggle");
+            if(!oqtToggle) return;
+
+            Sound oqtSound = Registry.SOUNDS.get(NamespacedKey.minecraft(plugin.getConfig().getString("event-one-quarter-time-sound").toLowerCase()));
+            float oqtsVolume = plugin.getConfig().getInt("eoqts-volume");
+            float oqtsPitch = plugin.getConfig().getInt("eoqts-pitch");
+
+            List<String> chatMessageLines = plugin.getConfig().getStringList("event-one-quarter-time.chat-message-lines");
+            for(Player p : Bukkit.getOnlinePlayers()){
+                for(String messageLine : chatMessageLines){
+                    //Check if the message line has the %% placeholder
+                    if(messageLine.contains("%one_quarter_time%")){
+                        String phMessage = ChatColor.translateAlternateColorCodes('&', messageLine.replace("%one_quarter_time%", String.valueOf(oneQuarterTime)));
+                        p.sendMessage(phMessage);
+                    }
+                    else{
+                        String normalLine = ChatColor.translateAlternateColorCodes('&', messageLine);
+                        p.sendMessage(normalLine);
+                    }
+                }
+
+                //Send the players title and subtitle if they are toggled
+                boolean toggleTitleSubtitle = plugin.getConfig().getBoolean("event-one-quarter-time.toggle-title-subtitle");
+                if(toggleTitleSubtitle){
+                    String title = plugin.getConfig().getString("event-one-quarter-time.title.message");
+                    String subtitle = plugin.getConfig().getString("event-one-quarter-time.subtitle.message");
+
+                    //Check if the title/subtitle contains %% placeholder
+                    if(title.contains("%one_quarter_time%")) title = title.replace("%one_quarter_time%", String.valueOf(oneQuarterTime));
+                    if(subtitle.contains("%one_quarter_time%")) subtitle = subtitle.replace("%one_quarter_time%", String.valueOf(oneQuarterTime));
+
+                    p.sendTitle(ChatColor.translateAlternateColorCodes('&', title), ChatColor.translateAlternateColorCodes('&', subtitle));
+                }
+
+                p.playSound(p.getLocation(), oqtSound, oqtsVolume, oqtsPitch); //Plays the sound to the players
+            }
+        }
     }
 
-    private void eventFinishMessage(){
+    private void eventFinishChatMessage(){
+        //Check if the message is toggled
+        boolean toggleMessage = plugin.getConfig().getBoolean("event-final-time.finish-event-message.toggle");
+        if(!toggleMessage) return;
 
+        //Sends the chat message
+        List<String> messageLines = plugin.getConfig().getStringList("event-final-time.finish-event-message.message-lines");
+        List<Map.Entry<String, Integer>> top3Players = plugin.getTreasureManager().getTopPlayers();
         for(Player p : Bukkit.getOnlinePlayers()){
-            p.sendMessage("Salut!");
+            String top1player = !top3Players.isEmpty() ? top3Players.getFirst().getKey() : "None";
+            int t1pTreasures = !top3Players.isEmpty() ? top3Players.getFirst().getValue() : 0;
+            String top2player = top3Players.size() > 1 ? top3Players.get(1).getKey() : "None";
+            int t2pTreasures = top3Players.size() > 1 ? top3Players.get(1).getValue() : 0;
+            String top3player = top3Players.size() > 2 ? top3Players.get(2).getKey() : "None";
+            int t3pTreasures = top3Players.size() > 2 ? top3Players.get(2).getValue() : 0;
+
+            Sound eventFinishSound = Registry.SOUNDS.get(NamespacedKey.minecraft(plugin.getConfig().getString("event-finish-sound").toLowerCase()));
+            float efsVolume = plugin.getConfig().getInt("efs-volume");
+            float efsPitch = plugin.getConfig().getInt("efs-pitch");
+
+            String title = plugin.getConfig().getString("event-final-time.finish-event-title");
+            String subtitle = plugin.getConfig().getString("event-final-time.finish-event-subtitle");
+
+            for(String messageLine : messageLines){
+                title = title.replace("%player_name%", p.getName());
+                subtitle = subtitle.replace("%player_name%", p.getName());
+                String phLine = messageLine
+                        .replace("%top1_name%", top1player)
+                        .replace("%top2_name%", top2player)
+                        .replace("%top3_name%", top3player)
+                        .replace("%top1_count%", String.valueOf(t1pTreasures))
+                        .replace("%top2_count%", String.valueOf(t2pTreasures))
+                        .replace("%top3_count%", String.valueOf(t3pTreasures));
+
+                String coloredParsed = ChatColor.translateAlternateColorCodes('&', phLine);
+                p.sendMessage(coloredParsed);
+                p.sendTitle(ChatColor.translateAlternateColorCodes('&', title),  ChatColor.translateAlternateColorCodes('&', subtitle));
+            }
+            p.playSound(p.getLocation(), eventFinishSound, efsVolume, efsPitch);
         }
     }
 
@@ -189,7 +306,7 @@ public class EventProgress implements Listener {
         boolean toggleBossBar = plugin.getConfig().getBoolean("boss-bar");
         boolean toggleScoreboard = plugin.getConfig().getBoolean("scoreboard");
         if(toggleBossBar) plugin.getBossBar().addPlayer(player);
-        if(toggleScoreboard) plugin.getScoreboardManager().createScoreboard(player);
+        if(toggleScoreboard) plugin.getScoreboardManager().updateScoreboard(player);
 
         //Spawns the treasures and their particles
         plugin.getTreasureManager().spawnTreasures();
