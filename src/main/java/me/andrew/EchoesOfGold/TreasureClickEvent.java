@@ -30,6 +30,10 @@ public class TreasureClickEvent implements Listener{
     @EventHandler
     public void onTreasureClick(PlayerInteractEvent event){
         FileConfiguration treasures = plugin.getTreasures().getConfig();
+
+        //If the event is canceled, returns
+        if(!plugin.isEventActive()) return;
+
         if(event.getHand() != EquipmentSlot.HAND) return;
         if(event.getClickedBlock() == null) return;
         if(event.getClickedBlock().getType() != Material.PLAYER_HEAD) return;

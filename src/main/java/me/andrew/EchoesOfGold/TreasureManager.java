@@ -101,7 +101,17 @@ public class TreasureManager{
             BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (!data.getBoolean("players." + p.getName() + ".found." + key)) {
-                        p.spawnParticle(getParticleFromConfig(), loc, 40, 0.4, 0.5, 0.4, 0);
+                        //Check if the particle is valid or not
+                        Particle chestParticle;
+                        try{
+                            String value = plugin.getConfig().getString("treasures-particle");
+                            chestParticle = getParticleFromConfig(value);
+                        } catch (Exception e){
+                            Bukkit.getLogger().warning("[EchoesOfGold] Value of 'treasures-particle' is INVALID!");
+                            return;
+                        }
+
+                        p.spawnParticle(chestParticle, loc, 40, 0.4, 0.5, 0.4, 0);
                     }
                 }
             }, 0L, 10L);
@@ -170,8 +180,7 @@ public class TreasureManager{
         treasureParticleTasks.clear();
     }
 
-    private Particle getParticleFromConfig(){
-        Particle p = Particle.valueOf(plugin.getConfig().getString("treasures-particle"));
-        return p;
+    private Particle getParticleFromConfig(String value){
+        return Particle.valueOf(value.toUpperCase());
     }
 }
