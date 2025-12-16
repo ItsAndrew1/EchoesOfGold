@@ -87,13 +87,36 @@ public class TreasureClickEvent implements Listener{
             float tafVolume = plugin.getConfig().getInt("tfs-volume");
             float tafPitch = plugin.getConfig().getInt("tfs-pitch");
 
-            //Spawning the particle
-            double treasureX = treasures.getDouble("treasures."+treasureID+".x") + 0.5;
-            double treasureY = treasures.getDouble("treasures."+treasureID+".y");
-            double treasureZ = treasures.getDouble("treasures."+treasureID+".z") + 0.5;
+            //Spawning the particle (if it is toggled)
+            boolean toggleFoundParticle = plugin.getConfig().getBoolean("treasure-found-particle.toggle");
+            if(toggleFoundParticle){
+                double treasureX = treasures.getDouble("treasures."+treasureID+".x") + 0.5;
+                double treasureY = treasures.getDouble("treasures."+treasureID+".y");
+                double treasureZ = treasures.getDouble("treasures."+treasureID+".z") + 0.5;
 
-            Location loc = new Location(Bukkit.getWorld("treasures."+treasureID+".world"), treasureX, treasureY, treasureZ);
-            player.spawnParticle(getParticleFromConfig(), loc, 35, 0.2, 0.4, 0.2, 0);
+                Location loc = new Location(Bukkit.getWorld("treasures."+treasureID+".world"), treasureX, treasureY, treasureZ);
+                Particle foundParticle;
+                try{
+                    String value = plugin.getConfig().getString("treasure-found-particle.particle").toUpperCase();
+                    foundParticle = getParticleFromConfig(value);
+
+                    //Getting data for the particle
+                    int particleCount = plugin.getConfig().getInt("treasure-found-particle.count");
+                    double particleOffsetX = plugin.getConfig().getDouble("treasure-found-particle.offsetX");
+                    double particleOffsetY = plugin.getConfig().getDouble("treasure-found-particle.offsetY");
+                    double particleOffsetZ = plugin.getConfig().getDouble("treasure-found-particle.offsetZ");
+                    double particleExtra =  plugin.getConfig().getDouble("treasure-found-particle.extra");
+
+                    player.spawnParticle(foundParticle, loc, particleCount, particleOffsetX, particleOffsetY, particleOffsetZ, particleExtra);
+                } catch(Exception e){
+                    Bukkit.getLogger().warning("[EchoesOfGold] The value for treasure-found-particle is INVALID! The particle will not show up!");
+                    return;
+                } finally{
+                    player.playSound(player.getLocation(), treasureAlreadyFound, tafVolume, tafPitch);
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("treasure-already-found")));
+                }
+                return;
+            }
 
             player.playSound(player.getLocation(), treasureAlreadyFound, tafVolume, tafPitch);
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("treasure-already-found")));
@@ -219,8 +242,7 @@ public class TreasureClickEvent implements Listener{
     }
 
     //Gets the particle from 'config.yml'
-    private Particle getParticleFromConfig(){
-        Particle p = Particle.valueOf(plugin.getConfig().getString("treasure-found-particle"));
-        return p;
+    private Particle getParticleFromConfig(String value){
+        return Particle.valueOf(value);
     }
 }

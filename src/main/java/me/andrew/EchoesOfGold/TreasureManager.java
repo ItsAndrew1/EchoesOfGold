@@ -7,6 +7,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Skull;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -72,13 +73,20 @@ public class TreasureManager{
         }
     }
 
-    //Chest Particles
+    //Spawns the particles for the treasures
     public void spawnChestParticles() {
         FileConfiguration treasures = plugin.getTreasures().getConfig();
         FileConfiguration data = plugin.getPlayerData().getConfig();
 
-        if (!treasures.isConfigurationSection("treasures")) return;
+        //Check if particles are toggled
+        boolean toggleChestParticles = plugin.getConfig().getBoolean("treasures-particle.toggle");
+        if(!toggleChestParticles) return;
 
+        //Check if there are any treasures configured
+        ConfigurationSection treasuresSection = treasures.getConfigurationSection("treasures");
+        if (treasuresSection == null || treasuresSection.getKeys(false).isEmpty()) return;
+
+        //Stores the particle tasks in a HashMap for each treasure
         for (String key : treasures.getConfigurationSection("treasures").getKeys(false)) {
             String path = "treasures." + key;
             boolean allFound = true;
@@ -90,8 +98,8 @@ public class TreasureManager{
                     }
                 }
             }
-            if (allFound) continue;
-            if (treasureParticleTasks.containsKey(key)) continue;
+            if (allFound) continue; //Skips if the player found all the treasures
+            if (treasureParticleTasks.containsKey(key)) continue; //Skips if the treasure already has the particles enabled
 
             double x = treasures.getDouble(path + ".x") + 0.5;
             double y = treasures.getDouble(path + ".y");
@@ -104,14 +112,21 @@ public class TreasureManager{
                         //Check if the particle is valid or not
                         Particle chestParticle;
                         try{
-                            String value = plugin.getConfig().getString("treasures-particle");
+                            String value = plugin.getConfig().getString("treasures-particle.particle").toUpperCase();
                             chestParticle = getParticleFromConfig(value);
+
+                            //Gets the data for the particle
+                            int particleCount = plugin.getConfig().getInt("treasures-particle.count");
+                            double particleOffsetX = plugin.getConfig().getDouble("treasures-particle.offsetX");
+                            double particleOFFSETY = plugin.getConfig().getDouble("treasures-particle.offsetY");
+                            double particleOffsetZ = plugin.getConfig().getDouble("treasures-particle.offsetZ");
+                            double particleExtra =  plugin.getConfig().getDouble("treasures-particle.extra");
+
+                            p.spawnParticle(chestParticle, loc, particleCount, particleOffsetX, particleOFFSETY, particleOffsetZ, particleExtra);
                         } catch (Exception e){
-                            Bukkit.getLogger().warning("[EchoesOfGold] Value of 'treasures-particle' is INVALID!");
+                            Bukkit.getLogger().warning("[EchoesOfGold] Value of 'treasures-particle' is INVALID! The particles won't show up!");
                             return;
                         }
-
-                        p.spawnParticle(chestParticle, loc, 40, 0.4, 0.5, 0.4, 0);
                     }
                 }
             }, 0L, 10L);
@@ -142,14 +157,12 @@ public class TreasureManager{
                 block.setType(Material.AIR);
             }
         }
-        Bukkit.getLogger().info("[TH] All treasures have been removed!");
     }
 
-    //Get the top 3 players (used for SCOREBOARD)
+    //Get the top 3 players (used for SCOREBOARD and FINAL CHAT MESSAGE)
     public List<Map.Entry<String, Integer>> getTopPlayers() {
         plugin.getPlayerData().reloadConfig();
         FileConfiguration data = plugin.getPlayerData().getConfig();
-
         Map<String, Integer> scores = new HashMap<>();
 
         if (data.isConfigurationSection("players")) {

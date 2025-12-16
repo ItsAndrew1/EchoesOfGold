@@ -1,7 +1,7 @@
 #Developed by: _ItsAndrew_
 #This file is for configuring the main parts of the plugin
 
-chat-prefix: "&f&l[&6&lTH&f&l]" #This is the prefix that shows up in the chat
+chat-prefix: "&f&l[&6&lEOG&f&l]" #This is the prefix that shows up in the chat
 
 toggle-fireworks-effect: true #Toggle the fireworks effect when a player clicks on a treasure
 fw-main-color: "#5d30bf"  #Use HEX COLORS
@@ -189,10 +189,25 @@ hos-pitch: 1
 #For this you need to go to "https://minecraft-heads.com/", search for a desired custom head, then copy and paste the VALUE
 custom-head: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGJmNzJiNmZjZGM4Zjk1ZGYyOGYwNmY0MTUyZWE4YzliZTM4ZGEyODViMmNlZTA0ZTViZWQyMTUzYjM4OWQ5YiJ9fX0="
 
-#Configure the particles.
-#https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Particle.html <- go here for all available particles (CAPS matter)
-treasures-particle: PORTAL
-treasure-found-particle: CRIT
+#Configure the particles. Try to play with all the offset/extra values :)
+#https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Particle.html <- go here for all available particles
+treasures-particle:
+  toggle: true #Whether you want these particles or not
+  particle: PORTAL
+  count: 40
+  offsetX: 0.4
+  offsetY: 0.5
+  offsetZ: 0.4
+  extra: 0 #This is extra data for the particle, usually speed.
+
+treasure-found-particle:
+  toggle: true #Whether you want this particle or not
+  particle: CRIT
+  count: 30
+  offsetX: 0.2
+  offsetY: 0.3
+  offsetZ: 0.2
+  extra: 0 #Again, extra data for the particle, usually speed.
 
 #This is the duration of the whole event.
 event-duration: "1m" #d -> days; h -> hours; m -> minutes; s -> seconds
