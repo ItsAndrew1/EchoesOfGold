@@ -20,7 +20,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 
 public class TreasureClickEvent implements Listener{
-    EchoesOfGold plugin;
+    private final EchoesOfGold plugin;
     int foundCount;
 
     public TreasureClickEvent(EchoesOfGold plugin){

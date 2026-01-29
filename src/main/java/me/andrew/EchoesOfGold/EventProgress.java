@@ -67,7 +67,10 @@ public class EventProgress implements Listener {
                     eventFinishChatMessage();
 
                     plugin.getTreasureManager().removeTreasures();
-                    plugin.getTreasureManager().cancelAllTreasureParticles();
+
+                    //Removing every the particles of the treasures attached to all players
+                    for(OfflinePlayer p : Bukkit.getOfflinePlayers()) plugin.getTreasureManager().cancelOnePlayersParticle(p);
+
                     plugin.getPlayerData().getConfig().set("players", null);
                     plugin.getPlayerData().saveConfig();
 
