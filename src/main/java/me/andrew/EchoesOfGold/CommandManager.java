@@ -148,7 +148,7 @@ public class CommandManager implements CommandExecutor{
                     plugin.getTreasureManager().removeTreasures();
 
                     //Removing the particles of the treasures attached to all players
-                    for(OfflinePlayer p :  Bukkit.getOfflinePlayers()) plugin.getTreasureManager().cancelOnePlayersParticle(p);
+                    for(OfflinePlayer p :  Bukkit.getOfflinePlayers()) plugin.getTreasureManager().cancelParticles();
 
                     plugin.getPlayerData().getConfig().set("players", null);
                     plugin.getPlayerData().saveConfig();

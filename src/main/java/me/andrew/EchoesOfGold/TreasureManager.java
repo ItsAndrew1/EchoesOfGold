@@ -88,7 +88,8 @@ public class TreasureManager{
 
         //Stores the particle tasks in a nested HashMap
         for(Player p : Bukkit.getOnlinePlayers()){
-            Map<String, BukkitTask> playerParticleTask = treasureParticleTasks.get(p.getUniqueId());
+
+            Map<String, BukkitTask> playerParticleTask = new HashMap<>();
 
             for (String key : treasures.getConfigurationSection("treasures").getKeys(false)) {
                 String path = "treasures." + key;
@@ -186,12 +187,26 @@ public class TreasureManager{
         return treasureParticleTasks;
     }
 
-    public void cancelOnePlayersParticle(OfflinePlayer p){
-        //Getting the map attached to the player
-        Map<String, BukkitTask> tasks = treasureParticleTasks.get(p.getUniqueId());
-        if(tasks != null) tasks.clear();
+    public void cancelParticles(){
+        for(OfflinePlayer p : Bukkit.getOfflinePlayers()){
+            //Getting the map attached to the player
+            Map<String, BukkitTask> tasks;
+            try{
+                tasks = treasureParticleTasks.get(p.getUniqueId());
 
-        treasureParticleTasks.clear();
+                //Looping through all the  treasures
+                ConfigurationSection treasures = plugin.getTreasures().getConfig().getConfigurationSection("treasures");
+                for(String treasureId : treasures.getKeys(false)){
+                    BukkitTask task = tasks.get(treasureId);
+                    if(!task.isCancelled()) task.cancel(); //Cancelling the particle task if they aren't already
+                }
+
+                //Clearing the map
+                tasks.clear();
+            } catch (Exception e){
+                continue;
+            }
+        }
     }
 
     private Particle getParticleFromConfig(String value){
