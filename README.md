@@ -2,7 +2,7 @@
 <img width="1080" height="720" alt="BannerTreasureHuntFinal" src="https://github.com/user-attachments/assets/23e69c68-bf3c-49d1-83fc-d85b72820651" />
 
 <p align = "center">
-  <img src="https://img.shields.io/badge/Plugin%20Version-1.2.1-blue?style=for-the-badge"><img src="https://img.shields.io/badge/Minecraft%20Version-1.20%2B-green?style=for-the-badge"><img src="https://img.shields.io/badge/License-MIT-purple?style=for-the-badge"><br>
+  <img src="https://img.shields.io/badge/Plugin%20Version-1.2.2-blue?style=for-the-badge"><img src="https://img.shields.io/badge/Minecraft%20Version-1.20%2B-green?style=for-the-badge"><img src="https://img.shields.io/badge/License-MIT-purple?style=for-the-badge"><br>
 </p>
 
 **Echoes of Gold** is a fully customizable treasure-hunting minigame plugin designed to bring exploration and adventure to your Minecraft server.  
@@ -11,7 +11,7 @@ Players search for hidden treasures, collect rewards, and compete for the top sp
 ---
 
 ## ‼️New Release!
-Check out the **new release**, v1.2.1, [here](https://github.com/ItsAndrew1/TreasureHuntPlugin/releases/tag/v1.2.1)!
+Check out the **new release**, v1.2.2, [here](https://github.com/ItsAndrew1/TreasureHuntPlugin/releases/tag/v1.2.2)!
 
 ---
 
