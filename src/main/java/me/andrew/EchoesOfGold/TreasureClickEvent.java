@@ -18,6 +18,8 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.Map;
+
 
 public class TreasureClickEvent implements Listener{
     private final EchoesOfGold plugin;
@@ -75,9 +77,12 @@ public class TreasureClickEvent implements Listener{
         FileConfiguration treasures = plugin.getTreasures().getConfig();
         String playerPath = "players." + player.getName();
 
-        BukkitTask task = plugin.getTreasureManager().getTreasureParticleTasks().remove(treasureID);
-        if(task != null){
-            task.cancel();
+        Map<String, BukkitTask> treasureParticleTasks = plugin.getTreasureManager().getTreasureParticleTasks().get(player.getUniqueId());
+        BukkitTask taskForTreasure = treasureParticleTasks.get(treasureID);
+
+        //Canceling the task
+        if(taskForTreasure != null){
+            taskForTreasure.cancel();
         }
 
         //If the player already found this treasure
