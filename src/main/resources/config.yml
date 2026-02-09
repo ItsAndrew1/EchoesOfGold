@@ -24,6 +24,10 @@ start-book:
     - "&5Welcome, adventurer!\n\n&6The night of terror begins...\n3 cursed chests await for you in the Overworld.\n\n&cFind them before they find you."
     - "&7Each chest holds &eancient treasures&7.\nBut beware...\nSome are guarded by monsters.\n\n&4Good luck!"
 
+#Configure the Economy part of the plugin. For this you will need 'Vault' plugin and an Economy Plugin
+#This enables the store and the money players get when finding a treasure.
+toggle-using-economy: true
+
 #Configure general messages. Use "&" for style
 treasure-already-found: "&cYou have &lalready found &cthis treasure!" #Use & for style
 treasure-found: "&aYou have found a &ltreasure&a!"

@@ -3,6 +3,8 @@ version: '1.2.2'
 main: me.andrew.EchoesOfGold.EchoesOfGold
 api-version: '1.21'
 author: ItsAndrew
+softdepend:
+  - Vault
 
 permissions:
   eog.admin:

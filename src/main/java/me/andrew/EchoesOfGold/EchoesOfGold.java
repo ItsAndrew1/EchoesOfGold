@@ -3,12 +3,15 @@ package me.andrew.EchoesOfGold;
 
 import me.andrew.EchoesOfGold.GUIs.*;
 
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
@@ -31,6 +34,10 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
 
     private boolean eventActive;
     private long eventDuration;
+
+    //Defining the Economy and Permission object
+    private static Economy economy;
+    private static Permission permission;
 
     //Defining the GUIs
     private MainManageGUI manageGUI;
@@ -178,6 +185,31 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         } catch (Exception e){
             Bukkit.getLogger().warning("[E.O.G] "+e.getMessage()); //This is for the boolean and for the slot
         }
+
+        //Setting up economy and permissions
+        if(!getConfig().getBoolean("toggle-using-economy", false)) return; //Checks the toggle boolean from config.
+        if(!setupEconomy()){
+            getLogger().severe(String.format("[%s] - Economy system disabled due to not having the 'Vault' plugin!", getDescription().getName()));
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        setupPermission();
+    }
+
+    private boolean setupEconomy(){
+        //Checking if the server has the 'Vault' plugin
+        if(getServer().getPluginManager().getPlugin("Vault") == null) return false;
+
+        RegisteredServiceProvider<Economy> rsp =  getServer().getServicesManager().getRegistration(Economy.class);
+        if(rsp == null) return false;
+
+        economy = rsp.getProvider();
+        return economy != null;
+    }
+
+    private void setupPermission(){
+        RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
+        permission = rsp.getProvider();
     }
 
     //Saving data after shutting down the server
@@ -293,5 +325,10 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     }
     public String getTreasureManagerChoice(){
         return treasureManagerChoice;
+    }
+
+    //Getters for Economy and Permission objects
+    public Economy getEconomy(){
+        return economy;
     }
 }
