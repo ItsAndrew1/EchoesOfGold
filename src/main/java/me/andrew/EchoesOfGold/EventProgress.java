@@ -1,6 +1,8 @@
 package me.andrew.EchoesOfGold;
 
 import org.bukkit.*;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -301,18 +303,37 @@ public class EventProgress implements Listener {
 
     //If a player joins during the event
     @EventHandler
-    public void playerJoin(PlayerJoinEvent event){
-        if(!plugin.isEventActive()) return; //If the event isn't active, it returns.
-        Player player = event.getPlayer();
+    public void playerJoin(PlayerJoinEvent event) {
+        if (!plugin.isEventActive()) return; //If the event isn't active, it returns.
+        Player targetPlayer = event.getPlayer();
 
         //Check if the boss bar and scoreboard are toggled
         boolean toggleBossBar = plugin.getConfig().getBoolean("boss-bar");
         boolean toggleScoreboard = plugin.getConfig().getBoolean("scoreboard");
-        if(toggleBossBar) plugin.getBossBar().addPlayer(player);
-        if(toggleScoreboard) plugin.getScoreboardManager().updateScoreboard(player);
+        if (toggleBossBar) plugin.getBossBar().addPlayer(targetPlayer);
+        if (toggleScoreboard) plugin.getScoreboardManager().updateScoreboard(targetPlayer);
 
         //Spawns the treasures and their particles
         plugin.getTreasureManager().spawnTreasures();
         plugin.getTreasureManager().spawnChestParticles();
+
+        ConfigurationSection players = plugin.getPlayerData().getConfig().getConfigurationSection("players");
+        FileConfiguration data = plugin.getPlayerData().getConfig();
+        FileConfiguration treasuresConfig = plugin.getTreasures().getConfig();
+
+        if (!players.contains(targetPlayer.getName())) {
+            String path = "players." + targetPlayer.getName();
+            data.set(path + ".treasures-found", 0);
+
+            if (treasuresConfig.isConfigurationSection("treasures")) {
+                for (String key : treasuresConfig.getConfigurationSection("treasures").getKeys(false)) {
+                    data.set(path + ".found." + key, false);
+                }
+            }
+
+            //Also creates an account for him (if the economy is toggled)
+            boolean toggleEconomy = plugin.getConfig().getBoolean("toggle-using-economy", false);
+            if (toggleEconomy) plugin.getEconomy().createPlayerAccount(targetPlayer);
+        }
     }
 }

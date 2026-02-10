@@ -1,6 +1,7 @@
 //Developed by _ItsAndrew_
 package me.andrew.EchoesOfGold;
 
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -51,7 +52,7 @@ public class CommandManager implements CommandExecutor{
                     if(plugin.isEventActive()){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe game is &lalready active&c!"));
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                        break;
+                        return true;
                     }
 
                     //Check if the coordonates of the enable command are ok
@@ -98,8 +99,6 @@ public class CommandManager implements CommandExecutor{
                         return true;
                     }
 
-                    //Starts the event
-                    plugin.setEventActive(true);
                     //Gets all the players and opens the book after openBookDelay seconds
                     getPlayers();
                     long openBookDelay = plugin.getConfig().getInt("start-book.delay") * 20L;
@@ -119,6 +118,15 @@ public class CommandManager implements CommandExecutor{
                     plugin.getTreasureManager().spawnTreasures();
                     plugin.getTreasureManager().spawnChestParticles();
 
+                    //Check if the economy object isn't null (if it is toggled)
+                    boolean toggleEconomy = plugin.getConfig().getBoolean("toggle-using-economy", false);
+                    if(toggleEconomy && plugin.getEconomy() == null){
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou have economy enabled but there is no economy/Vault plugin found!"));
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                        return true;
+                    }
+                    else setupPlayerAccounts(); //Creates the accounts for the players.
+
                     //Starts the duration
                     String durationString = plugin.getConfig().getString("event-duration");
                     plugin.getEventProgressManager().startEvent(durationString);
@@ -133,7 +141,9 @@ public class CommandManager implements CommandExecutor{
                         plugin.getScoreboardManager().startScoreboard();
                     }
 
-                    Bukkit.getLogger().info("[ECHOES OF GOLD] Event started successfully");
+                    //Starts the event
+                    plugin.setEventActive(true);
+                    Bukkit.getLogger().info("[E.O.G] Event started successfully");
                     break;
 
                 case "disable":
@@ -358,7 +368,7 @@ public class CommandManager implements CommandExecutor{
     }
 
     //Opens the book in /treasurehunt enable
-    public void openStartBook(Player player){
+    private void openStartBook(Player player){
         String author = plugin.getConfig().getString("start-book.author");
         String title = plugin.getConfig().getString("start-book.title");
         List<String> pages = plugin.getConfig().getStringList("start-book.pages");
@@ -378,15 +388,14 @@ public class CommandManager implements CommandExecutor{
     }
 
     //teleports the players in /treasurehunt enable
-    public void teleportPlayers(Player player){
+    private void teleportPlayers(Player player){
         Location teleportLocation = new Location(player.getWorld(), plugin.getConfig().getInt("teleport-location-x"), plugin.getConfig().getInt("teleport-location-y"), plugin.getConfig().getInt("teleport-location-z"));
         player.teleport(teleportLocation);
     }
 
-
-    public void getPlayers(){
+    private void getPlayers(){
         FileConfiguration data = plugin.getPlayerData().getConfig();
-        FileConfiguration treasure = plugin.getTreasures().getConfig();
+        FileConfiguration treasures = plugin.getTreasures().getConfig();
 
         for(Player p : Bukkit.getOnlinePlayers()){
             String path = "players." + p.getName();
@@ -394,13 +403,24 @@ public class CommandManager implements CommandExecutor{
             if(!data.isConfigurationSection(path)){
                 data.set(path + ".treasures-found", 0);
 
-                if(treasure.isConfigurationSection("treasures")){
-                    for(String key : treasure.getConfigurationSection("treasures").getKeys(false)){
+                if(treasures.isConfigurationSection("treasures")){
+                    for(String key : treasures.getConfigurationSection("treasures").getKeys(false)){
                         data.set(path + ".found." + key, false);
                     }
                 }
             }
         }
         plugin.getPlayerData().saveConfig();
+    }
+
+    //Creates the accounts for each player
+    private void setupPlayerAccounts(){
+        Economy economy = plugin.getEconomy();
+
+        for(OfflinePlayer p : Bukkit.getOfflinePlayers()){
+            economy.createPlayerAccount(p);
+        }
+
+        plugin.getLogger().info("[E.O.G] Bank Accounts successfully created for each player of the server.");
     }
 }
