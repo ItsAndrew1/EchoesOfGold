@@ -65,7 +65,7 @@ public class ManageTreasuresGUI implements Listener{
         treasureManagerInv.setItem(infoSignSlot, infoSign);
 
         //Create treasures button
-        int createTreasureSlot = 18;
+        int createTreasureSlot = 11;
         ItemStack createTreasureButton = new ItemStack(Material.SLIME_BALL);
         ItemMeta ctbMeta = createTreasureButton.getItemMeta();
 
@@ -76,7 +76,7 @@ public class ManageTreasuresGUI implements Listener{
         treasureManagerInv.setItem(createTreasureSlot, createTreasureButton);
 
         //Delete treasures button
-        int deleteTreasuresSlot = 20;
+        int deleteTreasuresSlot = 13;
         ItemStack deleteTreasureButton = new ItemStack(Material.BARRIER);
         ItemMeta dtbMeta = deleteTreasureButton.getItemMeta();
 
@@ -87,7 +87,7 @@ public class ManageTreasuresGUI implements Listener{
         treasureManagerInv.setItem(deleteTreasuresSlot, deleteTreasureButton);
 
         //SetLocation button
-        int setLocationSlot = 22;
+        int setLocationSlot = 15;
         ItemStack setLocationButton = new ItemStack(Material.COMPASS);
         ItemMeta slbMeta = setLocationButton.getItemMeta();
 
@@ -97,10 +97,25 @@ public class ManageTreasuresGUI implements Listener{
 
         treasureManagerInv.setItem(setLocationSlot, setLocationButton);
 
+        //Set Coins button
+        int setCoinsButtonSlot = 31;
+        ItemStack setCoinsButton = new ItemStack(Material.GOLD_INGOT);
+        ItemMeta setCoinsMeta = setCoinsButton.getItemMeta();
+
+        setCoinsMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&6&lSET TREASURE COINS"));
+        List<String> setCoinsLore = new ArrayList<>();
+        setCoinsLore.add(ChatColor.translateAlternateColorCodes('&', "&7Set the &lcoins &7for a treasure!"));
+        setCoinsLore.add(" ");
+        setCoinsLore.add("&cNote that you need the &lECONOMY &ctoggled &lON!");
+        setCoinsMeta.setLore(setCoinsLore);
+
+        setCoinsButton.setItemMeta(setCoinsMeta);
+        treasureManagerInv.setItem(setCoinsButtonSlot,  setCoinsButton);
+
         //SetWorld button
         ItemStack setWorldButton = new ItemStack(Material.MAP);
         ItemMeta swbMeta = setWorldButton.getItemMeta();
-        int setWorldSlot = 24;
+        int setWorldSlot = 29;
 
         swbMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&b&lSET TREASURE WORLD"));
         swbMeta.setLore(List.of("", ChatColor.translateAlternateColorCodes('&', "&7Set the &lworld &7for a treasure!"), ChatColor.translateAlternateColorCodes('&', "&e&lTIP: &eLook for the world name in your server's folder.")));;
@@ -111,7 +126,7 @@ public class ManageTreasuresGUI implements Listener{
         //SetFacing button
         ItemStack setFacingButton = new ItemStack(Material.GLOW_ITEM_FRAME);
         ItemMeta sfbMeta = setFacingButton.getItemMeta();
-        int setFacingSlot = 26;
+        int setFacingSlot = 33;
 
         sfbMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&9&lSET TREASURE FACING"));
         List<String> coloredSfbLore = new ArrayList<>(); //Adding lore
@@ -191,6 +206,14 @@ public class ManageTreasuresGUI implements Listener{
             plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
         }
 
+        //If the player clicks on the setCoins button
+        Material setCoinsButton = Material.GOLD_INGOT;
+        if(clickedItem.getType() == setCoinsButton){
+            player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
+            plugin.setTreasureManagerChoice("set coins");
+            plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
+        }
+
         //If the player clicks on setFacing button
         Material setFacingButton = Material.GLOW_ITEM_FRAME;
         if(clickedItem.getType() == setFacingButton){
@@ -201,7 +224,7 @@ public class ManageTreasuresGUI implements Listener{
     }
 
     //Saves the data of a treasure to treasures.yml
-    public void createTreasure(Player player) {
+    private void createTreasure(Player player) {
         FileConfiguration treasures = plugin.getTreasures().getConfig();
         player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter a name for your treasure:"));
 

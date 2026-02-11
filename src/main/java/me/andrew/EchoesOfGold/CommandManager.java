@@ -84,6 +84,28 @@ public class CommandManager implements CommandExecutor{
                         return true;
                     }
 
+                    //Checking if each treasure has the coins set (if the economy is on)
+                    if(plugin.getEconomy() != null){
+                        boolean allSet = true;
+
+                        ConfigurationSection allTreasures = treasures.getConfigurationSection("treasures");
+                        for(String treasure : allTreasures.getKeys(false)){
+                            String mainPath = "treasures." + treasure;
+                            int coins = treasures.getInt(mainPath+".coins", 0);
+
+                            if(coins == 0){
+                                allSet = false;
+                                break;
+                            }
+                        }
+
+                        if(!allSet){
+                            player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                            commandSender.sendMessage(chatPrefix+" &cSome treasures in &ltreasures.yml &cdon't have the coins set!");
+                            return true;
+                        }
+                    }
+
                     //Get all the details about the start-event-sound. Prints an error if the sound is invalid
                     String startEventSoundString = plugin.getConfig().getString("start-event-sound");
                     float startEventSoundVolume = plugin.getConfig().getInt("ses-volume");

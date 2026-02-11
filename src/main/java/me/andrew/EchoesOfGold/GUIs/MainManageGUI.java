@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainManageGUI implements Listener {
-    EchoesOfGold plugin;
+    private final EchoesOfGold plugin;
 
     public MainManageGUI(EchoesOfGold plugin){
         this.plugin = plugin;

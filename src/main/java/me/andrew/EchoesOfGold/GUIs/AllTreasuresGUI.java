@@ -449,6 +449,10 @@ public class AllTreasuresGUI implements Listener{
                     }.runTaskLater(plugin, 10L);
                 });
                 break;
+
+            case "set coins":
+                if()
+                break;
         }
     }
 }
