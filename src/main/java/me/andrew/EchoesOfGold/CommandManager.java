@@ -141,7 +141,7 @@ public class CommandManager implements CommandExecutor{
                     plugin.getTreasureManager().spawnChestParticles();
 
                     //Check if the economy object isn't null (if it is toggled)
-                    boolean toggleEconomy = plugin.getConfig().getBoolean("toggle-using-economy", false);
+                    boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", false);
                     if(toggleEconomy && plugin.getEconomy() == null){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou have economy enabled but there is no economy/Vault plugin found!"));
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);

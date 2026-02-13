@@ -230,12 +230,7 @@ public class AllTreasuresGUI implements Listener{
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aTreasure &l"+treasureID+" &adeleted successfully."));
 
                 //Re-opens the manageTreasuresGUI after 0.5 secs
-                new BukkitRunnable(){
-                    @Override
-                    public void run(){
-                        plugin.getManageGUI().showMainManageGui(player);
-                    }
-                }.runTaskLater(plugin, 10L);
+                openGuiAgain(player);
                 break;
 
             case "set location":
@@ -253,12 +248,7 @@ public class AllTreasuresGUI implements Listener{
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe coordinate must be a number."));
 
                         //Re-opens the manageTreasuresGUI after 0.5 secs
-                        new BukkitRunnable(){
-                            @Override
-                            public void run(){
-                                plugin.getManageGUI().showMainManageGui(player);
-                            }
-                        }.runTaskLater(plugin, 10L);
+                        openGuiAgain(player);
                         return;
                     }
 
@@ -277,12 +267,7 @@ public class AllTreasuresGUI implements Listener{
                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe coordinate must be a number."));
 
                             //Re-opens the manageTreasuresGUI after 0.5 secs
-                            new BukkitRunnable(){
-                                @Override
-                                public void run(){
-                                    plugin.getManageGUI().showMainManageGui(player);
-                                }
-                            }.runTaskLater(plugin, 10L);
+                            openGuiAgain(player);
                             return;
                         }
 
@@ -301,12 +286,7 @@ public class AllTreasuresGUI implements Listener{
                                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe coordinate must be a number."));
 
                                 //Re-opens the manageTreasuresGUI after 0.5 secs
-                                new BukkitRunnable(){
-                                    @Override
-                                    public void run(){
-                                        plugin.getManageGUI().showMainManageGui(player);
-                                    }
-                                }.runTaskLater(plugin, 10L);
+                                openGuiAgain(player);
                                 return;
                             }
 
@@ -317,12 +297,7 @@ public class AllTreasuresGUI implements Listener{
                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aLocation &l"+input1+" "+input2+" "+input3+" &asaved for treasure &l"+treasureID+"&a!"));
 
                             //Re-opens the manageTreasuresGUI after 0.5 secs
-                            new BukkitRunnable(){
-                                @Override
-                                public void run(){
-                                    plugin.getManageGUI().showMainManageGui(player);
-                                }
-                            }.runTaskLater(plugin, 10L);
+                            openGuiAgain(player);
                         });
                     });
                 });
@@ -340,12 +315,7 @@ public class AllTreasuresGUI implements Listener{
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aWorld &l"+input+" &asaved for treasure &l"+treasureID+"&a!"));
 
                     //Re-opens the mainManageGUI after 0.5 secs
-                    new BukkitRunnable(){
-                        @Override
-                        public void run(){
-                            plugin.getManageGUI().showMainManageGui(player);
-                        }
-                    }.runTaskLater(plugin, 10L);
+                    openGuiAgain(player);
                 });
                 break;
 
@@ -364,12 +334,7 @@ public class AllTreasuresGUI implements Listener{
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aFacing &l"+input+" &asaved for treasure &l"+treasureID+"&a!"));
 
                         //Re-opens the mainManageGUI after 0.5 secs
-                        new BukkitRunnable(){
-                            @Override
-                            public void run(){
-                                plugin.getManageGUI().showMainManageGui(player);
-                            }
-                        }.runTaskLater(plugin, 10L);
+                        openGuiAgain(player);
                         return;
                     }
 
@@ -377,12 +342,7 @@ public class AllTreasuresGUI implements Listener{
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe value for facing is invalid!"));
 
                     //Re-opens the mainManageGUI after 0.5 secs
-                    new BukkitRunnable(){
-                        @Override
-                        public void run(){
-                            plugin.getManageGUI().showMainManageGui(player);
-                        }
-                    }.runTaskLater(plugin, 10L);
+                    openGuiAgain(player);
                 });
                 break;
 
@@ -402,12 +362,7 @@ public class AllTreasuresGUI implements Listener{
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThere are no rewards in treasure &l"+treasureID+"&c!"));
 
                     //Shows the mainManageGUI to the player after 0.5 secs
-                    new BukkitRunnable(){
-                        @Override
-                        public void run(){
-                            plugin.getManageGUI().showMainManageGui(player);
-                        }
-                    }.runTaskLater(plugin, 10L);
+                    openGuiAgain(player);
                     return;
                 }
 
@@ -423,12 +378,7 @@ public class AllTreasuresGUI implements Listener{
                         player.playSound(player.getLocation(), itemNotFound, 1f, 1f);
 
                         //Shows the mainManageGUI to the player after 0.5 secs
-                        new BukkitRunnable(){
-                            @Override
-                            public void run(){
-                                plugin.getManageGUI().showMainManageGui(player);
-                            }
-                        }.runTaskLater(plugin, 10L);
+                        openGuiAgain(player);
                         return;
                     }
 
@@ -441,18 +391,71 @@ public class AllTreasuresGUI implements Listener{
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aItem &l"+itemToDelete+" &aremoved from treasure &l"+treasureID+"&a!"));
 
                     //Shows the mainManageGUI to the player after 0.5 secs
-                    new BukkitRunnable(){
-                        @Override
-                        public void run(){
-                            plugin.getManageGUI().showMainManageGui(player);
-                        }
-                    }.runTaskLater(plugin, 10L);
+                    openGuiAgain(player);
                 });
                 break;
 
             case "set coins":
-                if()
+                player.closeInventory();
+
+                //Checking if the economy is working properly
+                if(!isEconomyWorking()){
+                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou can't do this since the economy is not working!"));
+
+                    openGuiAgain(player);
+                    return;
+                }
+
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter the amount for treasure "+treasureID+"&a:"));
+                plugin.waitForPlayerInput(player, input -> {
+                    //Checking if the input is valid
+                    double inputValue;
+                    try{
+                        inputValue = Double.parseDouble(input);
+                    } catch(NumberFormatException e){
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThe input must be a &lnumber&c!"));
+                        player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+
+                        openGuiAgain(player);
+                        return;
+                    }
+
+                    //Checking if the value is under 0
+                    if(inputValue < 0){
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe value must be &l>= 0 &c!"));
+                        player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+                        openGuiAgain(player);
+                        return;
+                    }
+
+                    //Saving the value to the treasure in 'treasures.yml'
+                    treasures.set("treasures."+treasureID+".coins", inputValue);
+                    plugin.getTreasures().saveConfig();
+
+                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.4f);
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aAmount &l"+inputValue+" &asaved for treasure &l"+treasureID+"&a!"));
+                    openGuiAgain(player);
+                });
                 break;
         }
+    }
+
+    private boolean isEconomyWorking(){
+        FileConfiguration mainConfig = plugin.getConfig();
+
+        //Checking if the economy is toggled
+        boolean toggleEconomy = mainConfig.getBoolean("economy.toggle-using-economy", false);
+        if(!toggleEconomy) return false;
+
+        //Checking if the economy provider isn't null
+        return plugin.getEconomy() != null;
+    }
+
+    //Helper method to re-open the GUI after 1/2 secs
+    private void openGuiAgain(Player player){
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            plugin.getManageGUI().showMainManageGui(player);
+        }, 10L);
     }
 }

@@ -54,9 +54,12 @@ public class EventScoreboard{
         }
 
         List<String> lines = plugin.getConfig().getStringList("scoreboard-lines");
-        int score = lines.size();
 
+        int score = 1;
         for(String line : lines){
+            //Skipping the line if it is the one displaying the coins (if the economy isn't toggled/doesn't work)
+            if(!isEconomyWorking() && line.contains("%coins_found%")) continue;
+
             List<Map.Entry<String, Integer>> top = plugin.getTreasureManager().getTopPlayers();
             String top1name = !top.isEmpty() ? top.getFirst().getKey() : "None";
             String top2name = top.size() > 1 ? top.get(1).getKey() : "None";
@@ -81,10 +84,11 @@ public class EventScoreboard{
                 coloredLine+= ChatColor.COLOR_CHAR;
             }
             objective.getScore(coloredLine).setScore(score);
-            score--;
+            score++;
         }
         player.setScoreboard(scoreboard);
     }
+
     public void stopScoreboard(Player player){
         //If scoreboard isn't toggled, it returns
         boolean toggleScoreboard = plugin.getConfig().getBoolean("scoreboard");
@@ -93,11 +97,15 @@ public class EventScoreboard{
         task.cancel();
         player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
     }
-    public void refreshAll(){
-        plugin.getTreasures().reloadConfig();
-        plugin.getPlayerData().reloadConfig();
-        for(Player player : Bukkit.getOnlinePlayers()){
-            updateScoreboard(player);
-        }
+
+    private boolean isEconomyWorking(){
+        FileConfiguration mainConfig = plugin.getConfig();
+
+        //Checking if the economy is toggled
+        boolean toggleEconomy = mainConfig.getBoolean("toggle-using-economy", false);
+        if(!toggleEconomy) return false;
+
+        //Checking if the economy provider isn't null
+        return plugin.getEconomy() != null;
     }
 }

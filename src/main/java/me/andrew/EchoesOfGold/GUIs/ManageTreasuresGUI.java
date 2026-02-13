@@ -250,6 +250,7 @@ public class ManageTreasuresGUI implements Listener{
 
             String path = "treasures." + treasureName;
             treasures.set(path + ".rewards", "");
+            treasures.set(path + ".coins", "");
             treasures.set(path + ".title", treasureName);
             treasures.set(path + ".facing", "");
             treasures.set(path + ".world", "");

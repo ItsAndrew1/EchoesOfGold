@@ -332,7 +332,7 @@ public class EventProgress implements Listener {
             }
 
             //Also creates an account for him (if the economy is toggled)
-            boolean toggleEconomy = plugin.getConfig().getBoolean("toggle-using-economy", false);
+            boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", false);
             if (toggleEconomy) plugin.getEconomy().createPlayerAccount(targetPlayer);
         }
     }

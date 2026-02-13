@@ -191,7 +191,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         }
 
         //Setting up economy and permissions
-        if(!getConfig().getBoolean("toggle-using-economy", false)) return; //Checks the toggle boolean from config.
+        if(!getConfig().getBoolean("economy.toggle-using-economy", false)) return; //Checks the toggle boolean from config.
         if(!setupEconomy()) getLogger().severe("[E.O.G] - Economy system disabled due to not having the 'Vault' or another economy plugin!");
     }
 

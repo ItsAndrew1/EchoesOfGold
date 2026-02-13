@@ -58,14 +58,14 @@ public class TreasureClickEvent implements Listener{
             if(loc.getWorld().getName().equalsIgnoreCase(worldName) && loc.getBlockX() == x && loc.getBlockY() == y && loc.getBlockZ() == z){
                 //Handling the rewards and other data
                 handleTreasureFound(player, key);
-                if(plugin.getPlayerData().getConfig().getBoolean("players." + player.getName() + ".found." + true)) continue;
-                plugin.getPlayerData().saveConfig();
-                plugin.getPlayerData().reloadConfig();
 
                 //Refreshes the scoreboard if it is toggled
-                boolean toggleScoreboard = plugin.getConfig().getBoolean("scoreboard");
+                boolean toggleScoreboard = plugin.getConfig().getBoolean("scoreboard", false);
                 if(toggleScoreboard){
-                    plugin.getScoreboardManager().refreshAll();
+                    plugin.getTreasures().reloadConfig();
+                    for(Player p : Bukkit.getOnlinePlayers()){
+                        plugin.getScoreboardManager().updateScoreboard(p);
+                    }
                 }
                 event.setCancelled(true);
             }
@@ -79,11 +79,6 @@ public class TreasureClickEvent implements Listener{
 
         Map<String, BukkitTask> treasureParticleTasks = plugin.getTreasureManager().getTreasureParticleTasks().get(player.getUniqueId());
         BukkitTask taskForTreasure = treasureParticleTasks.get(treasureID);
-
-        //Canceling the task
-        if(taskForTreasure != null){
-            taskForTreasure.cancel();
-        }
 
         //If the player already found this treasure
         boolean alreadyFound = data.getBoolean(playerPath + ".found."+treasureID, false);
@@ -128,19 +123,31 @@ public class TreasureClickEvent implements Listener{
             return;
         }
 
-        //Giving the rewards to players
+        //Check if the player has enough inventory space
         String mainRewardsPath = "treasures."+treasureID+".rewards";
+        ConfigurationSection treasureRewards = treasures.getConfigurationSection(mainRewardsPath);
+
+        if(player.getInventory().firstEmpty() == -1 && (treasureRewards != null || !treasureRewards.getKeys(false).isEmpty())){
+            Sound noInventorySpace = Registry.SOUNDS.get(NamespacedKey.minecraft(plugin.getConfig().getString("no-inventory-space-sound").toLowerCase()));
+            float nissVolume = plugin.getConfig().getInt("niss-volume");
+            float nissPitch = plugin.getConfig().getInt("niss-pitch");
+
+            player.playSound(player.getLocation(), noInventorySpace, nissVolume, nissPitch);
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("no-inventory-space-message")));
+            return;
+        }
+
+        //Giving the rewards to players
         Sound treasureClick = Registry.SOUNDS.get(NamespacedKey.minecraft(plugin.getConfig().getString("treasure-click-sound").toLowerCase()));
         float tcsVolume = plugin.getConfig().getInt("tcs-volume");
         float tcsPitch = plugin.getConfig().getInt("tcs-pitch");
 
-        //If there aren't any rewards to that treasure
-        ConfigurationSection treasureRewards = treasures.getConfigurationSection(mainRewardsPath);
-        if(treasureRewards == null || treasureRewards.getKeys(false).isEmpty()){
-            //Sound and firework
-            player.playSound(player.getLocation(), treasureClick, tcsVolume, tcsPitch);
-            spawnFirework(player, treasureID);
+        //Sound and firework
+        player.playSound(player.getLocation(), treasureClick, tcsVolume, tcsPitch);
+        spawnFirework(player, treasureID);
 
+        //If there aren't any rewards to that treasure
+        if(treasureRewards == null || treasureRewards.getKeys(false).isEmpty()){
             //Setting the data for the player in 'playerdata.yml'
             data.set(playerPath + ".found." + treasureID, true);
             foundCount = data.getInt(playerPath +".treasures-found", 0) + 1;
@@ -157,10 +164,6 @@ public class TreasureClickEvent implements Listener{
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("treasure-found")));
             return;
         }
-
-        //Sound and firework
-        player.playSound(player.getLocation(), treasureClick, tcsVolume, tcsPitch);
-        spawnFirework(player, treasureID);
 
         for(String item : treasureRewards.getKeys(false)){
             int itemQuantity = treasures.getInt(mainRewardsPath+"."+item+".quantity");
@@ -179,17 +182,6 @@ public class TreasureClickEvent implements Listener{
                 }
             }
 
-            //Check if the player has enough inventory space
-            if(player.getInventory().firstEmpty() == -1){
-                Sound noInventorySpace = Registry.SOUNDS.get(NamespacedKey.minecraft(plugin.getConfig().getString("no-inventory-space-sound").toLowerCase()));
-                float nissVolume = plugin.getConfig().getInt("niss-volume");
-                float nissPitch = plugin.getConfig().getInt("niss-pitch");
-
-                player.playSound(player.getLocation(), noInventorySpace, nissVolume, nissPitch);
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("no-inventory-space-message")));
-                return;
-            }
-
             reward.setItemMeta(rewardMeta);
             player.getInventory().addItem(reward);
         }
@@ -199,6 +191,21 @@ public class TreasureClickEvent implements Listener{
         foundCount = data.getInt(playerPath +".treasures-found", 0) + 1;
         data.set(playerPath + ".treasures-found", foundCount);
         plugin.getPlayerData().saveConfig();
+
+        //Adding money to the player's account (if the economy is toggled and working)
+        if(isEconomyWorking()){
+            double treasureAmount = treasures.getDouble("treasures."+treasureID+".coins");
+            plugin.getEconomy().depositPlayer(player, treasureAmount);
+
+            //Displaying a pop-up message above the player's xp bar (action bar)
+            String actionBarMessage = plugin.getConfig().getString("economy.action-bar-message");
+            player.sendActionBar(ChatColor.translateAlternateColorCodes('&', actionBarMessage
+                    .replace("%coins_amount%", String.valueOf(treasureAmount))
+            ));
+        }
+
+        //Canceling the particle task
+        if(taskForTreasure != null) taskForTreasure.cancel();
 
         //If they found all rewards
         if(foundCount == treasures.getInt("max-treasures")){
@@ -249,5 +256,16 @@ public class TreasureClickEvent implements Listener{
     //Gets the particle from 'config.yml'
     private Particle getParticleFromConfig(String value){
         return Particle.valueOf(value);
+    }
+
+    private boolean isEconomyWorking(){
+        FileConfiguration mainConfig = plugin.getConfig();
+
+        //Checking if the economy is toggled
+        boolean toggleEconomy = mainConfig.getBoolean("toggle-using-economy", false);
+        if(!toggleEconomy) return false;
+
+        //Checking if the economy provider isn't null
+        return plugin.getEconomy() != null;
     }
 }
