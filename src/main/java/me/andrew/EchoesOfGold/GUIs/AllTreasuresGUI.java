@@ -130,12 +130,18 @@ public class AllTreasuresGUI implements Listener{
             int treasureZ = treasures.getInt(mainPath+".z");
             String treasureWorld = treasures.getString(mainPath+".world");
             String treasureFacing = treasures.getString(mainPath+".facing");
+            double treasureCoins = treasures.getDouble(mainPath+".coins");
 
             List<String> coloredLore = new ArrayList<>();
             coloredLore.add(" ");
-            coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&7 - Location: &l"+treasureX+" "+treasureY+" "+treasureZ));
-            coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&7 - World: &l"+treasureWorld));
-            coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&7 - Facing: &l"+treasureFacing));
+            coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Location: &f"+treasureX+" "+treasureY+" "+treasureZ));
+            coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - World: &f"+treasureWorld));
+
+            //Displays the coins of the treasure if the economy is toggled and working properly
+            boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy");
+            if(toggleEconomy && plugin.getEconomy() != null) coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Coins: &f"+treasureCoins));
+
+            coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Facing: &f"+treasureFacing));
             tiMeta.setLore(coloredLore);
 
             //Adding the treasure to the data container
@@ -149,7 +155,7 @@ public class AllTreasuresGUI implements Listener{
         player.openInventory(allTreasuresGUI);
     }
 
-    public List<String> addingRewardsLore(String treasureID){
+    private List<String> addingRewardsLore(String treasureID){
         FileConfiguration treasures = plugin.getTreasures().getConfig();
         List<String> coloredLore = new ArrayList<>();
 
@@ -400,7 +406,7 @@ public class AllTreasuresGUI implements Listener{
 
                 //Checking if the economy is working properly
                 if(!isEconomyWorking()){
-                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou can't do this since the economy is not working!"));
 
                     openGuiAgain(player);
@@ -445,7 +451,7 @@ public class AllTreasuresGUI implements Listener{
         FileConfiguration mainConfig = plugin.getConfig();
 
         //Checking if the economy is toggled
-        boolean toggleEconomy = mainConfig.getBoolean("economy.toggle-using-economy", false);
+        boolean toggleEconomy = mainConfig.getBoolean("economy.toggle-using-economy");
         if(!toggleEconomy) return false;
 
         //Checking if the economy provider isn't null

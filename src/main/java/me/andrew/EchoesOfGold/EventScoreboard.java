@@ -55,10 +55,10 @@ public class EventScoreboard{
 
         List<String> lines = plugin.getConfig().getStringList("scoreboard-lines");
 
-        int score = 1;
+        int score = lines.size();
         for(String line : lines){
             //Skipping the line if it is the one displaying the coins (if the economy isn't toggled/doesn't work)
-            if(!isEconomyWorking() && line.contains("%coins_found%")) continue;
+            if(!isEconomyWorking() && line.contains("%coins_gathered%")) continue;
 
             List<Map.Entry<String, Integer>> top = plugin.getTreasureManager().getTopPlayers();
             String top1name = !top.isEmpty() ? top.getFirst().getKey() : "None";
@@ -77,6 +77,7 @@ public class EventScoreboard{
                     .replace("%top3_name%", top3name)
                     .replace("%top1_count%", String.valueOf(top1count))
                     .replace("%top2_count%", String.valueOf(top2count))
+                    .replace("%coins_gathered%", String.valueOf(playerdata.getDouble("players." + player.getName() + ".coins-gathered")))
                     .replace("%top3_count%", String.valueOf(top3count));
             String coloredLine = ChatColor.translateAlternateColorCodes('&', parsed);
 
@@ -84,7 +85,7 @@ public class EventScoreboard{
                 coloredLine+= ChatColor.COLOR_CHAR;
             }
             objective.getScore(coloredLine).setScore(score);
-            score++;
+            score--;
         }
         player.setScoreboard(scoreboard);
     }
@@ -102,7 +103,7 @@ public class EventScoreboard{
         FileConfiguration mainConfig = plugin.getConfig();
 
         //Checking if the economy is toggled
-        boolean toggleEconomy = mainConfig.getBoolean("toggle-using-economy", false);
+        boolean toggleEconomy = mainConfig.getBoolean("economy.toggle-using-economy");
         if(!toggleEconomy) return false;
 
         //Checking if the economy provider isn't null

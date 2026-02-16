@@ -39,9 +39,8 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     private boolean eventActive;
     private long eventDuration;
 
-    //Defining the Economy and Permission object
+    //Defining the Economy object
     private static Economy economy;
-    private static Permission permission;
 
     //Defining the GUIs
     private MainManageGUI manageGUI;
@@ -191,7 +190,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         }
 
         //Setting up economy and permissions
-        if(!getConfig().getBoolean("economy.toggle-using-economy", false)) return; //Checks the toggle boolean from config.
+        if(!getConfig().getBoolean("economy.toggle-using-economy")) return; //Checks the toggle boolean from config.
         if(!setupEconomy()) getLogger().severe("[E.O.G] - Economy system disabled due to not having the 'Vault' or another economy plugin!");
     }
 
@@ -203,7 +202,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         if(rsp == null) return false;
 
         economy = rsp.getProvider();
-        return economy != null;
+        return true;
     }
 
     //Saving data after shutting down the server

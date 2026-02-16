@@ -146,46 +146,6 @@ public class TreasureClickEvent implements Listener{
         player.playSound(player.getLocation(), treasureClick, tcsVolume, tcsPitch);
         spawnFirework(player, treasureID);
 
-        //If there aren't any rewards to that treasure
-        if(treasureRewards == null || treasureRewards.getKeys(false).isEmpty()){
-            //Setting the data for the player in 'playerdata.yml'
-            data.set(playerPath + ".found." + treasureID, true);
-            foundCount = data.getInt(playerPath +".treasures-found", 0) + 1;
-            data.set(playerPath + ".treasures-found", foundCount);
-            plugin.getPlayerData().saveConfig();
-
-            //If they found all rewards
-            if(foundCount == treasures.getInt("max-treasures")){
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("player-found-all-treasures")));
-                foundCount++;
-                return;
-            }
-
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("treasure-found")));
-            return;
-        }
-
-        for(String item : treasureRewards.getKeys(false)){
-            int itemQuantity = treasures.getInt(mainRewardsPath+"."+item+".quantity");
-            Material itemMaterial = Material.matchMaterial(item.toUpperCase());
-
-            ItemStack reward = new ItemStack(itemMaterial, itemQuantity);
-            ItemMeta rewardMeta = reward.getItemMeta();
-
-            //Setting the enchantments for the reward (if there are any)
-            ConfigurationSection enchantSection = treasures.getConfigurationSection(mainRewardsPath+"."+item+".enchantments");
-            if(enchantSection != null){
-                for(String enchant : treasures.getConfigurationSection(mainRewardsPath+"."+item+".enchantments").getKeys(false)){
-                    int enchantLevel = treasures.getInt(mainRewardsPath+"."+item+".enchantments."+enchant);
-                    Enchantment realEnchant = Enchantment.getByName(enchant);
-                    rewardMeta.addEnchant(realEnchant, enchantLevel, true);
-                }
-            }
-
-            reward.setItemMeta(rewardMeta);
-            player.getInventory().addItem(reward);
-        }
-
         //Setting the data for the player in 'playerdata.yml'
         data.set(playerPath + ".found." + treasureID, true);
         foundCount = data.getInt(playerPath +".treasures-found", 0) + 1;
@@ -197,6 +157,11 @@ public class TreasureClickEvent implements Listener{
             double treasureAmount = treasures.getDouble("treasures."+treasureID+".coins");
             plugin.getEconomy().depositPlayer(player, treasureAmount);
 
+            //Adding the amount to 'coins-gathered' in the player's data
+            double newAmount = data.getDouble(playerPath+".coins-gathered", 0) + treasureAmount;
+            data.set(playerPath+".coins-gathered", newAmount);
+            plugin.getPlayerData().saveConfig();
+
             //Displaying a pop-up message above the player's xp bar (action bar)
             String actionBarMessage = plugin.getConfig().getString("economy.action-bar-message");
             player.sendActionBar(ChatColor.translateAlternateColorCodes('&', actionBarMessage
@@ -206,6 +171,30 @@ public class TreasureClickEvent implements Listener{
 
         //Canceling the particle task
         if(taskForTreasure != null) taskForTreasure.cancel();
+
+        if(treasureRewards != null && !treasureRewards.getKeys(false).isEmpty()){
+            //Giving the items
+            for(String item : treasureRewards.getKeys(false)){
+                int itemQuantity = treasures.getInt(mainRewardsPath+"."+item+".quantity");
+                Material itemMaterial = Material.matchMaterial(item.toUpperCase());
+
+                ItemStack reward = new ItemStack(itemMaterial, itemQuantity);
+                ItemMeta rewardMeta = reward.getItemMeta();
+
+                //Setting the enchantments for the reward (if there are any)
+                ConfigurationSection enchantSection = treasures.getConfigurationSection(mainRewardsPath+"."+item+".enchantments");
+                if(enchantSection != null){
+                    for(String enchant : treasures.getConfigurationSection(mainRewardsPath+"."+item+".enchantments").getKeys(false)){
+                        int enchantLevel = treasures.getInt(mainRewardsPath+"."+item+".enchantments."+enchant);
+                        Enchantment realEnchant = Enchantment.getByName(enchant);
+                        rewardMeta.addEnchant(realEnchant, enchantLevel, true);
+                    }
+                }
+
+                reward.setItemMeta(rewardMeta);
+                player.getInventory().addItem(reward);
+            }
+        }
 
         //If they found all rewards
         if(foundCount == treasures.getInt("max-treasures")){
@@ -262,7 +251,7 @@ public class TreasureClickEvent implements Listener{
         FileConfiguration mainConfig = plugin.getConfig();
 
         //Checking if the economy is toggled
-        boolean toggleEconomy = mainConfig.getBoolean("toggle-using-economy", false);
+        boolean toggleEconomy = mainConfig.getBoolean("economy.toggle-using-economy");
         if(!toggleEconomy) return false;
 
         //Checking if the economy provider isn't null

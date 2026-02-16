@@ -313,7 +313,7 @@ public class EventProgress implements Listener {
         if (toggleBossBar) plugin.getBossBar().addPlayer(targetPlayer);
         if (toggleScoreboard) plugin.getScoreboardManager().updateScoreboard(targetPlayer);
 
-        //Spawns the treasures and their particles
+        //Spawns the treasures and their particles for the target player
         plugin.getTreasureManager().spawnTreasures();
         plugin.getTreasureManager().spawnChestParticles();
 
@@ -321,19 +321,23 @@ public class EventProgress implements Listener {
         FileConfiguration data = plugin.getPlayerData().getConfig();
         FileConfiguration treasuresConfig = plugin.getTreasures().getConfig();
 
+        //Initializing the player in 'playerData.yml' if he wasn't already
         if (!players.contains(targetPlayer.getName())) {
             String path = "players." + targetPlayer.getName();
             data.set(path + ".treasures-found", 0);
+
+            //Adding 'coins-gathered' to player's data and creates an account for him if the economy is toggled and working
+            boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy");
+            if(toggleEconomy && plugin.getEconomy() != null){
+                data.set(path + ".coins-gathered", 0);
+                plugin.getEconomy().createPlayerAccount(targetPlayer);
+            }
 
             if (treasuresConfig.isConfigurationSection("treasures")) {
                 for (String key : treasuresConfig.getConfigurationSection("treasures").getKeys(false)) {
                     data.set(path + ".found." + key, false);
                 }
             }
-
-            //Also creates an account for him (if the economy is toggled)
-            boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", false);
-            if (toggleEconomy) plugin.getEconomy().createPlayerAccount(targetPlayer);
         }
     }
 }

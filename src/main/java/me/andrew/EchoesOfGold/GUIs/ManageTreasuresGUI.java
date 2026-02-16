@@ -106,7 +106,7 @@ public class ManageTreasuresGUI implements Listener{
         List<String> setCoinsLore = new ArrayList<>();
         setCoinsLore.add(ChatColor.translateAlternateColorCodes('&', "&7Set the &lcoins &7for a treasure!"));
         setCoinsLore.add(" ");
-        setCoinsLore.add("&cNote that you need the &lECONOMY &ctoggled &lON!");
+        setCoinsLore.add(ChatColor.translateAlternateColorCodes('&', "&cNote that you need the &lECONOMY &ctoggled &lON!"));
         setCoinsMeta.setLore(setCoinsLore);
 
         setCoinsButton.setItemMeta(setCoinsMeta);

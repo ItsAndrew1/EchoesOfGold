@@ -84,6 +84,15 @@ public class CommandManager implements CommandExecutor{
                         return true;
                     }
 
+                    //Check if the economy object isn't null (if it is toggled)
+                    boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy");
+                    if(toggleEconomy && plugin.getEconomy() == null){
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou have economy enabled but there is no economy/Vault plugin found!"));
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                        return true;
+                    }
+                    else setupPlayerAccounts(); //Creates the accounts for the players.
+
                     //Checking if each treasure has the coins set (if the economy is on)
                     if(plugin.getEconomy() != null){
                         boolean allSet = true;
@@ -139,15 +148,6 @@ public class CommandManager implements CommandExecutor{
                     }
                     plugin.getTreasureManager().spawnTreasures();
                     plugin.getTreasureManager().spawnChestParticles();
-
-                    //Check if the economy object isn't null (if it is toggled)
-                    boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", false);
-                    if(toggleEconomy && plugin.getEconomy() == null){
-                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou have economy enabled but there is no economy/Vault plugin found!"));
-                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                        return true;
-                    }
-                    else setupPlayerAccounts(); //Creates the accounts for the players.
 
                     //Starts the duration
                     String durationString = plugin.getConfig().getString("event-duration");
@@ -415,6 +415,7 @@ public class CommandManager implements CommandExecutor{
         player.teleport(teleportLocation);
     }
 
+    //Helper method to initialize players in 'playerData.yml'
     private void getPlayers(){
         FileConfiguration data = plugin.getPlayerData().getConfig();
         FileConfiguration treasures = plugin.getTreasures().getConfig();
@@ -424,6 +425,10 @@ public class CommandManager implements CommandExecutor{
 
             if(!data.isConfigurationSection(path)){
                 data.set(path + ".treasures-found", 0);
+
+                //Adding 'coins-gathered' to player's data if the economy is toggled and working
+                boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy");
+                if(toggleEconomy && plugin.getEconomy() != null) data.set(path + ".coins-gathered", 0);
 
                 if(treasures.isConfigurationSection("treasures")){
                     for(String key : treasures.getConfigurationSection("treasures").getKeys(false)){

@@ -5,10 +5,11 @@ api-version: '1.21'
 author: ItsAndrew
 softdepend:
   - Vault
+  - PlaceholderAPI
 
 permissions:
   eog.admin:
-    description: Gives access to commands
+    description: Gives access to configuration commands
     default: op
   eog.use:
     description: Gives access to hints

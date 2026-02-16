@@ -235,7 +235,7 @@ stop-boss-bar-interval: 10 #Stop the boss bar after <interval> seconds when even
 #%topN_count% -> The top N player's treasures found (N = {1,2,3})
 #%player_treasures% -> Displays the player's number of found treasures
 #%max_treasures% -> Displays the max treasures of the event (configured in treasures.yml)
-#%coins_found% -> Displays the coins the player found
+#%coins_gathered% -> Displays the coins the player found
 scoreboard: true #true(yes)/false(no)
 scoreboard-interval: 1 #Updates the scoreboard in this interval of time (seconds)
 scoreboard-title: "&f💎 &6&lTREASURE HUNT &f💎"
@@ -248,7 +248,7 @@ scoreboard-lines:
   - "&c&l3. &c%top3_name% &7- &f%top3_count%"
   - "&7---------------"
   - "&f&l[&a🎁&f&l] &aTreasures Found: &f%player_treasures%/%max_treasures%"
-  - "&f&l[&a🪙&f&l] &aCoins Gathered: &f&l%coins_found%" #This line will only appear if the Economy is toggled and working!
+  - "&f&l[&a🪙&f&l] &aCoins Gathered: &f%coins_gathered%" #This line will only appear if the Economy is toggled and working!
 
 #Configure the help command message
 #Use '&' for color codes
