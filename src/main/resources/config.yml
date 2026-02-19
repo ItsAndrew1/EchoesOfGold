@@ -24,6 +24,8 @@ start-book:
     - "&5Welcome, adventurer!\n\n&6The night of terror begins...\n3 cursed chests await for you in the Overworld.\n\n&cFind them before they find you."
     - "&7Each chest holds &eancient treasures&7.\nBut beware...\nSome are guarded by monsters.\n\n&4Good luck!"
 
+
+
 #Configure the Economy part of the plugin. For this you will need 'Vault' plugin and another Economy Plugin
 #This enables the store and the money players get when finding a treasure.
 economy:
@@ -102,8 +104,10 @@ event-final-time: #This is the time when the event ends
 
 #Configure the Hints GUI settings
 hints-gui:
+  toggle-hints: true #If you want to use hints or not
+
   gui-rows: 6 #Value must be between 1 and 6. Each row has 9 slots => 9 slots-minimum, 54 slots-maximum
-  gui-title: "Hints" #You can use & styles!
+  gui-title: "Hints" #You can use '&' styles!
 
   known-hint-lore:
     - ""

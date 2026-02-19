@@ -404,15 +404,6 @@ public class AllTreasuresGUI implements Listener{
             case "set coins":
                 player.closeInventory();
 
-                //Checking if the economy is working properly
-                if(!isEconomyWorking()){
-                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou can't do this since the economy is not working!"));
-
-                    openGuiAgain(player);
-                    return;
-                }
-
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter the amount for treasure "+treasureID+"&a:"));
                 plugin.waitForPlayerInput(player, input -> {
                     //Checking if the input is valid
@@ -445,17 +436,6 @@ public class AllTreasuresGUI implements Listener{
                 });
                 break;
         }
-    }
-
-    private boolean isEconomyWorking(){
-        FileConfiguration mainConfig = plugin.getConfig();
-
-        //Checking if the economy is toggled
-        boolean toggleEconomy = mainConfig.getBoolean("economy.toggle-using-economy");
-        if(!toggleEconomy) return false;
-
-        //Checking if the economy provider isn't null
-        return plugin.getEconomy() != null;
     }
 
     //Helper method to re-open the GUI after 1/2 secs

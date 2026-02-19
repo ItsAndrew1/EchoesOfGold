@@ -25,14 +25,12 @@ import java.util.function.Consumer;
 
 public final class EchoesOfGold extends JavaPlugin implements Listener{
     private YMLfiles treasures;
-    private YMLfiles books;
     private YMLfiles playerdata;
     private EventScoreboard scoreboardManager;
     private EventProgress eventProgressManager;
     private int hintsGuiSize;
     private int savedDuration = getConfig().getInt("saving-duration");
     private final Map<UUID, Consumer<String>> chatInput = new HashMap<>(); //This is for player's input in the treasure GUIs
-    int bookCount = 0;
     private TreasureManager treasureManager;
     private EventBossBar bossBar;
 
@@ -58,7 +56,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
 
         //Defining the YML files and main objects
         treasures = new YMLfiles(this, "treasures.yml");
-        books = new YMLfiles(this, "books.yml");
         treasureManager = new TreasureManager(this);
         bossBar = new EventBossBar(this);
         playerdata = new YMLfiles(this, "playerdata.yml");
@@ -210,7 +207,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     public void onDisable(){
         saveConfig();
         playerdata.saveConfig();
-        books.saveConfig();
         treasures.saveConfig();
 
         savedDuration = getConfig().getInt("saved-duration");
@@ -253,9 +249,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     //Getters
     public YMLfiles getTreasures(){
         return treasures;
-    }
-    public YMLfiles getBooks(){
-        return books;
     }
     public TreasureManager getTreasureManager(){
         return treasureManager;

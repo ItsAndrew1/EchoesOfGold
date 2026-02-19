@@ -26,7 +26,6 @@ public class CommandManager implements CommandExecutor{
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        FileConfiguration books = plugin.getBooks().getConfig();
         FileConfiguration treasures = plugin.getTreasures().getConfig();
         Player player = (Player) commandSender;
         String chatPrefix = plugin.getConfig().getString("chat-prefix");
@@ -204,7 +203,6 @@ public class CommandManager implements CommandExecutor{
                     }
 
                     plugin.reloadConfig();
-                    plugin.getBooks().reloadConfig();
                     plugin.getTreasures().reloadConfig();
                     plugin.getPlayerData().reloadConfig();
                     commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aTreasure Hunt reloaded successfully!"));
@@ -221,7 +219,7 @@ public class CommandManager implements CommandExecutor{
 
                 case "treasures":
                     if(strings.length > 1){
-                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt treasures"));
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog treasures"));
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         return true;
                     }
@@ -231,14 +229,23 @@ public class CommandManager implements CommandExecutor{
                     break;
 
                 case "hints":
-                    ItemStack item = player.getInventory().getItemInMainHand(); //Gets the item that the player is holding in the main hand
-                    if(strings.length < 2){
-                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt books <create | delete | manage>"));
+                    //Checking if hints are toggled
+                    boolean toggleHints = plugin.getConfig().getBoolean("hints-gui.toggle-hints", true);
+                    if(!toggleHints){
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou cannot do this since hints are &ldisabled&c!"));
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         return true;
                     }
+
+                    //Checking if the event is active
                     if(plugin.isEventActive()){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou must disable the event to use this command!"));
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                        return true;
+                    }
+
+                    if(strings.length < 2){
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog hints <create | delete | manage>"));
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         return true;
                     }
@@ -253,7 +260,7 @@ public class CommandManager implements CommandExecutor{
                             }
 
                             if(strings.length < 3){
-                                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt hints manage <hint> ..."));
+                                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog hints manage <hint> ..."));
                                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                 return true;
                             }
@@ -261,13 +268,12 @@ public class CommandManager implements CommandExecutor{
                             switch(strings[3].toLowerCase()){
                                 case "setauthor":
                                     if(strings.length < 5){
-                                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/th hints manage <hint> setauthor <author>"));
+                                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog hints manage <hint> setauthor <author>"));
                                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                         return true;
                                     }
                                     String author = strings[4];
                                     books.set("books."+strings[2]+".author", author);
-                                    plugin.getBooks().saveConfig();
 
                                     commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aAuthor &r"+author+" &asaved for book &l"+strings[2]+"&a!"));
                                     player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
@@ -275,29 +281,32 @@ public class CommandManager implements CommandExecutor{
 
                                 case "settitle":
                                     if(strings.length < 5){
-                                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/th hints manage <hint> settitle <title>"));
+                                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog hints manage <hint> settitle <title>"));
                                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                         return true;
                                     }
 
                                     String title = strings[4];
                                     books.set("books."+strings[2]+".title", title);
-                                    plugin.getBooks().saveConfig();
 
                                     commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aTitle &r"+title+" &asaved for book &l"+strings[2]+"&a!"));
                                     player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
                                     break;
 
                                 default:
-                                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/treasurehunt help &cfor info."));
+                                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/eog help &cfor info."));
                                     player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                     break;
                             }
                             break;
 
                         case "create":
+                            // /eog hints create <name> <treasure_name>
+
+                            ItemStack item = player.getInventory().getItemInMainHand(); //Gets the item that the player is holding in the main hand
+
                             if(strings.length < 3){
-                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt books create <name>"));
+                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog hints create <name>"));
                                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                 return true;
                             }
@@ -313,11 +322,8 @@ public class CommandManager implements CommandExecutor{
 
                             books.set(path + ".title", meta.getTitle());
                             books.set(path + ".author", meta.getAuthor());
-                            books.set(path + ".unlock-after", plugin.bookCount+1);
                             books.set(path + ".pages", meta.getPages());
 
-                            plugin.getBooks().saveConfig();
-                            plugin.bookCount++;
                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aBook &l"+name+"&a saved to &lbooks.yml!"));
                             player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
                             break;
@@ -329,7 +335,7 @@ public class CommandManager implements CommandExecutor{
                                 return true;
                             }
                             else if(strings.length < 3){
-                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt books delete <name>"));
+                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog hints delete <name>"));
                                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                 return true;
                             }
@@ -337,8 +343,6 @@ public class CommandManager implements CommandExecutor{
                                 String bookName = strings[2];
                                 if(Objects.requireNonNull(books.getConfigurationSection("books")).getKeys(false).contains(bookName)){
                                     books.set("books." + bookName, null);
-                                    plugin.getBooks().saveConfig();
-                                    plugin.bookCount--;
                                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aBook &l" + bookName + "&a successfully deleted!"));
                                     player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
                                 }
@@ -350,14 +354,14 @@ public class CommandManager implements CommandExecutor{
                             break;
 
                         default:
-                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/treasurehunt help &cfor info."));
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/eog help &cfor info."));
                             player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                             break;
                     }
                     break;
 
                 default:
-                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/treasurehunt help &cfor info."));
+                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/eog help &cfor info."));
                     player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                     break;
             }
