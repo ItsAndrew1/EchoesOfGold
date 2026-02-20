@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -422,6 +423,7 @@ public class AllTreasuresGUI implements Listener{
                     if(inputValue < 0){
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe value must be &l>= 0 &c!"));
                         player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+
                         openGuiAgain(player);
                         return;
                     }
@@ -434,6 +436,34 @@ public class AllTreasuresGUI implements Listener{
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aAmount &l"+inputValue+" &asaved for treasure &l"+treasureID+"&a!"));
                     openGuiAgain(player);
                 });
+                break;
+
+            case "set hint":
+                //Getting the player's main hand item
+                ItemStack itemInHand = player.getInventory().getItemInMainHand();
+                Material iihMaterial = itemInHand.getType();
+
+                //Checking if the item is a written book
+                if(!iihMaterial.equals(Material.WRITTEN_BOOK)){
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou need to hold a &lwritten book&c!"));
+                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+
+                    openGuiAgain(player);
+                    return;
+                }
+
+                BookMeta hintBook = (BookMeta) itemInHand.getItemMeta();
+                String mainPath = "treasures."+treasureID+".hint";
+
+                //Saving the data from the book to the designated treasure
+                treasures.set(mainPath+".title", hintBook.getTitle());
+                treasures.set(mainPath+".pages", hintBook.getPages());
+                plugin.getTreasures().saveConfig();
+
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aHint saved for treasure &l"+treasureID+"&a!"));
+                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.4f);
+
+                openGuiAgain(player);
                 break;
         }
     }

@@ -13,6 +13,11 @@
 #           sharpness: 5
 #           ...
 #       ...
+#     hint:
+#       title: ... (this will be the display-name for the hint in Hints GUI)
+#       pages: (Here you can use '&' styles)
+#         - ...
+#         - ...
 #     coins: (It uses this if the economy is toggled and if there are the necessary plugins installed)
 #     facing: <EAST/SOUTH/NORTH/WEST/NORTH-WEST...>
 #     world: <world/world_nether/world_the_end> !!You need to look in your server's folder for the world's name
@@ -21,4 +26,6 @@
 #     z: ...
 
 max-treasures: 1 #Max treasures that you want in your game
+
+#Here, the treasures will have the same structure that is displayed at the top of this file.
 treasures:

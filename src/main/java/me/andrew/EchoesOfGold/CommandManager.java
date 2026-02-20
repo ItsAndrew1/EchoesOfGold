@@ -228,138 +228,6 @@ public class CommandManager implements CommandExecutor{
                     player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                     break;
 
-                case "hints":
-                    //Checking if hints are toggled
-                    boolean toggleHints = plugin.getConfig().getBoolean("hints-gui.toggle-hints", true);
-                    if(!toggleHints){
-                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou cannot do this since hints are &ldisabled&c!"));
-                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                        return true;
-                    }
-
-                    //Checking if the event is active
-                    if(plugin.isEventActive()){
-                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou must disable the event to use this command!"));
-                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                        return true;
-                    }
-
-                    if(strings.length < 2){
-                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog hints <create | delete | manage>"));
-                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                        return true;
-                    }
-
-                    switch(strings[1].toLowerCase()){
-                        case "manage":
-                            //Checking if there are any hints configured
-                            if(books.getConfigurationSection("books") == null || books.getConfigurationSection("books").getKeys(false).isEmpty()){
-                                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThere are no hints configured!"));
-                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                                return true;
-                            }
-
-                            if(strings.length < 3){
-                                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog hints manage <hint> ..."));
-                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                                return true;
-                            }
-
-                            switch(strings[3].toLowerCase()){
-                                case "setauthor":
-                                    if(strings.length < 5){
-                                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog hints manage <hint> setauthor <author>"));
-                                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                                        return true;
-                                    }
-                                    String author = strings[4];
-                                    books.set("books."+strings[2]+".author", author);
-
-                                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aAuthor &r"+author+" &asaved for book &l"+strings[2]+"&a!"));
-                                    player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
-                                    break;
-
-                                case "settitle":
-                                    if(strings.length < 5){
-                                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog hints manage <hint> settitle <title>"));
-                                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                                        return true;
-                                    }
-
-                                    String title = strings[4];
-                                    books.set("books."+strings[2]+".title", title);
-
-                                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aTitle &r"+title+" &asaved for book &l"+strings[2]+"&a!"));
-                                    player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
-                                    break;
-
-                                default:
-                                    commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/eog help &cfor info."));
-                                    player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                                    break;
-                            }
-                            break;
-
-                        case "create":
-                            // /eog hints create <name> <treasure_name>
-
-                            ItemStack item = player.getInventory().getItemInMainHand(); //Gets the item that the player is holding in the main hand
-
-                            if(strings.length < 3){
-                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog hints create <name>"));
-                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                                return true;
-                            }
-                            if(item.getType() != Material.WRITTEN_BOOK){
-                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou must hold a &lwritten book &cin your main hand!"));
-                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                                return true;
-                            }
-                            String name = strings[2];
-                            String path = "books." + name;
-
-                            BookMeta meta = (BookMeta) item.getItemMeta();
-
-                            books.set(path + ".title", meta.getTitle());
-                            books.set(path + ".author", meta.getAuthor());
-                            books.set(path + ".pages", meta.getPages());
-
-                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aBook &l"+name+"&a saved to &lbooks.yml!"));
-                            player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
-                            break;
-
-                        case "delete":
-                            if(!books.isConfigurationSection("books")){
-                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou have no books created!"));
-                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                                return true;
-                            }
-                            else if(strings.length < 3){
-                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog hints delete <name>"));
-                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                                return true;
-                            }
-                            else{
-                                String bookName = strings[2];
-                                if(Objects.requireNonNull(books.getConfigurationSection("books")).getKeys(false).contains(bookName)){
-                                    books.set("books." + bookName, null);
-                                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aBook &l" + bookName + "&a successfully deleted!"));
-                                    player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
-                                }
-                                else{
-                                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cBook &l" + bookName + "&c doesn't exit!"));
-                                    player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                                }
-                            }
-                            break;
-
-                        default:
-                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/eog help &cfor info."));
-                            player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                            break;
-                    }
-                    break;
-
                 default:
                     commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/eog help &cfor info."));
                     player.playSound(player.getLocation(), invalidValue, 1f, 1f);
@@ -375,18 +243,20 @@ public class CommandManager implements CommandExecutor{
                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                 return true;
             }
+
             if(!plugin.isEventActive()){
                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThe event is not enabled."));
                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                 return true;
             }
+
             if(strings.length > 0){
                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cUsage: &l/hints"));
                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                 return true;
             }
 
-            plugin.getHintsGUI().hintsGUI(player);
+            plugin.getHintsGUI().hintsGUI(player, 0);
             player.playSound(player.getLocation(), invalidValue, 1f, 1f);
             return true;
         }
@@ -413,13 +283,13 @@ public class CommandManager implements CommandExecutor{
         player.openBook(book);
     }
 
-    //teleports the players in /treasurehunt enable
+    //Teleports the players at the start of the game
     private void teleportPlayers(Player player){
         Location teleportLocation = new Location(player.getWorld(), plugin.getConfig().getInt("teleport-location-x"), plugin.getConfig().getInt("teleport-location-y"), plugin.getConfig().getInt("teleport-location-z"));
         player.teleport(teleportLocation);
     }
 
-    //Helper method to initialize players in 'playerData.yml'
+    //Helper method to initialize players in 'playerdata.yml'
     private void getPlayers(){
         FileConfiguration data = plugin.getPlayerData().getConfig();
         FileConfiguration treasures = plugin.getTreasures().getConfig();

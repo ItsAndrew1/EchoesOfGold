@@ -72,7 +72,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
 
         //Setting the commands and their tabs
         getCommand("eog").setExecutor(new CommandManager(this));
-        getCommand("eog").setTabCompleter(new CommandTabs(this));
+        getCommand("eog").setTabCompleter(new CommandTabs());
         getCommand("hints").setExecutor(new CommandManager(this));
 
         getServer().getPluginManager().registerEvents(manageGUI, this); //Events of mainManageGUI

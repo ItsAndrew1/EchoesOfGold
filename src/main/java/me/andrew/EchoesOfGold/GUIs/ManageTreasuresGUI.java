@@ -203,10 +203,14 @@ public class ManageTreasuresGUI implements Listener{
         //If the player clicks on the setCoins button
         Material setCoinsButton = Material.GOLD_INGOT;
         if(clickedItem.getType() == setCoinsButton){
-            //Checking if the economy is toggled
+            //Checking if the economy is toggled or if it is working properly
             boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", false);
             if(!toggleEconomy){
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou cannot do that because the economy is &ldisabled &cor it's not working properly!"));
+                player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
 
+                openGuiAgain(player);
+                return;
             }
 
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
@@ -227,10 +231,12 @@ public class ManageTreasuresGUI implements Listener{
         if(clickedItem.getType() == setHintButton){
             //Checking if the hints are toggled
             boolean toggleHints = plugin.getConfig().getBoolean("hints-gui.toggle-hints", true);
-            if(!toggleHints){
+            if(!toggleHints || !isEconomyWorking()){
                 player.closeInventory();
                 player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou cannot do that since you have the hints &ldisabled&c!"));
+
+                openGuiAgain(player);
                 return;
             }
 
@@ -296,13 +302,14 @@ public class ManageTreasuresGUI implements Listener{
             player.playSound(player.getLocation(), successSound, 1f, 1.4f);
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSaved treasure &l"+treasureName+"&a!"));
 
-            //Re-opens the mainManageGUI after 0.5 secs
-            new BukkitRunnable(){
-                @Override
-                public void run(){
-                    plugin.getManageGUI().showMainManageGui(player);
-                }
-            }.runTaskLater(plugin, 10L);
+            openGuiAgain(player);
         });
+    }
+
+    //Helper method for opening the Main Manage GUI after 1/2 secs
+    private void openGuiAgain(Player player){
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            plugin.getManageGUI().showMainManageGui(player);
+        }, 10L);
     }
 }

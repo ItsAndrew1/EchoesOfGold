@@ -28,11 +28,10 @@ public class HintsGUI implements Listener {
         this.key = new NamespacedKey(plugin, "hint-id");
     }
 
-    public void hintsGUI(Player player) {
-        FileConfiguration books = plugin.getBooks().getConfig();
+    public void hintsGUI(Player player, int hintCount) {
         FileConfiguration playerData = plugin.getPlayerData().getConfig();
+        FileConfiguration treasureData = plugin.getTreasures().getConfig();
 
-        int foundCount = playerData.getInt("players." + player.getName() + ".treasures-found", 0);
         int invSize = plugin.getHintsGUISize();
         String title = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("hints-gui.gui-title"));
         Inventory hintsGUI = Bukkit.createInventory(null, invSize, title);
@@ -56,22 +55,14 @@ public class HintsGUI implements Listener {
 
                 hintsGUI.setItem(i, decItem);
             }
-            for(int i = 45; i<=53; i++){
-                ItemStack decItem = new ItemStack(Material.matchMaterial(decorationItem.toUpperCase()));
-                ItemMeta diMeta = decItem.getItemMeta();
-                diMeta.setDisplayName(" ");
-                decItem.setItemMeta(diMeta);
-
-                hintsGUI.setItem(i, decItem);
-            }
         }
 
-        //If the info item is toggled, sets the item into it's designated slot
-        boolean toggleInfoItem = plugin.getConfig().getBoolean("hints-gui.info-item-toggle");
+        //If the info item is toggled, sets it into it's designated slot
+        boolean toggleInfoItem = plugin.getConfig().getBoolean("hints-gui.info-item.toggle");
         if(toggleInfoItem){
-            int infoItemSlot = plugin.getConfig().getInt("hints-gui.info-item-slot");
-            String stringInfoItemMaterial = plugin.getConfig().getString("hints-gui.info-item-material");
-            String infoItemDisplayName = plugin.getConfig().getString("hints-gui.info-item-title");
+            int infoItemSlot = plugin.getConfig().getInt("hints-gui.info-item.slot");
+            String stringInfoItemMaterial = plugin.getConfig().getString("hints-gui.info-item.material");
+            String infoItemDisplayName = plugin.getConfig().getString("hints-gui.info-item.title");
 
             ItemStack infoItem = new ItemStack(Material.matchMaterial(stringInfoItemMaterial.toUpperCase()));
             ItemMeta iiMeta = infoItem.getItemMeta();
@@ -81,25 +72,9 @@ public class HintsGUI implements Listener {
             hintsGUI.setItem(infoItemSlot, infoItem);
         }
 
-        //Exit button
-        boolean toggleExitButton = plugin.getConfig().getBoolean("hints-gui.gui-exit-button.toggle");
-        if(toggleExitButton){
-            String exitButtonMaterialString = plugin.getConfig().getString("hints-gui.gui-exit-button.material");
-            int exitButtonSlot = plugin.getConfig().getInt("hints-gui.gui-exit-button.slot");
-            Material exitButtonMaterial = Material.matchMaterial(exitButtonMaterialString.toUpperCase());
-
-            ItemStack exitButton = new ItemStack(exitButtonMaterial);
-            ItemMeta exitButtonMeta = exitButton.getItemMeta();
-
-            exitButtonMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(plugin.getConfig().getString("hints-gui.gui-exit-button.title"))));
-            exitButton.setItemMeta(exitButtonMeta);
-            hintsGUI.setItem(exitButtonSlot, exitButton);
-        }
-
         //NoHints Item
-        ConfigurationSection hints = books.getConfigurationSection("books");
         int nhiSlot = plugin.getConfig().getInt("hints-gui.gui-no-hints-item.slot");
-        if(hints == null || hints.getKeys(false).isEmpty()){
+        if(!thereAreHints()){
             ItemStack noHintsItem = new ItemStack(Material.matchMaterial(plugin.getConfig().getString("hints-gui.gui-no-hints-item.material").toUpperCase()));
             ItemMeta nhiMeta = noHintsItem.getItemMeta();
 
@@ -112,58 +87,66 @@ public class HintsGUI implements Listener {
             return;
         }
 
-        int slot = 10;
-        for (String key : books.getConfigurationSection("books").getKeys(false)) {
-            String path = "books." + key;
+        //Starting slot
+        int slot = toggleDecoration ? 9 : 0;
 
-            //This makes the display of the hints more elegant :)
-            if(slot == 17 || slot == 18 || slot == 26 || slot == 27 || slot == 35 || slot == 36 || slot == 44) continue;
+        //Displaying the hints
+        ConfigurationSection treasures = treasureData.getConfigurationSection("treasures");
+        List<String> treasuresList = treasures.getKeys(false).stream().toList();
+        for(int i = hintCount; i<=treasuresList.size(); i++){
+            //Getting the data of the hint
+            String treasure = treasuresList.get(i);
+            String hintDisplayName = treasures.getString("treasures." + treasure + ".hint.title");
+            List<String> hintPages = treasures.getStringList("treasures." + treasure + ".hint.pages");
 
-            String titleBook = ChatColor.translateAlternateColorCodes('&', books.getString(path + ".title"));
-            int unlockAfter = books.getInt(path + ".unlock-after", 0);
+            for(String p : playerData.getConfigurationSection("players").getKeys(false)){
+                boolean treasureFound = playerData.getBoolean("players." + p + ".found."+treasure);
 
-            ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
-            BookMeta meta = (BookMeta) Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
+                //If the player found the treasure, it sets it as locked
+                if(!treasureFound){
+                    ItemStack lockedHintItem = new ItemStack(Material.BOOK);
+                    ItemMeta lockedHintMeta = lockedHintItem.getItemMeta();
 
-            meta.getPersistentDataContainer().set(this.key, PersistentDataType.STRING, key);
+                    //Setting the display name
+                    lockedHintMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', hintDisplayName));
 
-            //Setting the meta for each book
-            if (foundCount >= unlockAfter) {
-                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', titleBook));
-                meta.setAuthor(null);
+                    //Setting the lore
+                    List<String> lockedHintLore = new ArrayList<>();
+                    for(String line : plugin.getConfig().getStringList("hints-gui.locked-hint-lore")) lockedHintLore.add(ChatColor.translateAlternateColorCodes('&', line));
+                    lockedHintMeta.setLore(lockedHintLore);
 
-                //Adding the lore
-                List<String> coloredLore = new ArrayList<>();
-                for(String loreLine : plugin.getConfig().getStringList("hints-gui.known-hint-lore")){
-                    String coloredLoreLine = ChatColor.translateAlternateColorCodes('&', loreLine);
-                    coloredLore.add(coloredLoreLine);
+                    lockedHintItem.setItemMeta(lockedHintMeta);
+                    hintsGUI.setItem(slot, lockedHintItem);
                 }
-                meta.setLore(coloredLore);
-                book.setItemMeta(meta);
-                hintsGUI.setItem(slot, book);
-            }
-            else {
-                int remainingTreasures = unlockAfter - foundCount;
-                ItemStack unknownHint = new ItemStack(Material.BOOK);
-                ItemMeta uhMeta = unknownHint.getItemMeta();
-                String displayName= plugin.getConfig().getString("hints-gui.unknown-hint-title");
-                uhMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
 
-                //Adding the lore
-                List<String> coloredLore = new ArrayList<>();
-                for(String loreLine : plugin.getConfig().getStringList("hints-gui.unknown-hint-lore")){
-                    String coloredLoreLine = ChatColor.translateAlternateColorCodes('&', loreLine);
-                    coloredLore.add(coloredLoreLine);
+                //Else, we show the normal hint
+                else{
+                    ItemStack unlockedHintItem = new ItemStack(Material.WRITTEN_BOOK);
+                    BookMeta unlockedHintMeta = (BookMeta) unlockedHintItem.getItemMeta();
+
+                    unlockedHintMeta.setTitle(ChatColor.translateAlternateColorCodes('&', hintDisplayName));
                 }
-                coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&7Find &l"+remainingTreasures+" &7more treasure(s) to unlock this hint!"));
-                uhMeta.setLore(coloredLore);
-                unknownHint.setItemMeta(uhMeta);
-                hintsGUI.setItem(slot, unknownHint);
             }
+
             slot++;
+            hintCount++;
         }
 
         player.openInventory(hintsGUI);
+    }
+
+    private boolean thereAreHints(){
+        FileConfiguration treasures = plugin.getTreasures().getConfig();
+        ConfigurationSection treasuresSection = treasures.getConfigurationSection("treasures");
+
+        if(treasuresSection == null) return false;
+
+        for(String key : treasuresSection.getKeys(false)) {
+            ConfigurationSection treasureHint = treasures.getConfigurationSection("treasures."+key+".hint");
+            if(treasureHint != null) return true;
+        }
+
+        return false;
     }
 
     @EventHandler
@@ -200,52 +183,6 @@ public class HintsGUI implements Listener {
         Material noHintsItemMaterial = Material.matchMaterial(noHintsItemMaterialString.toUpperCase());
         if(clicked.getType().equals(noHintsItemMaterial)) return;
 
-        //If the player clicks on an Unknown Hint
-        Material unknownHintMat = Material.BOOK;
-        if(clicked.getType().equals(unknownHintMat)){
-            String stringSound = plugin.getConfig().getString("player-clicked-on-unknown-hint-sound").toLowerCase();
-            Sound unknownHintSound = Registry.SOUNDS.get(NamespacedKey.minecraft(stringSound));
-            float uhsVolume = plugin.getConfig().getInt("pcouhs-volume");
-            float uhsPitch = plugin.getConfig().getInt("pcouhs-pitch");
 
-            player.playSound(player.getLocation(), unknownHintSound, uhsVolume, uhsPitch);
-            return;
-        }
-
-        //Check if the clicked item is one of the book Hints
-        String bookId = meta.getPersistentDataContainer().get(this.key, PersistentDataType.STRING);
-        if (bookId == null) return;
-
-        FileConfiguration books = plugin.getBooks().getConfig();
-        FileConfiguration playerData = plugin.getPlayerData().getConfig();
-
-        int foundCount = playerData.getInt("players." + player.getName() + ".treasures-found", 0);
-        String path = "books." + bookId;
-        int unlockAfter = books.getInt(path + ".unlock-after", 0);
-
-        if (foundCount < unlockAfter) {
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("hint-not-found-yet")));
-            player.closeInventory();
-            return;
-        }
-
-        BookMeta realMeta = (BookMeta) Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
-        realMeta.setTitle(ChatColor.translateAlternateColorCodes('&', books.getString(path + ".title")));
-        for (String page : books.getStringList(path + ".pages")) {
-            realMeta.addPage(ChatColor.translateAlternateColorCodes('&', page));
-        }
-
-        ItemStack realBook = new ItemStack(Material.WRITTEN_BOOK);
-        realBook.setItemMeta(realMeta);
-
-        player.closeInventory();
-
-        String openHintSound = plugin.getConfig().getString("hint-open-sound");
-        float ohsVolume = plugin.getConfig().getInt("hos-volume");
-        float ohsPitch = plugin.getConfig().getInt("hos-pitch");
-        Sound openHint = Registry.SOUNDS.get(NamespacedKey.minecraft(openHintSound.toLowerCase()));
-
-        player.playSound(player.getLocation(), openHint, ohsVolume, ohsPitch);
-        player.openBook(realBook);
     }
 }

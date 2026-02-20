@@ -109,36 +109,41 @@ hints-gui:
   gui-rows: 6 #Value must be between 1 and 6. Each row has 9 slots => 9 slots-minimum, 54 slots-maximum
   gui-title: "Hints" #You can use '&' styles!
 
-  known-hint-lore:
-    - ""
+  #Configure the lore for an unlocked hint
+  unlocked-hint-lore:
     - "&a✔ Unlocked"
+    - " "
+    - "&7Click to open the hint"
 
-  unknown-hint-title: "&c&l???"
-  unknown-hint-lore:
-    - ""
+  #Configure the lore for a locked hint
+  locked-hint-lore:
     - "&e🔒 &lLocked"
+    - " "
+    - "&cYou already found this treasure!"
 
-  toggle-decorations: true #true(yes)/false(no)
+  toggle-decorations: true #Whether you want decorations or not
   decoration-material: black_stained_glass_pane
 
-  info-item-toggle: true #true(yes)/false(no)
-  info-item-slot: 4 #The slot for the info item
-  info-item-title: "&fChoose a hint to open" #Use '&' for styles
-  info-item-material: oak_sign #The material for the info item
+  #Configure the info-item. Handy for displaying some tips/etc.
+  info-item:
+    toggle: true #Whether you want this item in your GUI or not
+    slot: 4 #The slot for the item
+    display-name: "&fChoose a hint to open" #Use '&' for styles
+    material: oak_sign #The material
 
   #Configure the exit-button
   gui-exit-button:
-    toggle: true #true(yes) / false(no)
-    slot: 40
+    toggle: true #Whether you want this button or not
+    slot: 49
     material: red_concrete #The item that the button will have
     title: "&c&lEXIT"
 
   #Configure the no-hints-item. It appears if there aren't any hints created
   gui-no-hints-item:
-    chat-message: "&cThere are no hints configured for this event!"
+    chat-message: "&cThere are no hints configured for this event."
     material: barrier
     slot: 22
-    title: "&cThere are no hints configured"
+    title: "&cThere are no hints configured. You are on your own!"
 
 #Configure every sound for the plugin. For checking AND hearing every sound, run /playsound in minecraft, then write what is after "minecraft:"
 #As for the volume and pitch, the default value is 1
