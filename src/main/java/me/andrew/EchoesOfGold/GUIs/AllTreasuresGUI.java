@@ -135,12 +135,20 @@ public class AllTreasuresGUI implements Listener{
 
             List<String> coloredLore = new ArrayList<>();
             coloredLore.add(" ");
-            coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Location: &f"+treasureX+" "+treasureY+" "+treasureZ));
-            coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - World: &f"+treasureWorld));
+
+            //Displays if the hint for the treasure is set or not (if the hints are toggled)
+            boolean toggleHints = plugin.getConfig().getBoolean("hints-gui.toggle-hints", true);
+            if(toggleHints){
+                if(hasHint(treasure)) coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Hint: &fSET &aꪜ"));
+                else coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Hint: &fMISSING &c❌"));
+            }
 
             //Displays the coins of the treasure if the economy is toggled and working properly
             boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy");
             if(toggleEconomy && plugin.getEconomy() != null) coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Coins: &f"+treasureCoins));
+
+            coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Location: &f"+treasureX+" "+treasureY+" "+treasureZ));
+            coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - World: &f"+treasureWorld));
 
             coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Facing: &f"+treasureFacing));
             tiMeta.setLore(coloredLore);
@@ -154,6 +162,13 @@ public class AllTreasuresGUI implements Listener{
         }
 
         player.openInventory(allTreasuresGUI);
+    }
+
+    private boolean hasHint(String treasure){
+        FileConfiguration treasuresConfig = plugin.getTreasures().getConfig();
+
+        ConfigurationSection treasureSection = treasuresConfig.getConfigurationSection("treasures."+treasure+".hint");
+        return treasureSection != null;
     }
 
     private List<String> addingRewardsLore(String treasureID){
@@ -206,7 +221,7 @@ public class AllTreasuresGUI implements Listener{
         Material returnButton = Material.SPECTRAL_ARROW;
         if(clickedItem.getType().equals(returnButton)){
             player.playSound(player.getLocation(), clickSound, 1f, 1f);
-            plugin.getManageGUI().showMainManageGui(player);
+            plugin.getManageTreasuresGUI().showTreasureManagersGUI(player);
         }
 
         //If the player clicks on the infoSign item

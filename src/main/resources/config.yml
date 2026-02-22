@@ -17,14 +17,12 @@ subtitle: "" #Use "&" for style
 #Configure the start-book. It is the book that appears right after you enable the event.
 start-book:
   toggle: true #true(yes) / #false(no)
-  delay: 2 #In seconds
+  delay: 2 #Delay after the event starts (in seconds)
   author: "&cServer Staffs"
   title: "&6&lECHOES OF GOLD - INFO"
   pages: #Use '\n' to go on a new line in a page
     - "&5Welcome, adventurer!\n\n&6The night of terror begins...\n3 cursed chests await for you in the Overworld.\n\n&cFind them before they find you."
     - "&7Each chest holds &eancient treasures&7.\nBut beware...\nSome are guarded by monsters.\n\n&4Good luck!"
-
-
 
 #Configure the Economy part of the plugin. For this you will need 'Vault' plugin and another Economy Plugin
 #This enables the store and the money players get when finding a treasure.
@@ -32,7 +30,7 @@ economy:
   toggle-using-economy: true
 
   #This pops a little message above the XP bar to the player when they find a treasure.
-  #Use '%coins_amount%' to display how many coins the player got.
+  #Use '%coins_amount%' to display how many coins the player got. Use '&' for styles
   action-bar-message: "&6You got %coins_amount% coins!"
 
 #Configure general messages. Use "&" for style

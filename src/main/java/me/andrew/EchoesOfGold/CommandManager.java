@@ -256,7 +256,7 @@ public class CommandManager implements CommandExecutor{
                 return true;
             }
 
-            plugin.getHintsGUI().hintsGUI(player, 0);
+            plugin.getHintsGUI().hintsGUI(player, 1);
             player.playSound(player.getLocation(), invalidValue, 1f, 1f);
             return true;
         }

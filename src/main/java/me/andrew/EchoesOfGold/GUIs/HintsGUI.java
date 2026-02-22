@@ -15,9 +15,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class HintsGUI implements Listener {
     private final EchoesOfGold plugin;
@@ -28,12 +26,12 @@ public class HintsGUI implements Listener {
         this.key = new NamespacedKey(plugin, "hint-id");
     }
 
-    public void hintsGUI(Player player, int hintCount) {
+    public void hintsGUI(Player player, int page) {
         FileConfiguration playerData = plugin.getPlayerData().getConfig();
         FileConfiguration treasureData = plugin.getTreasures().getConfig();
 
         int invSize = plugin.getHintsGUISize();
-        String title = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("hints-gui.gui-title"));
+        String title = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("hints-gui.gui-title") + "(Page "+page+")");
         Inventory hintsGUI = Bukkit.createInventory(null, invSize, title);
 
         //If the decoration is toggled, sets the decoration
@@ -87,17 +85,19 @@ public class HintsGUI implements Listener {
             return;
         }
 
-        //Starting slot
         int slot = toggleDecoration ? 9 : 0;
+        int numberOfHints = getNumberOfHints();
+        int maximumNrOfHintsPerPage = toggleDecoration ? 36 : 45;
+        int offset = (page - 1) * maximumNrOfHintsPerPage;
+        int endIndex = Math.min(offset + maximumNrOfHintsPerPage, numberOfHints);
 
         //Displaying the hints
         ConfigurationSection treasures = treasureData.getConfigurationSection("treasures");
         List<String> treasuresList = treasures.getKeys(false).stream().toList();
-        for(int i = hintCount; i<=treasuresList.size(); i++){
+        for(int i = 0, j = offset; i<45; i++, j++){
             //Getting the data of the hint
-            String treasure = treasuresList.get(i);
+            String treasure = treasuresList.get(j);
             String hintDisplayName = treasures.getString("treasures." + treasure + ".hint.title");
-            List<String> hintPages = treasures.getStringList("treasures." + treasure + ".hint.pages");
 
             for(String p : playerData.getConfigurationSection("players").getKeys(false)){
                 boolean treasureFound = playerData.getBoolean("players." + p + ".found."+treasure);
@@ -122,17 +122,61 @@ public class HintsGUI implements Listener {
                 //Else, we show the normal hint
                 else{
                     ItemStack unlockedHintItem = new ItemStack(Material.WRITTEN_BOOK);
-                    BookMeta unlockedHintMeta = (BookMeta) unlockedHintItem.getItemMeta();
+                    ItemMeta unlockedHintMeta = unlockedHintItem.getItemMeta();
 
-                    unlockedHintMeta.setTitle(ChatColor.translateAlternateColorCodes('&', hintDisplayName));
+                    //Setting the display name
+                    unlockedHintMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', hintDisplayName));
+
+                    //Setting the lore
+                    List<String> unlockedHintLore = new ArrayList<>();
+                    for(String line : plugin.getConfig().getStringList("hints-gui.unlocked-hint-lore")) unlockedHintLore.add(ChatColor.translateAlternateColorCodes('&', line));
+                    unlockedHintMeta.setLore(unlockedHintLore);
+
+                    //Saving the ID of the treasure to the meta
+                    unlockedHintMeta.getPersistentDataContainer().set(this.key, PersistentDataType.STRING, treasure);
+
+                    //Adding the lore item to the GUI
+                    unlockedHintItem.setItemMeta(unlockedHintMeta);
+                    hintsGUI.setItem(slot+i, unlockedHintItem);
                 }
             }
 
             slot++;
-            hintCount++;
+        }
+
+        //Adding the next page button
+        if(endIndex < numberOfHints){
+            ItemStack nextPageItem = new ItemStack(Material.ARROW);
+            ItemMeta nextPageMeta = nextPageItem.getItemMeta();
+            nextPageMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&a▶ Next Page"));
+            nextPageItem.setItemMeta(nextPageMeta);
+            hintsGUI.setItem(53, nextPageItem);
+        }
+
+        //Adding the Previous Page Button
+        if(page > 1){
+            ItemStack previousPageItem = new ItemStack(Material.ARROW);
+            ItemMeta previousPageMeta = previousPageItem.getItemMeta();
+            previousPageMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&a◀ Previous Page"));
+            previousPageItem.setItemMeta(previousPageMeta);
+            hintsGUI.setItem(45, previousPageItem);
         }
 
         player.openInventory(hintsGUI);
+    }
+
+    private int getNumberOfHints(){
+        FileConfiguration treasures = plugin.getTreasures().getConfig();
+
+        int numberOfHints = 0;
+        for(String treasure : treasures.getConfigurationSection("treasures").getKeys(false)){
+            String mainPath = "treasures."+treasure;
+            ConfigurationSection treasureHint = treasures.getConfigurationSection(mainPath+".hint");
+
+            if(treasureHint != null) numberOfHints++;
+        }
+
+        return numberOfHints;
     }
 
     private boolean thereAreHints(){
@@ -149,19 +193,24 @@ public class HintsGUI implements Listener {
         return false;
     }
 
+    private int getPageNr(String title){
+        String parsedTitle = title.replaceAll("[^0-9]", "");
+        return Integer.parseInt(parsedTitle);
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
         String title = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("hints-gui.gui-title"));
-        if (!event.getView().getTitle().equals(title)) return;
+        if (!event.getView().getTitle().contains(title)) return;
 
         event.setCancelled(true);
         ItemStack clicked = event.getCurrentItem();
         if (clicked == null || clicked.getType() == Material.AIR) return;
 
-        ItemMeta meta = clicked.getItemMeta();
-        if (meta == null) return;
+        ItemMeta clickedMeta = clicked.getItemMeta();
+        if (clickedMeta == null) return;
 
         //If the player clicks on exitButton
         String exitButtonMaterialString = plugin.getConfig().getString("hints-gui.gui-exit-button.material");
@@ -178,11 +227,38 @@ public class HintsGUI implements Listener {
             return;
         }
 
-        //If the player clicks on noHintsItem
-        String noHintsItemMaterialString = plugin.getConfig().getString("hints-gui.gui-no-hints-item.material");
-        Material noHintsItemMaterial = Material.matchMaterial(noHintsItemMaterialString.toUpperCase());
-        if(clicked.getType().equals(noHintsItemMaterial)) return;
+        //If the player clicks on Previous Page Button
+        if(clickedMeta.getDisplayName().contains("Previous Page")){
+            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
+            hintsGUI(player, getPageNr(event.getView().getTitle()) - 1);
+            return;
+        }
 
+        //If the player clicks on Next Page Button
+        if(clickedMeta.getDisplayName().contains("Next Page")){
+            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
+            hintsGUI(player, getPageNr(event.getView().getTitle()) + 1);
+        }
 
+        //Getting the clicked treasure of the hint from the clicked meta
+        String treasure = clickedMeta.getPersistentDataContainer().get(this.key, PersistentDataType.STRING);
+
+        //Building the book
+        FileConfiguration treasures = plugin.getTreasures().getConfig();
+        BookMeta bookMeta = (BookMeta) clicked.getItemMeta();
+
+        String bookTitle = treasures.getString("treasures."+treasure+".hint.title");
+        List<String> bookPages = treasures.getStringList("treasures."+treasure+".hint.pages");
+
+        //Setting the title and pages
+        bookMeta.setTitle(bookTitle);
+        bookMeta.setPages(bookPages);
+
+        //Opening the book
+        clicked.setItemMeta(bookMeta);
+
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
+        player.closeInventory();
+        player.openBook(bookMeta);
     }
 }
