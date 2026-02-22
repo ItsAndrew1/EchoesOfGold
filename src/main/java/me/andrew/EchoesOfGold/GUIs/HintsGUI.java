@@ -238,6 +238,16 @@ public class HintsGUI implements Listener {
         if(clickedMeta.getDisplayName().contains("Next Page")){
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
             hintsGUI(player, getPageNr(event.getView().getTitle()) + 1);
+            return;
+        }
+
+        //If the player clicks on the No Hints Item
+        Material noHintsMaterial = Material.matchMaterial(plugin.getConfig().getString("hints-gui.gui-no-hints-item.material", "barrier"));
+        if(clicked.getType().equals(noHintsMaterial)){
+            String chatMessage = plugin.getConfig().getString("hints-gui.gui-no-hints-item.chat-message");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatMessage));
+            player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+            return;
         }
 
         //Getting the clicked treasure of the hint from the clicked meta

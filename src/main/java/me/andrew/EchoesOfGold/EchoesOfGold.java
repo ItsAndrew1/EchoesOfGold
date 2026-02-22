@@ -34,11 +34,13 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     private TreasureManager treasureManager;
     private EventBossBar bossBar;
 
+    //Variables for the Event Progress
     private boolean eventActive;
     private long eventDuration;
 
-    //Defining the Economy object
+    //Defining the Economy Objects
     private static Economy economy;
+    private ShopGUI shopGUI;
 
     //Defining the GUIs
     private MainManageGUI manageGUI;
@@ -69,6 +71,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         allTreasuresGUI = new AllTreasuresGUI(this);
         addRewardsGUI = new AddRewardsGUI(this);
         hintsGUI = new HintsGUI(this);
+        shopGUI = new ShopGUI(this);
 
         //Setting the commands and their tabs
         getCommand("eog").setExecutor(new CommandManager(this));
@@ -84,6 +87,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         getServer().getPluginManager().registerEvents(this, this); //Events of the main plugin class
         getServer().getPluginManager().registerEvents(eventProgressManager, this); //Events of EventProgress class
         getServer().getPluginManager().registerEvents(addRewardsGUI, this); //Events of AddRewards GUI
+        getServer().getPluginManager().registerEvents(shopGUI, this); //Events of Shop GUI
 
         //Regaining data after a reload
         if(savedDuration > 0){

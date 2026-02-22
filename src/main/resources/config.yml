@@ -33,6 +33,35 @@ economy:
   #Use '%coins_amount%' to display how many coins the player got. Use '&' for styles
   action-bar-message: "&6You got %coins_amount% coins!"
 
+  #Main configuration part for the shop gui
+  toggle-shop: true #If you want to have the event shop
+  shop-gui:
+    rows: 6 #Value must be between 1 and 6. Each row has 9 slots.
+    title: "Event Shop"
+
+    #Configure an exit item
+    exit-item:
+      material: red_concrete #The material of the item
+      slot: 49
+      display-name: "&c&lEXIT" #Use '&' for styles
+
+    #Configure a 'no items' item
+    no-items-item:
+      material: barrier
+      slot: 31
+      display-name: "&eThere are no items set yet!"
+
+    #Configure some decoration (on top of the gui)
+    decoration:
+      #If you set this to 'false', the shop items will appear from the top of the GUI
+      toggle: true
+      material: black_stained_glass_pane #Material for the deco
+      display-name: " " #Leave like this for no display name
+
+    #Configure the items for the shop. There is also an in game configuration for this (way easier to use :D).
+    items:
+
+
 #Configure general messages. Use "&" for style
 treasure-already-found: "&cYou have &lalready found &cthis treasure!" #Use & for style
 treasure-found: "&aYou have found a &ltreasure&a!"
@@ -105,7 +134,7 @@ hints-gui:
   toggle-hints: true #If you want to use hints or not
 
   gui-rows: 6 #Value must be between 1 and 6. Each row has 9 slots => 9 slots-minimum, 54 slots-maximum
-  gui-title: "Hints" #You can use '&' styles!
+  gui-title: "Hints"
 
   #Configure the lore for an unlocked hint
   unlocked-hint-lore:
@@ -118,6 +147,16 @@ hints-gui:
     - "&e🔒 &lLocked"
     - " "
     - "&cYou already found this treasure!"
+
+  #Configure a 'Hints Item' during the event which players can right click on
+  hints-item:
+    toggle: true #Whether you want this item or not
+    hotbar-slot: 8 #The slot in which the player will get this item. Values are from 0 to 8!
+    material: emerald
+    display-name: "&6&lHINTS" #The display name of the item
+    lore: #The lore of the item
+      - " "
+      - "&7Click to view hints for the treasures!"
 
   toggle-decorations: true #Whether you want decorations or not
   decoration-material: black_stained_glass_pane
@@ -138,7 +177,7 @@ hints-gui:
 
   #Configure the no-hints-item. It appears if there aren't any hints created
   gui-no-hints-item:
-    chat-message: "&cThere are no hints configured for this event."
+    chat-message: "&eThere are no hints configured for this event."
     material: barrier
     slot: 22
     title: "&cThere are no hints configured. You are on your own!"
