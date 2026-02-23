@@ -297,7 +297,7 @@ public class CommandManager implements CommandExecutor{
         FileConfiguration treasures = plugin.getTreasures().getConfig();
 
         for(Player p : Bukkit.getOnlinePlayers()){
-            String path = "players." + p.getName();
+            String path = "players." + p.getUniqueId();
 
             if(!data.isConfigurationSection(path)){
                 data.set(path + ".treasures-found", 0);

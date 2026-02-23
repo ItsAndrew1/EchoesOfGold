@@ -104,7 +104,7 @@ public class TreasureManager{
                 Location loc = new Location(Bukkit.getWorld(treasures.getString(path + ".world")), x, y, z);
 
                 BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-                    if (!data.getBoolean("players." + p.getName() + ".found." + key)) {
+                    if (!data.getBoolean("players." + p.getUniqueId() + ".found." + key)) {
                         //Check if the particle is valid or not
                         Particle chestParticle;
                         try {
@@ -161,19 +161,20 @@ public class TreasureManager{
     }
 
     //Get the top 3 players (used for SCOREBOARD and FINAL CHAT MESSAGE)
-    public List<Map.Entry<String, Integer>> getTopPlayers() {
+    public List<Map.Entry<UUID, Integer>> getTopPlayers() {
         plugin.getPlayerData().reloadConfig();
         FileConfiguration data = plugin.getPlayerData().getConfig();
-        Map<String, Integer> scores = new HashMap<>();
+        Map<UUID, Integer> scores = new HashMap<>();
 
         if (data.isConfigurationSection("players")) {
-            for (String playerName : data.getConfigurationSection("players").getKeys(false)) {
-                int foundCount = data.getInt("players." + playerName + ".treasures-found", 0);
-                scores.put(playerName, foundCount);
+            for (String uuidTXT : data.getConfigurationSection("players").getKeys(false)) {
+                UUID playerUUID = UUID.fromString(uuidTXT);
+                int foundCount = data.getInt("players." + uuidTXT + ".treasures-found", 0);
+                scores.put(playerUUID, foundCount);
             }
         }
 
-        List<Map.Entry<String, Integer>> sorted = new ArrayList<>(scores.entrySet());
+        List<Map.Entry<UUID, Integer>> sorted = new ArrayList<>(scores.entrySet());
         sorted.sort((a, b) -> b.getValue().compareTo(a.getValue()));
 
         if (sorted.size() > 3) {

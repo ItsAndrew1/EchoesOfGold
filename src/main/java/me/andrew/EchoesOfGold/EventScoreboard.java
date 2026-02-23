@@ -12,6 +12,7 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class EventScoreboard{
     EchoesOfGold plugin;
@@ -60,24 +61,27 @@ public class EventScoreboard{
             //Skipping the line if it is the one displaying the coins (if the economy isn't toggled/doesn't work)
             if(!isEconomyWorking() && line.contains("%coins_gathered%")) continue;
 
-            List<Map.Entry<String, Integer>> top = plugin.getTreasureManager().getTopPlayers();
-            String top1name = !top.isEmpty() ? top.getFirst().getKey() : "None";
-            String top2name = top.size() > 1 ? top.get(1).getKey() : "None";
-            String top3name = top.size() > 2 ? top.get(2).getKey() : "None";
+            List<Map.Entry<UUID, Integer>> top = plugin.getTreasureManager().getTopPlayers();
+            UUID top1UUID = !top.isEmpty() ? top.getFirst().getKey() : null;
+            UUID top2UUID = top.size() > 1 ? top.get(1).getKey() : null;
+            UUID top3UUID = top.size() > 2 ? top.get(2).getKey() : null;
             int top1count = !top.isEmpty() ? top.getFirst().getValue() : 0;
             int top2count = top.size() > 1 ? top.get(1).getValue() : 0;
             int top3count = top.size() > 2 ? top.get(2).getValue() : 0;
 
+            String top1name = top1UUID != null ? Bukkit.getOfflinePlayer(top1UUID).getName() : "None";
+            String top2name = top2UUID != null ? Bukkit.getOfflinePlayer(top2UUID).getName() : "None";
+            String top3name = top3UUID != null ? Bukkit.getOfflinePlayer(top3UUID).getName() : "None";
             String parsed = line
                     .replace("%player_name%", player.getName())
-                    .replace("%player_treasures%", String.valueOf(playerdata.getInt("players." + player.getName() + ".treasures-found")))
+                    .replace("%player_treasures%", String.valueOf(playerdata.getInt("players." + player.getUniqueId() + ".treasures-found")))
                     .replace("%max_treasures%", String.valueOf(treasures.getInt("max-treasures")))
                     .replace("%top1_name%", top1name)
                     .replace("%top2_name%", top2name)
                     .replace("%top3_name%", top3name)
                     .replace("%top1_count%", String.valueOf(top1count))
                     .replace("%top2_count%", String.valueOf(top2count))
-                    .replace("%coins_gathered%", String.valueOf(playerdata.getDouble("players." + player.getName() + ".coins-gathered")))
+                    .replace("%coins_gathered%", String.valueOf(playerdata.getDouble("players." + player.getUniqueId() + ".coins-gathered")))
                     .replace("%top3_count%", String.valueOf(top3count));
             String coloredLine = ChatColor.translateAlternateColorCodes('&', parsed);
 

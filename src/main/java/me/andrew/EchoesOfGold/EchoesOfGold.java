@@ -15,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -103,7 +104,25 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
 
             treasureManager.spawnTreasures();
             treasureManager.spawnChestParticles();
-            getLogger().warning("[ECHOES OF GOLD] Resumed event!");
+
+            //Putting the saved player items in the map (if the hints item is toggled)
+            boolean toggleHintsItem = getConfig().getBoolean("hints-gui.hints-item.toggle", false);
+            if(toggleHintsItem){
+                for(OfflinePlayer p : Bukkit.getOfflinePlayers()){
+                    FileConfiguration playerData = playerdata.getConfig();
+
+                    ConfigurationSection targetPlayerSection = playerData.getConfigurationSection("players."+p.getUniqueId());
+                    if(targetPlayerSection == null) continue; //Skips the players that aren't a part of the event
+
+                    //Getting the item stack and saving it in the map
+                    ItemStack savedItem = playerData.getItemStack("players."+p.getUniqueId()+".saved-item");
+                    if(savedItem == null || savedItem.getType().equals(Material.AIR)) continue; //Skips the players that didn't save anything
+
+                    getEventProgressManager().putItemsInMap(p.getUniqueId(), savedItem);
+                }
+            }
+
+            getLogger().warning("[E.O.G] Resumed event!");
         }
         else{
             eventActive = false;

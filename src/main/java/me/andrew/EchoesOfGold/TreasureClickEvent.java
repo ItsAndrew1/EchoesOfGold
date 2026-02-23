@@ -75,7 +75,7 @@ public class TreasureClickEvent implements Listener{
     private void handleTreasureFound(Player player, String treasureID){
         FileConfiguration data = plugin.getPlayerData().getConfig();
         FileConfiguration treasures = plugin.getTreasures().getConfig();
-        String playerPath = "players." + player.getName();
+        String playerPath = "players." + player.getUniqueId();
 
         Map<String, BukkitTask> treasureParticleTasks = plugin.getTreasureManager().getTreasureParticleTasks().get(player.getUniqueId());
         BukkitTask taskForTreasure = treasureParticleTasks.get(treasureID);

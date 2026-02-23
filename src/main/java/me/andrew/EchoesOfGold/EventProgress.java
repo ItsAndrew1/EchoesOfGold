@@ -13,6 +13,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -45,6 +46,8 @@ public class EventProgress implements Listener {
     }
 
     private void eventProgress(){
+        FileConfiguration playerData = plugin.getPlayerData().getConfig();
+
         //Giving the hints item to the players in the hotbar (if it is toggled)
         boolean toggleHintsItem = plugin.getConfig().getBoolean("hints-gui.hints-item.toggle", false);
         if(toggleHintsItem){
@@ -55,6 +58,10 @@ public class EventProgress implements Listener {
             int hotbarSlot = plugin.getConfig().getInt("hints-gui.hints-item.hotbar-slot", 8);
             for(Player p : Bukkit.getOnlinePlayers()){
                 PlayerInventory inv = p.getInventory();
+
+                /*Saving the player's item in the 'playerdata.yml'
+                 (this allows the plugin to put each item stack into the map in case of a restart) */
+                playerData.set("players." + p.getUniqueId() + ".saved-item", inv.getItem(hotbarSlot));
 
                 //If the slot isn't empty, save the item stack in a map
                 if(!inv.getItem(hotbarSlot).isEmpty()) savedPlayerItems.put(p.getUniqueId(), inv.getItem(hotbarSlot));
@@ -92,12 +99,12 @@ public class EventProgress implements Listener {
 
                 //Finishes the event
                 if(duration == 0){
+                    //Displaying the final chat message
                     eventFinishChatMessage();
 
-                    plugin.getTreasureManager().removeTreasures();
-
-                    //Removing the particles of the treasures
+                    //Removing the treasures and their particles
                     plugin.getTreasureManager().cancelParticles();
+                    plugin.getTreasureManager().removeTreasures();
 
                     //Removing the player data
                     plugin.getPlayerData().getConfig().set("players", null);
@@ -285,14 +292,19 @@ public class EventProgress implements Listener {
 
         //Sends the chat message
         List<String> messageLines = plugin.getConfig().getStringList("event-final-time.finish-event-message.message-lines");
-        List<Map.Entry<String, Integer>> top3Players = plugin.getTreasureManager().getTopPlayers();
+        List<Map.Entry<UUID, Integer>> top3Players = plugin.getTreasureManager().getTopPlayers();
         for(Player p : Bukkit.getOnlinePlayers()){
-            String top1player = !top3Players.isEmpty() ? top3Players.getFirst().getKey() : "None";
-            int t1pTreasures = !top3Players.isEmpty() ? top3Players.getFirst().getValue() : 0;
-            String top2player = top3Players.size() > 1 ? top3Players.get(1).getKey() : "None";
-            int t2pTreasures = top3Players.size() > 1 ? top3Players.get(1).getValue() : 0;
-            String top3player = top3Players.size() > 2 ? top3Players.get(2).getKey() : "None";
-            int t3pTreasures = top3Players.size() > 2 ? top3Players.get(2).getValue() : 0;
+            List<Map.Entry<UUID, Integer>> top = plugin.getTreasureManager().getTopPlayers();
+            UUID top1UUID = !top.isEmpty() ? top.getFirst().getKey() : null;
+            UUID top2UUID = top.size() > 1 ? top.get(1).getKey() : null;
+            UUID top3UUID = top.size() > 2 ? top.get(2).getKey() : null;
+            int top1count = !top.isEmpty() ? top.getFirst().getValue() : 0;
+            int top2count = top.size() > 1 ? top.get(1).getValue() : 0;
+            int top3count = top.size() > 2 ? top.get(2).getValue() : 0;
+
+            String top1name = top1UUID != null ? Bukkit.getOfflinePlayer(top1UUID).getName() : "None";
+            String top2name = top2UUID != null ? Bukkit.getOfflinePlayer(top2UUID).getName() : "None";
+            String top3name = top3UUID != null ? Bukkit.getOfflinePlayer(top3UUID).getName() : "None";
 
             Sound eventFinishSound = Registry.SOUNDS.get(NamespacedKey.minecraft(plugin.getConfig().getString("event-finish-sound").toLowerCase()));
             float efsVolume = plugin.getConfig().getInt("efs-volume");
@@ -305,12 +317,12 @@ public class EventProgress implements Listener {
                 title = title.replace("%player_name%", p.getName());
                 subtitle = subtitle.replace("%player_name%", p.getName());
                 String phLine = messageLine
-                        .replace("%top1_name%", top1player)
-                        .replace("%top2_name%", top2player)
-                        .replace("%top3_name%", top3player)
-                        .replace("%top1_count%", String.valueOf(t1pTreasures))
-                        .replace("%top2_count%", String.valueOf(t2pTreasures))
-                        .replace("%top3_count%", String.valueOf(t3pTreasures));
+                        .replace("%top1_name%", top1name)
+                        .replace("%top2_name%", top2name)
+                        .replace("%top3_name%", top3name)
+                        .replace("%top1_count%", String.valueOf(top1count))
+                        .replace("%top2_count%", String.valueOf(top2count))
+                        .replace("%top3_count%", String.valueOf(top3count));
 
                 String coloredParsed = ChatColor.translateAlternateColorCodes('&', phLine);
                 p.sendMessage(coloredParsed);
@@ -440,7 +452,7 @@ public class EventProgress implements Listener {
 
         //Initializing the player in 'playerData.yml' if he wasn't already
         if (!players.contains(targetPlayer.getName())) {
-            String path = "players." + targetPlayer.getName();
+            String path = "players." + targetPlayer.getUniqueId();
             data.set(path + ".treasures-found", 0);
 
             //Adding 'coins-gathered' to player's data and creates an account for him if the economy is toggled and working
@@ -475,7 +487,7 @@ public class EventProgress implements Listener {
         return hintsItem;
     }
 
-    public Map<UUID, ItemStack> getSavedPlayerItems(){
-        return savedPlayerItems;
+    public void putItemsInMap(UUID uuid, ItemStack item){
+        savedPlayerItems.put(uuid, item);
     }
 }
