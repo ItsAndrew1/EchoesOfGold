@@ -28,9 +28,8 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     private YMLfiles playerdata;
     private EventScoreboard scoreboardManager;
     private EventProgress eventProgressManager;
-    private int hintsGuiSize;
     private int savedDuration = getConfig().getInt("saving-duration");
-    private final Map<UUID, Consumer<String>> chatInput = new HashMap<>(); //This is for player's input in the treasure GUIs
+    private final Map<UUID, Consumer<String>> chatInput = new HashMap<>();
     private TreasureManager treasureManager;
     private EventBossBar bossBar;
 
@@ -54,7 +53,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        hintsGuiSize = getConfig().getInt("hints-gui.gui-rows") * 9;
 
         //Defining the YML files and main objects
         treasures = new YMLfiles(this, "treasures.yml");
@@ -112,82 +110,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
             for(Player p : Bukkit.getOnlinePlayers()){
                 p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
             }
-        }
-
-        //Check if the hintsGUI size is good
-        if(hintsGuiSize < 9 || hintsGuiSize > 54){
-            Bukkit.getLogger().warning("[E.O.G] The value gui-rows is invalid. The value must be between 1 and 6.");
-        }
-
-        //Check if everything for hintsGUI in 'config.yml' is right.
-        try{
-            //This is for exitButton (if it is toggled)
-            boolean exitButtonToggle = getConfig().getBoolean("hints-gui.gui-exit-button.toggle");
-            if(exitButtonToggle){
-                String exitButtonMaterialString = getConfig().getString("hints-gui.gui-exit-button.material").toUpperCase();
-                Material exitButtonMaterial = Material.matchMaterial(exitButtonMaterialString);
-                int exitButtonSlot = getConfig().getInt("hints-gui.gui-exit-button.slot");
-
-                if(exitButtonMaterial == null){
-                    Bukkit.getLogger().warning("[E.O.G] Invalid material for gui-exit-button.material.");
-                }
-                if(exitButtonSlot < 1 || exitButtonSlot > getHintsGUISize()){
-                    Bukkit.getLogger().warning("[E.O.G] Invalid value for gui-exit-button.slot! The value must be between 1 and "+ getHintsGUISize()+"!");
-                }
-            }
-        } catch (Exception e){
-            Bukkit.getLogger().warning("[E.O.G] "+e.getMessage()); //This is if the value for gui-exit-button.toggle and slot are not valid
-        }
-
-        try{
-            //This is for noHintsItem (if it is toggle)
-            String noHintsItemMaterialString = getConfig().getString("hints-gui.gui-no-hints-item.material").toUpperCase();
-            Material noHintsItemMaterial = Material.matchMaterial(noHintsItemMaterialString);
-            int noHintsItemSlot = getConfig().getInt("hints-gui.gui-no-hints-item.slot");
-
-            if(noHintsItemMaterial == null){
-                Bukkit.getLogger().warning("[E.O.G] Invalid material for gui-no-hints-item.material.");
-            }
-            if(noHintsItemSlot < 1 || noHintsItemSlot > getHintsGUISize()){
-                Bukkit.getLogger().warning("[E.O.G] Invalid value for gui-no-hints-item.slot! The value must be between 1 and "+ getHintsGUISize()+"!");
-            }
-        } catch (Exception e){
-            Bukkit.getLogger().warning("[E.O.G] "+e.getMessage()); //Checking the boolean and for the slot
-        }
-
-        try{
-            //This is for hintsGUI decorations (if they are toggled)
-            boolean toggleDecorations = getConfig().getBoolean("hints-gui.toggle-decorations");
-            if(toggleDecorations){
-                String decorationItemString = getConfig().getString("hints-gui.decoration-material");
-                Material decorationItem = Material.matchMaterial(decorationItemString.toUpperCase());
-
-                if(decorationItem == null){
-                    Bukkit.getLogger().warning("[E.O.G] Invalid material for the decoration item in hintsGUI.");
-                }
-            }
-        } catch (Exception e){
-            Bukkit.getLogger().warning("[E.O.G] "+e.getMessage()); //This is for checking the boolean!
-        }
-
-        try{
-            //This is for the hintsGUI info item (if it's toggled)
-            boolean toggleInfoItem = getConfig().getBoolean("hints-gui.info-item-toggle");
-            if(toggleInfoItem){
-                String infoItemString = getConfig().getString("hints-gui.info-item-material");
-                Material infoItem = Material.matchMaterial(infoItemString.toUpperCase());
-                int infoItemSlot = getConfig().getInt("hints-gui.info-item-slot");
-
-                //Checks the material and the slot
-                if(infoItem == null){
-                    Bukkit.getLogger().warning("[E.O.G] Invalid material for the info item in hintsGUI.");
-                }
-                if(infoItemSlot < 1 || infoItemSlot > getHintsGUISize()){
-                    Bukkit.getLogger().warning("[E.O.G] Invalid slot for the info item in hintsGUI.");
-                }
-            }
-        } catch (Exception e){
-            Bukkit.getLogger().warning("[E.O.G] "+e.getMessage()); //This is for the boolean and for the slot
         }
 
         //Setting up economy and permissions
@@ -269,9 +191,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     public EventProgress getEventProgressManager(){
         return eventProgressManager;
     }
-    public int getHintsGUISize(){
-        return hintsGuiSize;
-    }
 
     //Getter and setter for eventActive boolean
     public boolean isEventActive(){
@@ -307,6 +226,9 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     }
     public HintsGUI getHintsGUI(){
         return hintsGUI;
+    }
+    public ShopGUI getShopGUI(){
+        return shopGUI;
     }
 
     //Setter and getter for treasureManagerChoice

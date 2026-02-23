@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class CommandManager implements CommandExecutor{
-    EchoesOfGold plugin;
+    private final EchoesOfGold plugin;
 
     public CommandManager(EchoesOfGold plugin){
         this.plugin = plugin;

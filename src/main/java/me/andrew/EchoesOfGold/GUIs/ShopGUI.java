@@ -35,7 +35,6 @@ public class ShopGUI implements Listener {
         //Creating the GUI
         Inventory shopGUI = Bukkit.createInventory(null, guiSize, title);
 
-
         //Setting the exit button
         String materialTXT = mainConfig.getString("economy.shop-gui.exit-item.material", "red_concrete"); //Default value is 'red_concrete'
         int exitButtonSlot = mainConfig.getInt("economy.shop-gui.exit-item.slot", 49);

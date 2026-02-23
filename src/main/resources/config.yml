@@ -25,7 +25,6 @@ start-book:
     - "&7Each chest holds &eancient treasures&7.\nBut beware...\nSome are guarded by monsters.\n\n&4Good luck!"
 
 #Configure the Economy part of the plugin. For this you will need 'Vault' plugin and another Economy Plugin
-#This enables the store and the money players get when finding a treasure.
 economy:
   toggle-using-economy: true
 
@@ -138,7 +137,7 @@ hints-gui:
 
   #Configure the lore for an unlocked hint
   unlocked-hint-lore:
-    - "&a✔ Unlocked"
+    - "&a✔ &lUnlocked"
     - " "
     - "&7Click to open the hint"
 
@@ -152,7 +151,7 @@ hints-gui:
   hints-item:
     toggle: true #Whether you want this item or not
     hotbar-slot: 8 #The slot in which the player will get this item. Values are from 0 to 8!
-    material: emerald
+    material: enchanted_book
     display-name: "&6&lHINTS" #The display name of the item
     lore: #The lore of the item. Leave blank for none
       - " "
@@ -169,18 +168,18 @@ hints-gui:
     material: oak_sign #The material
 
   #Configure the exit-button
-  gui-exit-button:
+  exit-button:
     toggle: true #Whether you want this button or not
     slot: 49
     material: red_concrete #The item that the button will have
-    title: "&c&lEXIT"
+    display-name: "&c&lEXIT"
 
   #Configure the no-hints-item. It appears if there aren't any hints created
   gui-no-hints-item:
     chat-message: "&eThere are no hints configured for this event."
     material: barrier
     slot: 22
-    title: "&cThere are no hints configured. You are on your own!"
+    display-name: "&cThere are no hints configured. You are on your own!"
 
 #Configure every sound for the plugin. For checking AND hearing every sound, run /playsound in minecraft, then write what is after "minecraft:"
 #As for the volume and pitch, the default value is 1
@@ -207,10 +206,6 @@ ehts-pitch: 1
 event-one-quarter-time-sound: "block.note_block.hat"
 eoqts-volume: 1
 eoqts-pitch: 1
-
-exit-button-sound: "ui.button.click"
-ebs-volume: 1
-ebs-pitch: 1
 
 player-clicked-on-unknown-hint-sound: "entity.enderman.teleport"
 pcouhs-volume: 1

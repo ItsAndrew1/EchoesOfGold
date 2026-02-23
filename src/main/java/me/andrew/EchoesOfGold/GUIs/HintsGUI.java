@@ -30,18 +30,25 @@ public class HintsGUI implements Listener {
         FileConfiguration playerData = plugin.getPlayerData().getConfig();
         FileConfiguration treasureData = plugin.getTreasures().getConfig();
 
-        int invSize = plugin.getHintsGUISize();
-        String title = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("hints-gui.gui-title") + "(Page "+page+")");
+        //Setting the GUI size
+        int guiRows = plugin.getConfig().getInt("hints-gui.gui-rows", 6);
+        if(guiRows < 1 || guiRows > 6) guiRows = 6;
+        int invSize = guiRows * 9;
+
+        //Setting the title
+        String title = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("hints-gui.gui-title", "Hints") + "(Page "+page+")");
+
+        //Creating the inventory
         Inventory hintsGUI = Bukkit.createInventory(null, invSize, title);
 
         //If the decoration is toggled, sets the decoration
-        boolean toggleDecoration = plugin.getConfig().getBoolean("hints-gui.toggle-decorations");
+        boolean toggleDecoration = plugin.getConfig().getBoolean("hints-gui.toggle-decorations", true);
         if(toggleDecoration){
-            String decorationItem = plugin.getConfig().getString("hints-gui.decoration-material");
+            String decorationItem = plugin.getConfig().getString("hints-gui.decoration-material", "black_stained_glass_pane");
             for(int i = 0; i<=8; i++){
                 //Check if the info item is toggled and skips it's slot
-                boolean toggleInfoItem = plugin.getConfig().getBoolean("hints-gui.info-item-toggle");
-                int infoItemSlot = plugin.getConfig().getInt("hints-gui.info-item-slot");
+                boolean toggleInfoItem = plugin.getConfig().getBoolean("hints-gui.info-item.toggle", true);
+                int infoItemSlot = plugin.getConfig().getInt("hints-gui.info-item.slot", 4);
                 if(toggleInfoItem){
                     if(i == infoItemSlot) continue;
                 }
@@ -55,12 +62,27 @@ public class HintsGUI implements Listener {
             }
         }
 
+        //Displaying the exit button if it is toggled
+        boolean toggleExitButton = plugin.getConfig().getBoolean("hints-gui.exit-button", true);
+        if(toggleExitButton){
+            String exitButtonMaterialString = plugin.getConfig().getString("hints-gui.exit-button.material", "red_concrete");
+            ItemStack exitButton = new ItemStack(Material.matchMaterial(exitButtonMaterialString.toUpperCase()));
+            ItemMeta exitButtonMeta = exitButton.getItemMeta();
+
+            String displayName = plugin.getConfig().getString("hints-gui.exit-button.display-name", "&c&lEXIT");
+            exitButtonMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
+            exitButton.setItemMeta(exitButtonMeta);
+
+            int slot = plugin.getConfig().getInt("hints-gui.exit-button.slot", 49);
+            hintsGUI.setItem(slot, exitButton);
+        }
+
         //If the info item is toggled, sets it into it's designated slot
-        boolean toggleInfoItem = plugin.getConfig().getBoolean("hints-gui.info-item.toggle");
+        boolean toggleInfoItem = plugin.getConfig().getBoolean("hints-gui.info-item.toggle", true);
         if(toggleInfoItem){
-            int infoItemSlot = plugin.getConfig().getInt("hints-gui.info-item.slot");
-            String stringInfoItemMaterial = plugin.getConfig().getString("hints-gui.info-item.material");
-            String infoItemDisplayName = plugin.getConfig().getString("hints-gui.info-item.title");
+            int infoItemSlot = plugin.getConfig().getInt("hints-gui.info-item.slot", 4);
+            String stringInfoItemMaterial = plugin.getConfig().getString("hints-gui.info-item.material", "oak_sign");
+            String infoItemDisplayName = plugin.getConfig().getString("hints-gui.info-item.display-name", "&fChoose a hint to open!");
 
             ItemStack infoItem = new ItemStack(Material.matchMaterial(stringInfoItemMaterial.toUpperCase()));
             ItemMeta iiMeta = infoItem.getItemMeta();
@@ -71,12 +93,12 @@ public class HintsGUI implements Listener {
         }
 
         //NoHints Item
-        int nhiSlot = plugin.getConfig().getInt("hints-gui.gui-no-hints-item.slot");
+        int nhiSlot = plugin.getConfig().getInt("hints-gui.gui-no-hints-item.slot", 22);
         if(!thereAreHints()){
-            ItemStack noHintsItem = new ItemStack(Material.matchMaterial(plugin.getConfig().getString("hints-gui.gui-no-hints-item.material").toUpperCase()));
+            ItemStack noHintsItem = new ItemStack(Material.matchMaterial(plugin.getConfig().getString("hints-gui.gui-no-hints-item.material", "barrier").toUpperCase()));
             ItemMeta nhiMeta = noHintsItem.getItemMeta();
 
-            String nhiDisplayName = plugin.getConfig().getString("hints-gui.gui-no-hints-item.title");
+            String nhiDisplayName = plugin.getConfig().getString("hints-gui.gui-no-hints-item.title", "&cThere are no hints configured. You are on your own!");
             nhiMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', nhiDisplayName));
             noHintsItem.setItemMeta(nhiMeta);
 
@@ -202,7 +224,7 @@ public class HintsGUI implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
-        String title = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("hints-gui.gui-title"));
+        String title = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("hints-gui.gui-title", "Hints"));
         if (!event.getView().getTitle().contains(title)) return;
 
         event.setCancelled(true);
@@ -213,16 +235,10 @@ public class HintsGUI implements Listener {
         if (clickedMeta == null) return;
 
         //If the player clicks on exitButton
-        String exitButtonMaterialString = plugin.getConfig().getString("hints-gui.gui-exit-button.material");
+        String exitButtonMaterialString = plugin.getConfig().getString("hints-gui.exit-button.material", "red_concrete");
         Material exitButtonMaterial = Material.matchMaterial(exitButtonMaterialString.toUpperCase());
         if(clicked.getType() == exitButtonMaterial){
-            String exitButtonSoundString = plugin.getConfig().getString("exit-button-sound");
-            float ebsVolume = plugin.getConfig().getInt("ebs-volume");
-            float ebsPitch = plugin.getConfig().getInt("ebs-pitch");
-            NamespacedKey exitButtonSoundCheck = NamespacedKey.minecraft(exitButtonSoundString.toLowerCase());
-            Sound exitButtonSound = Registry.SOUNDS.get(exitButtonSoundCheck);
-
-            player.playSound(player.getLocation(), exitButtonSound, ebsVolume, ebsPitch);
+            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
             player.closeInventory();
             return;
         }
@@ -244,7 +260,7 @@ public class HintsGUI implements Listener {
         //If the player clicks on the No Hints Item
         Material noHintsMaterial = Material.matchMaterial(plugin.getConfig().getString("hints-gui.gui-no-hints-item.material", "barrier"));
         if(clicked.getType().equals(noHintsMaterial)){
-            String chatMessage = plugin.getConfig().getString("hints-gui.gui-no-hints-item.chat-message");
+            String chatMessage = plugin.getConfig().getString("hints-gui.gui-no-hints-item.chat-message", "&eThere are no hints configured for this event.");
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatMessage));
             player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
             return;

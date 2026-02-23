@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -345,21 +346,29 @@ public class EventProgress implements Listener {
 
     @EventHandler
     public void onDropEvent(PlayerDropItemEvent e){
+        FileConfiguration mainConfig = plugin.getConfig();
         if(!plugin.isEventActive()) return; //This event will only trigger when the event is active
 
-        FileConfiguration mainConfig = plugin.getConfig();
+        boolean toggleHintsItem = mainConfig.getBoolean("hints-gui.hints-item.toggle", true);
+        if(!toggleHintsItem) return; //If the hints item is not toggled.
+
         ItemStack item = e.getItemDrop().getItemStack();
         ItemMeta itemMeta = item.getItemMeta();
 
         String hintsItemDN = ChatColor.translateAlternateColorCodes('&', mainConfig.getString("hints-gui.hints-item.display-name", "&6&lHINTS"));
-        if(itemMeta.getDisplayName().equals(hintsItemDN)) e.setCancelled(true); //Makes it impossible to drop the item
+        Material hintsItemMaterial = Material.matchMaterial(mainConfig.getString("hints-gui.hints-item.material", "enchanted_book").toUpperCase());
+        if(itemMeta.getDisplayName().equals(hintsItemDN) && item.getType().equals(hintsItemMaterial)) e.setCancelled(true); //Makes it impossible to drop the item
     }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e){
+        FileConfiguration mainConfig = plugin.getConfig();
         if(!plugin.isEventActive()) return; //Again, this event triggers only when the event is active
 
-        if(!(e.getWhoClicked() instanceof Player player)) return;
+        boolean toggleHintsItem = mainConfig.getBoolean("hints-gui.hints-item.toggle", true);
+        if(!toggleHintsItem) return; //If the hints item is not toggled.
+
+        if(!(e.getWhoClicked() instanceof Player)) return;
 
         ItemStack clickedItem = e.getCurrentItem();
         if(clickedItem == null) return;
@@ -367,9 +376,35 @@ public class EventProgress implements Listener {
         ItemMeta clickedMeta = clickedItem.getItemMeta();
         if(clickedMeta == null) return;
 
-        FileConfiguration mainConfig = plugin.getConfig();
         String hintsItemDN = ChatColor.translateAlternateColorCodes('&', mainConfig.getString("hints-gui.hints-item.display-name", "&6&lHINTS"));
-        if(clickedMeta.getDisplayName().equals(hintsItemDN)) e.setCancelled(true); //Makes it impossible for the player to move the item
+        Material hintsItemMaterial = Material.matchMaterial(mainConfig.getString("hints-gui.hints-item.material", "enchanted_book").toUpperCase());
+        if(clickedMeta.getDisplayName().equals(hintsItemDN) && clickedItem.getType().equals(hintsItemMaterial)) e.setCancelled(true); //Makes it impossible for the player to move the item
+    }
+
+    @EventHandler
+    public void onItemInteract(PlayerInteractEvent e){
+        FileConfiguration mainConfig = plugin.getConfig();
+        if(!plugin.isEventActive()) return; //This event runs only when the event is active.
+
+        boolean toggleHintsItem = mainConfig.getBoolean("hints-gui.hints-item.toggle", true);
+        if(!toggleHintsItem) return; //If the hints item is not toggled.
+
+        ItemStack interactedItem = e.getItem();
+        if(interactedItem == null) return;
+
+        ItemMeta interactedMeta = interactedItem.getItemMeta();
+        if(interactedMeta == null) return;
+
+        //Getting the player
+        Player targetPlayer = e.getPlayer();
+
+        //If the player interacts with the hints item, it opens the hints gui
+        String hiDisplayName = mainConfig.getString("hints-gui.hints-item.display-name", "&6&lHINTS");
+        Material hiMaterial = Material.matchMaterial(mainConfig.getString("hints-gui.hints-item.material", "enchanted_book").toUpperCase());
+        if(interactedMeta.getDisplayName().equals(hiDisplayName) && interactedItem.getType().equals(hiMaterial)){
+            targetPlayer.playSound(targetPlayer.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
+            plugin.getShopGUI().showGUI(targetPlayer, 1);
+        }
     }
 
     //If a player joins during the event
@@ -424,8 +459,8 @@ public class EventProgress implements Listener {
     }
 
     private ItemStack createHintsItem() {
-        ItemStack hintsItem = new ItemStack(Material.getMaterial(plugin.getConfig().getString("hints-gui.hints-item.material", "emerald").toUpperCase()));
-        ItemMeta hiMeta =  hintsItem.getItemMeta();
+        ItemStack hintsItem = new ItemStack(Material.getMaterial(plugin.getConfig().getString("hints-gui.hints-item.material", "enchanted_book").toUpperCase()));
+        ItemMeta hiMeta = hintsItem.getItemMeta();
 
         String displayName = plugin.getConfig().getString("hints-gui.hints-item.display-name", "&6&lHINTS");
         hiMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
