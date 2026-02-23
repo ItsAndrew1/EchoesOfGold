@@ -6,11 +6,16 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,6 +25,8 @@ public class EventProgress implements Listener {
     private long fullDuration;
     private int countDownValue;
     private BukkitRunnable task;
+
+    private final Map<UUID, ItemStack> savedPlayerItems = new HashMap<>();
 
     public EventProgress(EchoesOfGold plugin){
         this.plugin = plugin;
@@ -37,6 +44,24 @@ public class EventProgress implements Listener {
     }
 
     private void eventProgress(){
+        //Giving the hints item to the players in the hotbar (if it is toggled)
+        boolean toggleHintsItem = plugin.getConfig().getBoolean("hints-gui.hints-item.toggle", false);
+        if(toggleHintsItem){
+            //Building the item
+            ItemStack hintsItem = createHintsItem();
+
+            //Giving the item to the players
+            int hotbarSlot = plugin.getConfig().getInt("hints-gui.hints-item.hotbar-slot", 8);
+            for(Player p : Bukkit.getOnlinePlayers()){
+                PlayerInventory inv = p.getInventory();
+
+                //If the slot isn't empty, save the item stack in a map
+                if(!inv.getItem(hotbarSlot).isEmpty()) savedPlayerItems.put(p.getUniqueId(), inv.getItem(hotbarSlot));
+
+                inv.setItem(hotbarSlot, hintsItem);
+            }
+        }
+
         task = new BukkitRunnable() {
             @Override
             public void run() {
@@ -70,11 +95,26 @@ public class EventProgress implements Listener {
 
                     plugin.getTreasureManager().removeTreasures();
 
-                    //Removing every the particles of the treasures attached to all players
-                    for(OfflinePlayer p : Bukkit.getOfflinePlayers()) plugin.getTreasureManager().cancelParticles();
+                    //Removing the particles of the treasures
+                    plugin.getTreasureManager().cancelParticles();
 
+                    //Removing the player data
                     plugin.getPlayerData().getConfig().set("players", null);
                     plugin.getPlayerData().saveConfig();
+
+                    //Removing the hints item and giving the player's saved item
+                    boolean toggleHintsItem = plugin.getConfig().getBoolean("hints-gui.hints-item.toggle", false);
+                    if(toggleHintsItem){
+                        for(Player p : Bukkit.getOnlinePlayers()){
+                            UUID playerUUID = p.getUniqueId();
+                            PlayerInventory inv = p.getInventory();
+                            int hiHotbarSlot = plugin.getConfig().getInt("hints-gui.hints-item.hotbar-slot", 8);
+                            inv.remove(inv.getItem(hiHotbarSlot));
+
+                            ItemStack removedItem = savedPlayerItems.get(playerUUID);
+                            inv.setItem(hiHotbarSlot, removedItem);
+                        }
+                    }
 
                     //Stops the boss bar/scoreboard
                     long bossBarDelay = plugin.getConfig().getLong("stop-boss-bar-interval");
@@ -87,6 +127,7 @@ public class EventProgress implements Listener {
                     for(Player p : Bukkit.getOnlinePlayers()){
                         plugin.getScoreboardManager().stopScoreboard(p);
                     }
+
                     task.cancel();
                     plugin.setEventActive(false);
                 }
@@ -280,10 +321,11 @@ public class EventProgress implements Listener {
 
     public void stopEvent(){
         if(task!=null) task.cancel();
-    } //Helps with stopping the event
+    }
+
     public long getDuration(){
         return duration;
-    } //Helps with getting the duration of the event
+    }
 
     //Parses the duration of the event from config.yml (bar-timer)
     private long parseDuration(String input){
@@ -301,15 +343,44 @@ public class EventProgress implements Listener {
         return seconds;
     }
 
+    @EventHandler
+    public void onDropEvent(PlayerDropItemEvent e){
+        if(!plugin.isEventActive()) return; //This event will only trigger when the event is active
+
+        FileConfiguration mainConfig = plugin.getConfig();
+        ItemStack item = e.getItemDrop().getItemStack();
+        ItemMeta itemMeta = item.getItemMeta();
+
+        String hintsItemDN = ChatColor.translateAlternateColorCodes('&', mainConfig.getString("hints-gui.hints-item.display-name", "&6&lHINTS"));
+        if(itemMeta.getDisplayName().equals(hintsItemDN)) e.setCancelled(true); //Makes it impossible to drop the item
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent e){
+        if(!plugin.isEventActive()) return; //Again, this event triggers only when the event is active
+
+        if(!(e.getWhoClicked() instanceof Player player)) return;
+
+        ItemStack clickedItem = e.getCurrentItem();
+        if(clickedItem == null) return;
+
+        ItemMeta clickedMeta = clickedItem.getItemMeta();
+        if(clickedMeta == null) return;
+
+        FileConfiguration mainConfig = plugin.getConfig();
+        String hintsItemDN = ChatColor.translateAlternateColorCodes('&', mainConfig.getString("hints-gui.hints-item.display-name", "&6&lHINTS"));
+        if(clickedMeta.getDisplayName().equals(hintsItemDN)) e.setCancelled(true); //Makes it impossible for the player to move the item
+    }
+
     //If a player joins during the event
     @EventHandler
     public void playerJoin(PlayerJoinEvent event) {
-        if (!plugin.isEventActive()) return; //If the event isn't active, it returns.
+        if (!plugin.isEventActive()) return; //This event runs only when the event is active.
         Player targetPlayer = event.getPlayer();
 
         //Check if the boss bar and scoreboard are toggled
-        boolean toggleBossBar = plugin.getConfig().getBoolean("boss-bar");
-        boolean toggleScoreboard = plugin.getConfig().getBoolean("scoreboard");
+        boolean toggleBossBar = plugin.getConfig().getBoolean("boss-bar", true);
+        boolean toggleScoreboard = plugin.getConfig().getBoolean("scoreboard", true);
         if (toggleBossBar) plugin.getBossBar().addPlayer(targetPlayer);
         if (toggleScoreboard) plugin.getScoreboardManager().updateScoreboard(targetPlayer);
 
@@ -321,6 +392,17 @@ public class EventProgress implements Listener {
         FileConfiguration data = plugin.getPlayerData().getConfig();
         FileConfiguration treasuresConfig = plugin.getTreasures().getConfig();
 
+        //Giving the player the Hints item if it is toggled
+        boolean toggleHintsItem = plugin.getConfig().getBoolean("hints-gui.hints-item.toggle", false);
+        if(toggleHintsItem){
+            ItemStack hintsItem = createHintsItem();
+
+            int hotbarSlot = plugin.getConfig().getInt("hints-gui.hints-item.slot", 8);
+            PlayerInventory inv = targetPlayer.getInventory();
+            if(!inv.getItem(hotbarSlot).isEmpty()) savedPlayerItems.put(targetPlayer.getUniqueId(), inv.getItem(hotbarSlot));
+            inv.setItem(hotbarSlot, hintsItem);
+        }
+
         //Initializing the player in 'playerData.yml' if he wasn't already
         if (!players.contains(targetPlayer.getName())) {
             String path = "players." + targetPlayer.getName();
@@ -328,7 +410,7 @@ public class EventProgress implements Listener {
 
             //Adding 'coins-gathered' to player's data and creates an account for him if the economy is toggled and working
             boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy");
-            if(toggleEconomy && plugin.getEconomy() != null){
+            if(toggleEconomy && plugin.getEconomy() != null && !plugin.getEconomy().hasAccount(targetPlayer)){
                 data.set(path + ".coins-gathered", 0);
                 plugin.getEconomy().createPlayerAccount(targetPlayer);
             }
@@ -339,5 +421,26 @@ public class EventProgress implements Listener {
                 }
             }
         }
+    }
+
+    private ItemStack createHintsItem() {
+        ItemStack hintsItem = new ItemStack(Material.getMaterial(plugin.getConfig().getString("hints-gui.hints-item.material", "emerald").toUpperCase()));
+        ItemMeta hiMeta =  hintsItem.getItemMeta();
+
+        String displayName = plugin.getConfig().getString("hints-gui.hints-item.display-name", "&6&lHINTS");
+        hiMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
+
+        List<String> coloredLore = new ArrayList<>();
+        for(String line : plugin.getConfig().getStringList("hints-gui.hints-item.lore")){
+            coloredLore.add(ChatColor.translateAlternateColorCodes('&', line));
+        }
+        hiMeta.setLore(coloredLore);
+        hintsItem.setItemMeta(hiMeta);
+
+        return hintsItem;
+    }
+
+    public Map<UUID, ItemStack> getSavedPlayerItems(){
+        return savedPlayerItems;
     }
 }

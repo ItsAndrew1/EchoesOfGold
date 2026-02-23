@@ -154,7 +154,7 @@ hints-gui:
     hotbar-slot: 8 #The slot in which the player will get this item. Values are from 0 to 8!
     material: emerald
     display-name: "&6&lHINTS" #The display name of the item
-    lore: #The lore of the item
+    lore: #The lore of the item. Leave blank for none
       - " "
       - "&7Click to view hints for the treasures!"
 

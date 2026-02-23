@@ -90,7 +90,6 @@ public class CommandManager implements CommandExecutor{
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         return true;
                     }
-                    else setupPlayerAccounts(); //Creates the accounts for the players.
 
                     //Checking if each treasure has the coins set (if the economy is on)
                     if(plugin.getEconomy() != null){
@@ -161,6 +160,9 @@ public class CommandManager implements CommandExecutor{
                     if(plugin.getConfig().getString("scoreboard").equalsIgnoreCase("true")){
                         plugin.getScoreboardManager().startScoreboard();
                     }
+
+                    //Sets up the players account
+                    setupPlayerAccounts();
 
                     //Starts the event
                     plugin.setEventActive(true);
