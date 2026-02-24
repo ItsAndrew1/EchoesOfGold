@@ -5,11 +5,13 @@ import me.andrew.EchoesOfGold.EchoesOfGold;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -36,7 +38,7 @@ public class HintsGUI implements Listener {
         int invSize = guiRows * 9;
 
         //Setting the title
-        String title = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("hints-gui.gui-title", "Hints") + "(Page "+page+")");
+        String title = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("hints-gui.gui-title", "Hints") + " (Page "+page+")");
 
         //Creating the inventory
         Inventory hintsGUI = Bukkit.createInventory(null, invSize, title);
@@ -116,16 +118,16 @@ public class HintsGUI implements Listener {
         //Displaying the hints
         ConfigurationSection treasures = treasureData.getConfigurationSection("treasures");
         List<String> treasuresList = treasures.getKeys(false).stream().toList();
-        for(int i = 0, j = offset; i<45; i++, j++){
+        for(int i = 0, j = offset; i<45 && j < treasuresList.size(); i++, j++){
             //Getting the data of the hint
             String treasure = treasuresList.get(j);
-            String hintDisplayName = treasures.getString("treasures." + treasure + ".hint.title");
+            String hintDisplayName = treasures.getString(treasure + ".hint.title");
 
             for(String p : playerData.getConfigurationSection("players").getKeys(false)){
                 boolean treasureFound = playerData.getBoolean("players." + p + ".found."+treasure);
 
                 //If the player found the treasure, it sets it as locked
-                if(!treasureFound){
+                if(treasureFound){
                     ItemStack lockedHintItem = new ItemStack(Material.BOOK);
                     ItemMeta lockedHintMeta = lockedHintItem.getItemMeta();
 
@@ -143,11 +145,15 @@ public class HintsGUI implements Listener {
 
                 //Else, we show the normal hint
                 else{
-                    ItemStack unlockedHintItem = new ItemStack(Material.WRITTEN_BOOK);
+                    ItemStack unlockedHintItem = new ItemStack(Material.BOOK);
                     ItemMeta unlockedHintMeta = unlockedHintItem.getItemMeta();
 
                     //Setting the display name
                     unlockedHintMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', hintDisplayName));
+
+                    //Adding an enchant glint
+                    unlockedHintMeta.addEnchant(Enchantment.DENSITY, 1, true);
+                    unlockedHintMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 
                     //Setting the lore
                     List<String> unlockedHintLore = new ArrayList<>();
@@ -266,12 +272,22 @@ public class HintsGUI implements Listener {
             return;
         }
 
+        if(clicked.getType().equals(Material.BOOK) && !clickedMeta.hasItemFlag(ItemFlag.HIDE_ENCHANTS)){
+            player.closeInventory();
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou have already found this treasure!"));
+
+            Bukkit.getScheduler().runTaskLater(plugin, () -> hintsGUI(player, 1), 10L);
+            return;
+        }
+
         //Getting the clicked treasure of the hint from the clicked meta
         String treasure = clickedMeta.getPersistentDataContainer().get(this.key, PersistentDataType.STRING);
 
         //Building the book
         FileConfiguration treasures = plugin.getTreasures().getConfig();
-        BookMeta bookMeta = (BookMeta) clicked.getItemMeta();
+        ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
+        BookMeta bookMeta = (BookMeta) book.getItemMeta();
 
         String bookTitle = treasures.getString("treasures."+treasure+".hint.title");
         List<String> bookPages = treasures.getStringList("treasures."+treasure+".hint.pages");
@@ -281,10 +297,10 @@ public class HintsGUI implements Listener {
         bookMeta.setPages(bookPages);
 
         //Opening the book
-        clicked.setItemMeta(bookMeta);
+        book.setItemMeta(bookMeta);
 
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
         player.closeInventory();
-        player.openBook(bookMeta);
+        player.openBook(book);
     }
 }

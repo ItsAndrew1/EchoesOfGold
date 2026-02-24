@@ -107,6 +107,7 @@ public class ManageTreasuresGUI implements Listener{
         int setFacingSlot = 20;
         List<String> coloredSfbLore = new ArrayList<>(); //Adding lore
         coloredSfbLore.add(ChatColor.translateAlternateColorCodes('&', "&7Set the &lfacing &7for a treasure!"));
+        coloredSfbLore.add(" ");
         coloredSfbLore.add(ChatColor.translateAlternateColorCodes('&', "&e&lTIP: &eValues may be 'NORTH', 'SOUTH', 'NORTH_EAST', etc."));
 
         ItemStack setFacingButton = createButton(Material.GLOW_ITEM_FRAME, ChatColor.translateAlternateColorCodes('&', "&9&lSET TREASURE FACING"), coloredSfbLore);
@@ -205,7 +206,8 @@ public class ManageTreasuresGUI implements Listener{
         if(clickedItem.getType() == setCoinsButton){
             //Checking if the economy is toggled or if it is working properly
             boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", false);
-            if(!toggleEconomy){
+            if(!toggleEconomy || !isEconomyWorking()){
+                player.closeInventory();
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou cannot do that because the economy is &ldisabled &cor it's not working properly!"));
                 player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
 
@@ -231,7 +233,7 @@ public class ManageTreasuresGUI implements Listener{
         if(clickedItem.getType() == setHintButton){
             //Checking if the hints are toggled
             boolean toggleHints = plugin.getConfig().getBoolean("hints-gui.toggle-hints", true);
-            if(!toggleHints || !isEconomyWorking()){
+            if(!toggleHints){
                 player.closeInventory();
                 player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou cannot do that since you have the hints &ldisabled&c!"));
@@ -291,10 +293,6 @@ public class ManageTreasuresGUI implements Listener{
             treasures.set(path + ".x", "");
             treasures.set(path + ".y", "");
             treasures.set(path + ".z", "");
-
-            //Also setting the hint if they are toggled
-            boolean toggleHints = plugin.getConfig().getBoolean("hints-gui.toggle-hints", true);
-            if(toggleHints) treasures.set(path + ".hints", "");
 
             plugin.getTreasures().saveConfig();
 

@@ -88,6 +88,10 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         getServer().getPluginManager().registerEvents(addRewardsGUI, this); //Events of AddRewards GUI
         getServer().getPluginManager().registerEvents(shopGUI, this); //Events of Shop GUI
 
+        reloadConfig();
+        getTreasures().reloadConfig();
+        getPlayerData().reloadConfig();
+
         //Regaining data after a reload
         if(savedDuration > 0){
             eventDuration = savedDuration;

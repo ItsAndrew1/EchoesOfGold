@@ -221,7 +221,13 @@ public class AllTreasuresGUI implements Listener{
         Material returnButton = Material.SPECTRAL_ARROW;
         if(clickedItem.getType().equals(returnButton)){
             player.playSound(player.getLocation(), clickSound, 1f, 1f);
-            plugin.getManageTreasuresGUI().showTreasureManagersGUI(player);
+
+            switch(manageTreasureChoice){
+                case "delete", "set location", "set world", "set facing", "set coins", "set hint" -> plugin.getManageTreasuresGUI().showTreasureManagersGUI(player);
+                case "add rewards", "remove rewards" -> plugin.getRewardsChoiceGUI().showRewardsChoiceGUI(player);
+            }
+
+            return;
         }
 
         //If the player clicks on the infoSign item
@@ -384,6 +390,7 @@ public class AllTreasuresGUI implements Listener{
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThere are no rewards in treasure &l"+treasureID+"&c!"));
 
                     //Shows the mainManageGUI to the player after 0.5 secs
+                    player.closeInventory();
                     openGuiAgain(player);
                     return;
                 }
@@ -454,6 +461,8 @@ public class AllTreasuresGUI implements Listener{
                 break;
 
             case "set hint":
+                player.closeInventory();
+
                 //Getting the player's main hand item
                 ItemStack itemInHand = player.getInventory().getItemInMainHand();
                 Material iihMaterial = itemInHand.getType();

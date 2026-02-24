@@ -6,6 +6,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -15,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
@@ -28,10 +30,13 @@ public class EventProgress implements Listener {
     private int countDownValue;
     private BukkitRunnable task;
 
+    private NamespacedKey hintsKey;
+
     private final Map<UUID, ItemStack> savedPlayerItems = new HashMap<>();
 
     public EventProgress(EchoesOfGold plugin){
         this.plugin = plugin;
+        hintsKey = new NamespacedKey(plugin, "hints-item");
     }
 
     public void startEvent(String durationString){
@@ -64,7 +69,7 @@ public class EventProgress implements Listener {
                 playerData.set("players." + p.getUniqueId() + ".saved-item", inv.getItem(hotbarSlot));
 
                 //If the slot isn't empty, save the item stack in a map
-                if(!inv.getItem(hotbarSlot).isEmpty()) savedPlayerItems.put(p.getUniqueId(), inv.getItem(hotbarSlot));
+                if(inv.getItem(hotbarSlot) != null) savedPlayerItems.put(p.getUniqueId(), inv.getItem(hotbarSlot));
 
                 inv.setItem(hotbarSlot, hintsItem);
             }
@@ -119,8 +124,7 @@ public class EventProgress implements Listener {
                             int hiHotbarSlot = plugin.getConfig().getInt("hints-gui.hints-item.hotbar-slot", 8);
                             inv.remove(inv.getItem(hiHotbarSlot));
 
-                            ItemStack removedItem = savedPlayerItems.get(playerUUID);
-                            inv.setItem(hiHotbarSlot, removedItem);
+                            if(savedPlayerItems.containsKey(playerUUID)) inv.setItem(hiHotbarSlot, savedPlayerItems.get(playerUUID));
                         }
                     }
 
@@ -407,15 +411,17 @@ public class EventProgress implements Listener {
         ItemMeta interactedMeta = interactedItem.getItemMeta();
         if(interactedMeta == null) return;
 
+        //If it's not a left/right click, it returns
+        Action action = e.getAction();
+        if(!action.isLeftClick() && !action.isRightClick()) return;
+
         //Getting the player
         Player targetPlayer = e.getPlayer();
 
         //If the player interacts with the hints item, it opens the hints gui
-        String hiDisplayName = mainConfig.getString("hints-gui.hints-item.display-name", "&6&lHINTS");
-        Material hiMaterial = Material.matchMaterial(mainConfig.getString("hints-gui.hints-item.material", "enchanted_book").toUpperCase());
-        if(interactedMeta.getDisplayName().equals(hiDisplayName) && interactedItem.getType().equals(hiMaterial)){
-            targetPlayer.playSound(targetPlayer.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
-            plugin.getShopGUI().showGUI(targetPlayer, 1);
+        if(interactedMeta.getPersistentDataContainer().has(hintsKey, PersistentDataType.INTEGER)){
+            targetPlayer.playSound(targetPlayer.getLocation(), Sound.UI_BUTTON_CLICK, 1, 1);
+            plugin.getHintsGUI().hintsGUI(targetPlayer, 1);
         }
     }
 
@@ -481,6 +487,10 @@ public class EventProgress implements Listener {
         for(String line : plugin.getConfig().getStringList("hints-gui.hints-item.lore")){
             coloredLore.add(ChatColor.translateAlternateColorCodes('&', line));
         }
+
+        //Setting a special key which will help me to identify it in the interact event
+        hiMeta.getPersistentDataContainer().set(hintsKey, PersistentDataType.INTEGER, 1);
+
         hiMeta.setLore(coloredLore);
         hintsItem.setItemMeta(hiMeta);
 

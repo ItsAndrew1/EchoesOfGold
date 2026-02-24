@@ -108,7 +108,7 @@ public class CommandManager implements CommandExecutor{
 
                         if(!allSet){
                             player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                            commandSender.sendMessage(chatPrefix+" &cSome treasures in &ltreasures.yml &cdon't have the coins set!");
+                            commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cSome treasures in &ltreasures.yml &cdon't have the coins set!"));
                             return true;
                         }
                     }
