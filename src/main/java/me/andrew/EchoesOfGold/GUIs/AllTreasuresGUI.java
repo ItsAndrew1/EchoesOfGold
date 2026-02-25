@@ -139,12 +139,12 @@ public class AllTreasuresGUI implements Listener{
             //Displays if the hint for the treasure is set or not (if the hints are toggled)
             boolean toggleHints = plugin.getConfig().getBoolean("hints-gui.toggle-hints", true);
             if(toggleHints){
-                if(hasHint(treasure)) coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Hint: &fSET &aꪜ"));
+                if(hasHint(treasure)) coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Hint: &fSET &a✔"));
                 else coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Hint: &fMISSING &c❌"));
             }
 
             //Displays the coins of the treasure if the economy is toggled and working properly
-            boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy");
+            boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", false);
             if(toggleEconomy && plugin.getEconomy() != null) coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Coins: &f"+treasureCoins));
 
             coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Location: &f"+treasureX+" "+treasureY+" "+treasureZ));

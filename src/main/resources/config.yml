@@ -32,8 +32,21 @@ economy:
   #Use '%coins_amount%' to display how many coins the player got. Use '&' for styles
   action-bar-message: "&6You got %coins_amount% coins!"
 
-  #Main configuration part for the dedicated shop gui
-  toggle-shop: true #If you want to have a dedicated event shop. This will also enable the internal economy instead of the vault one.
+  #Configure the internal economy.
+  internal-economy:
+    toggle: true #Setting this to false will use the Vault + An economy plugin instead of the internal one. Shop will also be disabled.
+    database-system:
+      type: sqlite #Use 'sqlite' if you run only one server. Use 'mysql' if you have multiple servers.
+      file-name: "database.db" #This is only used if you use 'sqlite'!
+
+      #These are the settings for the MySQL database. If you don't use MySQL, you can ignore this.
+      host:
+      port:
+      database:
+      username:
+      password:
+
+  #Configure the shop GUI. If the internal economy is disabled, the shop won't work.
   shop-gui:
     rows: 6 #Value must be between 1 and 6. Each row has 9 slots.
     title: "Event Shop"

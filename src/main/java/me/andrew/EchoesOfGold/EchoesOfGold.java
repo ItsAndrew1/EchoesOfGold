@@ -1,6 +1,7 @@
 //Developed by _ItsAndrew_
 package me.andrew.EchoesOfGold;
 
+import me.andrew.EchoesOfGold.Economy.ShopGUI;
 import me.andrew.EchoesOfGold.GUIs.*;
 
 import net.milkbowl.vault.economy.Economy;
@@ -70,10 +71,18 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         hintsGUI = new HintsGUI(this);
         shopGUI = new ShopGUI(this);
 
+        reloadConfig();
+        getTreasures().reloadConfig();
+        getPlayerData().reloadConfig();
+
         //Setting the commands and their tabs
         getCommand("eog").setExecutor(new CommandManager(this));
         getCommand("eog").setTabCompleter(new CommandTabs());
-        getCommand("hints").setExecutor(new CommandManager(this));
+
+        boolean toggleHints = getConfig().getBoolean("hints-gui.toggle-hints", false);
+        if(toggleHints) getCommand("hints").setExecutor(new CommandManager(this));
+
+
 
         getServer().getPluginManager().registerEvents(manageGUI, this); //Events of mainManageGUI
         getServer().getPluginManager().registerEvents(manageTreasuresGUI, this); //Events of manageTreasuresGUI
@@ -85,10 +94,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         getServer().getPluginManager().registerEvents(eventProgressManager, this); //Events of EventProgress class
         getServer().getPluginManager().registerEvents(addRewardsGUI, this); //Events of AddRewards GUI
         getServer().getPluginManager().registerEvents(shopGUI, this); //Events of Shop GUI
-
-        reloadConfig();
-        getTreasures().reloadConfig();
-        getPlayerData().reloadConfig();
 
         //Regaining data after a reload
         if(savedDuration > 0){
@@ -133,8 +138,8 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
             }
         }
 
-        //Setting up economy and permissions
-        if(!getConfig().getBoolean("economy.toggle-using-economy")) return; //Checks the toggle boolean from config.
+        //Setting up economy
+        if(!getConfig().getBoolean("economy.toggle-using-economy", false)) return; //Checks the toggle boolean from config.
         if(!setupEconomy()) getLogger().severe("[E.O.G] - Economy system disabled due to not having the 'Vault' or another economy plugin!");
     }
 

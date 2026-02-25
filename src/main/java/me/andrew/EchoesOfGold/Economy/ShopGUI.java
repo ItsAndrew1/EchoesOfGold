@@ -1,5 +1,5 @@
 //Developed by _ItsAndrew_
-package me.andrew.EchoesOfGold.GUIs;
+package me.andrew.EchoesOfGold.Economy;
 
 import me.andrew.EchoesOfGold.EchoesOfGold;
 import org.bukkit.Bukkit;

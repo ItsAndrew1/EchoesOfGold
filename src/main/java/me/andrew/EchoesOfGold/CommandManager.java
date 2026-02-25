@@ -84,7 +84,7 @@ public class CommandManager implements CommandExecutor{
                     }
 
                     //Check if the economy object isn't null (if it is toggled)
-                    boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy");
+                    boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", false);
                     if(toggleEconomy && plugin.getEconomy() == null){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou have economy enabled but there is no economy/Vault plugin found!"));
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
@@ -317,7 +317,7 @@ public class CommandManager implements CommandExecutor{
                 data.set(path + ".treasures-found", 0);
 
                 //Adding 'coins-gathered' to player's data if the economy is toggled and working
-                boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy");
+                boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", false);
                 if(toggleEconomy && plugin.getEconomy() != null) data.set(path + ".coins-gathered", 0);
 
                 if(treasures.isConfigurationSection("treasures")){

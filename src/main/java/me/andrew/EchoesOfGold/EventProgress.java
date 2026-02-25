@@ -457,7 +457,7 @@ public class EventProgress implements Listener {
             data.set(path + ".treasures-found", 0);
 
             //Adding 'coins-gathered' to player's data and creates an account for him if the economy is toggled and working
-            boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy");
+            boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", false);
             if(toggleEconomy && plugin.getEconomy() != null && !plugin.getEconomy().hasAccount(targetPlayer)){
                 data.set(path + ".coins-gathered", 0);
                 plugin.getEconomy().createPlayerAccount(targetPlayer);
