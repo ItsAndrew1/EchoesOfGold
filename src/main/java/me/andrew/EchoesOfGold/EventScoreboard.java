@@ -75,7 +75,7 @@ public class EventScoreboard{
             String parsed = line
                     .replace("%player_name%", player.getName())
                     .replace("%player_treasures%", String.valueOf(playerdata.getInt("players." + player.getUniqueId() + ".treasures-found")))
-                    .replace("%max_treasures%", String.valueOf(treasures.getInt("max-treasures")))
+                    .replace("%max_treasures%", String.valueOf(treasures.getInt("nr-of-treasures")))
                     .replace("%top1_name%", top1name)
                     .replace("%top2_name%", top2name)
                     .replace("%top3_name%", top3name)

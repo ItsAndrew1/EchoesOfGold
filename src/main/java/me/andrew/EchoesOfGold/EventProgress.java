@@ -64,12 +64,15 @@ public class EventProgress implements Listener {
             for(Player p : Bukkit.getOnlinePlayers()){
                 PlayerInventory inv = p.getInventory();
 
-                /*Saving the player's item in the 'playerdata.yml'
-                 (this allows the plugin to put each item stack into the map in case of a restart) */
-                playerData.set("players." + p.getUniqueId() + ".saved-item", inv.getItem(hotbarSlot));
-
                 //If the slot isn't empty, save the item stack in a map
-                if(inv.getItem(hotbarSlot) != null) savedPlayerItems.put(p.getUniqueId(), inv.getItem(hotbarSlot));
+                if(inv.getItem(hotbarSlot) != null){
+                    savedPlayerItems.put(p.getUniqueId(), inv.getItem(hotbarSlot));
+
+                    /*Saving the player's item in the 'playerdata.yml'
+                    (this allows the plugin to put each item stack into the map in case of a restart) */
+                    playerData.set("players." + p.getUniqueId() + ".saved-item", inv.getItem(hotbarSlot));
+                    plugin.getPlayerData().saveConfig();
+                }
 
                 inv.setItem(hotbarSlot, hintsItem);
             }
@@ -139,6 +142,9 @@ public class EventProgress implements Listener {
                     for(Player p : Bukkit.getOnlinePlayers()){
                         plugin.getScoreboardManager().stopScoreboard(p);
                     }
+
+                    //Clearing the item map
+                    savedPlayerItems.clear();
 
                     task.cancel();
                     plugin.setEventActive(false);
@@ -445,17 +451,6 @@ public class EventProgress implements Listener {
         FileConfiguration data = plugin.getPlayerData().getConfig();
         FileConfiguration treasuresConfig = plugin.getTreasures().getConfig();
 
-        //Giving the player the Hints item if it is toggled
-        boolean toggleHintsItem = plugin.getConfig().getBoolean("hints-gui.hints-item.toggle", false);
-        if(toggleHintsItem){
-            ItemStack hintsItem = createHintsItem();
-
-            int hotbarSlot = plugin.getConfig().getInt("hints-gui.hints-item.slot", 8);
-            PlayerInventory inv = targetPlayer.getInventory();
-            if(!inv.getItem(hotbarSlot).isEmpty()) savedPlayerItems.put(targetPlayer.getUniqueId(), inv.getItem(hotbarSlot));
-            inv.setItem(hotbarSlot, hintsItem);
-        }
-
         //Initializing the player in 'playerData.yml' if he wasn't already
         if (!players.contains(targetPlayer.getName())) {
             String path = "players." + targetPlayer.getUniqueId();
@@ -473,6 +468,27 @@ public class EventProgress implements Listener {
                     data.set(path + ".found." + key, false);
                 }
             }
+
+            plugin.getPlayerData().saveConfig();
+        }
+
+        //Giving the player the Hints item if it is toggled
+        boolean toggleHintsItem = plugin.getConfig().getBoolean("hints-gui.hints-item.toggle", false);
+        if(toggleHintsItem){
+            ItemStack hintsItem = createHintsItem();
+
+            int hotbarSlot = plugin.getConfig().getInt("hints-gui.hints-item.slot", 8);
+            PlayerInventory inv = targetPlayer.getInventory();
+            if(inv.getItem(hotbarSlot) != null){
+                savedPlayerItems.put(targetPlayer.getUniqueId(), inv.getItem(hotbarSlot));
+
+                /*Saving the player's item in the 'playerdata.yml'
+                 (this allows the plugin to put each item stack into the map in case of a restart) */
+                plugin.getPlayerData().getConfig().set("players." + targetPlayer.getUniqueId() + ".saved-item", inv.getItem(hotbarSlot));
+                plugin.getPlayerData().saveConfig();
+            }
+            inv.setItem(hotbarSlot, hintsItem);
+
         }
     }
 

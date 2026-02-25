@@ -109,7 +109,7 @@ public class HintsGUI implements Listener {
             return;
         }
 
-        int slot = toggleDecoration ? 9 : 0;
+        int startSlot = toggleDecoration ? 9 : 0;
         int numberOfHints = getNumberOfHints();
         int maximumNrOfHintsPerPage = toggleDecoration ? 36 : 45;
         int offset = (page - 1) * maximumNrOfHintsPerPage;
@@ -140,7 +140,7 @@ public class HintsGUI implements Listener {
                     lockedHintMeta.setLore(lockedHintLore);
 
                     lockedHintItem.setItemMeta(lockedHintMeta);
-                    hintsGUI.setItem(slot, lockedHintItem);
+                    hintsGUI.setItem(startSlot + i, lockedHintItem);
                 }
 
                 //Else, we show the normal hint
@@ -165,11 +165,9 @@ public class HintsGUI implements Listener {
 
                     //Adding the lore item to the GUI
                     unlockedHintItem.setItemMeta(unlockedHintMeta);
-                    hintsGUI.setItem(slot+i, unlockedHintItem);
+                    hintsGUI.setItem(startSlot+i, unlockedHintItem);
                 }
             }
-
-            slot++;
         }
 
         //Adding the next page button
@@ -296,11 +294,18 @@ public class HintsGUI implements Listener {
         bookMeta.setTitle(bookTitle);
         bookMeta.setPages(bookPages);
 
-        //Opening the book
         book.setItemMeta(bookMeta);
 
-        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
+        //Opening the book
         player.closeInventory();
+
+        //Getting the sound details
+        String soundName = plugin.getConfig().getString("hint-open-sound", "item.book.page_turn");
+        Sound hintOpenSound = Registry.SOUNDS.get(NamespacedKey.minecraft(soundName.toLowerCase()));
+        float hosPitch = plugin.getConfig().getInt("hos-pitch", 1);
+        float hosVolume = plugin.getConfig().getInt("hos-volume", 1);
+        player.playSound(player.getLocation(), hintOpenSound, hosVolume, hosPitch);
+
         player.openBook(book);
     }
 }

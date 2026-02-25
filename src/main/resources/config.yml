@@ -24,7 +24,7 @@ start-book:
     - "&5Welcome, adventurer!\n\n&6The night of terror begins...\n3 cursed chests await for you in the Overworld.\n\n&cFind them before they find you."
     - "&7Each chest holds &eancient treasures&7.\nBut beware...\nSome are guarded by monsters.\n\n&4Good luck!"
 
-#Configure the Economy part of the plugin. For this you will need 'Vault' plugin and another Economy Plugin
+#Configure the Economy part of the plugin.
 economy:
   toggle-using-economy: true
 
@@ -32,8 +32,8 @@ economy:
   #Use '%coins_amount%' to display how many coins the player got. Use '&' for styles
   action-bar-message: "&6You got %coins_amount% coins!"
 
-  #Main configuration part for the shop gui
-  toggle-shop: true #If you want to have the event shop
+  #Main configuration part for the dedicated shop gui
+  toggle-shop: true #If you want to have a dedicated event shop. This will also enable the internal economy instead of the vault one.
   shop-gui:
     rows: 6 #Value must be between 1 and 6. Each row has 9 slots.
     title: "Event Shop"

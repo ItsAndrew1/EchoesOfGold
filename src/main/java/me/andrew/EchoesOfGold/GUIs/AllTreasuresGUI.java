@@ -476,11 +476,19 @@ public class AllTreasuresGUI implements Listener{
                     return;
                 }
 
+                //Checking if the hint has already been used for a different treasure
                 BookMeta hintBook = (BookMeta) itemInHand.getItemMeta();
-                String mainPath = "treasures."+treasureID+".hint";
+                if(hasHintBeenUsed(hintBook.getTitle(), treasureID)){
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThis hint has already been used for another treasure!"));
+                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+
+                    openGuiAgain(player);
+                    return;
+                }
 
                 //Saving the data from the book to the designated treasure
-                treasures.set(mainPath+".title", hintBook.getTitle());
+                String mainPath = "treasures."+treasureID+".hint";
+                treasures.set(mainPath + ".title", hintBook.getTitle());
                 treasures.set(mainPath+".pages", hintBook.getPages());
                 plugin.getTreasures().saveConfig();
 
@@ -490,6 +498,20 @@ public class AllTreasuresGUI implements Listener{
                 openGuiAgain(player);
                 break;
         }
+    }
+
+    private boolean hasHintBeenUsed(String hintTitle, String treasureID){
+        FileConfiguration treasuresConfig = plugin.getTreasures().getConfig();
+        ConfigurationSection treasures = treasuresConfig.getConfigurationSection("treasures");
+
+        for(String treasure : treasures.getKeys(false)){
+            String mainPath = "treasures."+treasure+".hint";
+            String title = treasuresConfig.getString(mainPath+".title");
+            if(title == null) return false;
+            if(treasuresConfig.getString(mainPath+".title").equalsIgnoreCase(hintTitle) && !treasure.equals(treasureID)) return true;
+        }
+
+        return false;
     }
 
     //Helper method to re-open the GUI after 1/2 secs

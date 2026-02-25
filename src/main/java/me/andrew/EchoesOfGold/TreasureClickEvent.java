@@ -197,7 +197,7 @@ public class TreasureClickEvent implements Listener{
         }
 
         //If they found all rewards
-        if(foundCount == treasures.getInt("max-treasures")){
+        if(foundCount == treasures.getInt("nr-of-treasures")){
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("player-found-all-treasures")));
             foundCount++;
             return;

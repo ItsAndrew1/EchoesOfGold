@@ -113,6 +113,20 @@ public class CommandManager implements CommandExecutor{
                         }
                     }
 
+                    //Checking if the number of treasures is equal with the value set for 'nr-of-treasures'
+                    int nrOfTreasures = treasures.getInt("nr-of-treasures");
+                    if(nrOfTreasures == 0){
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe value of &lnr-of-treasures &cin &ltreasures.yml &cis NULL!"));
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                        return true;
+                    }
+
+                    if(nrOfTreasures != treasureSection.getKeys(false).size()){
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe number of treasures in &ltreasures.yml &cdoesn't match the value set for &lnr-of-treasures&c!"));
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                        return true;
+                    }
+
                     //Get all the details about the start-event-sound. Prints an error if the sound is invalid
                     String startEventSoundString = plugin.getConfig().getString("start-event-sound");
                     float startEventSoundVolume = plugin.getConfig().getInt("ses-volume");

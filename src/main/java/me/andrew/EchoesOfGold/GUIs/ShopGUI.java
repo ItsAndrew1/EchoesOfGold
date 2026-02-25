@@ -1,3 +1,4 @@
+//Developed by _ItsAndrew_
 package me.andrew.EchoesOfGold.GUIs;
 
 import me.andrew.EchoesOfGold.EchoesOfGold;
