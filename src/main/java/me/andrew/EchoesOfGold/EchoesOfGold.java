@@ -1,6 +1,7 @@
 //Developed by _ItsAndrew_
 package me.andrew.EchoesOfGold;
 
+import me.andrew.EchoesOfGold.Economy.DatabaseManager;
 import me.andrew.EchoesOfGold.Economy.ShopGUI;
 import me.andrew.EchoesOfGold.GUIs.*;
 
@@ -40,6 +41,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     //Defining the Economy Objects
     private static Economy economy;
     private ShopGUI shopGUI;
+    private DatabaseManager dbManager;
 
     //Defining the GUIs
     private MainManageGUI manageGUI;
@@ -61,6 +63,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         playerdata = new YMLfiles(this, "playerdata.yml");
         scoreboardManager = new EventScoreboard(this);
         eventProgressManager = new EventProgress(this);
+        dbManager = new DatabaseManager(this);
 
         //Defining the GUIs
         manageTreasuresGUI = new ManageTreasuresGUI(this);
@@ -81,8 +84,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
 
         boolean toggleHints = getConfig().getBoolean("hints-gui.toggle-hints", false);
         if(toggleHints) getCommand("hints").setExecutor(new CommandManager(this));
-
-
 
         getServer().getPluginManager().registerEvents(manageGUI, this); //Events of mainManageGUI
         getServer().getPluginManager().registerEvents(manageTreasuresGUI, this); //Events of manageTreasuresGUI
@@ -139,19 +140,42 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         }
 
         //Setting up economy
-        if(!getConfig().getBoolean("economy.toggle-using-economy", false)) return; //Checks the toggle boolean from config.
-        if(!setupEconomy()) getLogger().severe("[E.O.G] - Economy system disabled due to not having the 'Vault' or another economy plugin!");
+        setupEconomy();
     }
 
-    private boolean setupEconomy(){
-        //Checking if the server has the 'Vault' plugin
-        if(getServer().getPluginManager().getPlugin("Vault") == null) return false;
+    private void setupEconomy(){
+        if(!getConfig().getBoolean("economy.toggle-using-economy", false)) return;
 
-        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-        if(rsp == null) return false;
+        //If the internal economy is disabled, it sets up the Vault economy
+        boolean toggleInternalEconomy = getConfig().getBoolean("economy.internal-economy.toggle", true);
+        if(!toggleInternalEconomy){
+            //Checking if the server has the 'Vault' plugin
+            if(getServer().getPluginManager().getPlugin("Vault") == null){
+                getLogger().warning("[E.O.G] The economy is enabled but there is no Vault plugin found! Disabling plugin...");
+                getServer().getPluginManager().disablePlugin(this);
+                return;
+            }
 
-        economy = rsp.getProvider();
-        return true;
+            RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+            if(rsp == null) return;
+
+            economy = rsp.getProvider();
+        }
+
+        //Else, it sets up the database internal economy
+        else{
+            economy = null;
+
+            //Setting up the database
+            try{
+                dbManager.connectDB();
+            } catch (Exception e){
+                getLogger().warning("[E.O.G] The economy is enabled but there was an error connecting to the database! See message below. Disabling plugin...");
+                getLogger().warning("[E.O.G] "+e.getMessage());
+                e.printStackTrace();
+                getServer().getPluginManager().disablePlugin(this);
+            }
+        }
     }
 
     //Saving data after shutting down the server
@@ -265,8 +289,11 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         return treasureManagerChoice;
     }
 
-    //Getters for Economy and Permission objects
+    //Getters for Economy objects
     public Economy getEconomy(){
         return economy;
+    }
+    public DatabaseManager getDbManager(){
+        return dbManager;
     }
 }
