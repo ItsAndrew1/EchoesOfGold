@@ -5,10 +5,7 @@ import me.andrew.EchoesOfGold.EchoesOfGold;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class DatabaseManager {
     private final EchoesOfGold plugin;
@@ -58,13 +55,55 @@ public class DatabaseManager {
         //Creating the players table
         String playersTable = """
                 CREATE TABLE IF NOT EXISTS players (
-                crt INTEGER PRIMARY KEY AUTO_INCREMENT,
+                crt INTEGER PRIMARY KEY AUTOINCREMENT,
                 uuid TEXT UNIQUE NOT NULL,
-                balance INTEGER DEFAULT 0
-                balance_during_event INTEGER DEFAULT 0
-                """;
+                balance DECIMAL(12,2) DEFAULT 0.00,
+            );
+        """;
         try(PreparedStatement statement = dbConnection.prepareStatement(playersTable)){
             statement.executeUpdate();
+        }
+
+        plugin.getLogger().info("[E.O.G] Database connection established!");
+    }
+
+    public boolean isPlayerInDatabase(String uuid){
+        String query = "SELECT * FROM players WHERE uuid = ?";
+        try(PreparedStatement statement = dbConnection.prepareStatement(query)){
+            statement.setString(1, uuid);
+            return statement.executeQuery().next();
+        } catch (SQLException e){
+            plugin.getLogger().warning("[E.O.G] There was an error checking if the player is in the database!");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public void insertIntoPlayerBalance(String uuid, double amount){
+        double playerBalance = 0;
+
+        //Getting the player values
+        String sql = "SELECT balance FROM players WHERE uuid = ?";
+        try(PreparedStatement ps = dbConnection.prepareStatement(sql)){
+             ps.setString(1, uuid);
+             try(ResultSet rs = ps.executeQuery()){
+                 if(rs.next()) playerBalance = rs.getDouble("balance");
+             }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+
+        //Updating the values with the amount
+        playerBalance += amount;
+
+        //Updating the values in the database
+        String updateQuery = "UPDATE players SET balance = ? WHERE uuid = ?";
+        try(PreparedStatement ps = dbConnection.prepareStatement(updateQuery)){
+            ps.setDouble(1, playerBalance);
+            ps.setString(2, uuid);
+            ps.executeUpdate();
+        } catch (SQLException e){
+            e.printStackTrace();
         }
     }
 

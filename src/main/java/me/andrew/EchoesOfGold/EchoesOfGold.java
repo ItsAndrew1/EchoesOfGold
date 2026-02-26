@@ -172,10 +172,11 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
             } catch (Exception e){
                 getLogger().warning("[E.O.G] The economy is enabled but there was an error connecting to the database! See message below. Disabling plugin...");
                 getLogger().warning("[E.O.G] "+e.getMessage());
-                e.printStackTrace();
                 getServer().getPluginManager().disablePlugin(this);
             }
         }
+
+        getLogger().info("[E.O.G] Economy setup successfully!");
     }
 
     //Saving data after shutting down the server

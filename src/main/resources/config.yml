@@ -32,7 +32,7 @@ economy:
   #Use '%coins_amount%' to display how many coins the player got. Use '&' for styles
   action-bar-message: "&6You got %coins_amount% coins!"
 
-  #Configure the internal economy.
+  #Configure the internal economy. Note that you will need to restart the server if you make changes here when it is online.
   internal-economy:
     toggle: true #Setting this to false will use the Vault + An economy plugin instead of the internal one. Shop will also be disabled.
     database-system:

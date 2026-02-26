@@ -14,8 +14,9 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.List;
-import java.util.Objects;
 
 public class CommandManager implements CommandExecutor{
     private final EchoesOfGold plugin;
@@ -113,6 +114,27 @@ public class CommandManager implements CommandExecutor{
                         }
                     }
 
+                    //Sets up the economy (if it is toggled)
+                    boolean internalEconomy = plugin.getConfig().getBoolean("economy.internal-economy.toggle", true);
+                    if(!internalEconomy) setupPlayerAccounts(); //If the internal economy is toggled off, it sets up the Vault Account for the player
+                    else{ //Else, it writes the players in the .db file
+                        Connection dbConnection = plugin.getDbManager().getDbConnection();
+                        for(Player p : Bukkit.getOnlinePlayers()){
+                            if(plugin.getDbManager().isPlayerInDatabase(p.getUniqueId().toString())) continue;
+
+                            String sql = "INSERT INTO players (uuid, balance, balance_during_event) VALUES (?, 0, 0)";
+                            try(PreparedStatement ps = dbConnection.prepareStatement(sql)){
+                                ps.setString(1, p.getUniqueId().toString());
+                                ps.executeUpdate();
+                            } catch (Exception e){
+                                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThere was an error while trying to write the players in the database! See message below: "));
+                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                                plugin.getLogger().warning("[E.O.G] Error while writing players in database: " + e.getMessage());
+                                return true;
+                            }
+                        }
+                    }
+
                     //Checking if the number of treasures is equal with the value set for 'nr-of-treasures'
                     int nrOfTreasures = treasures.getInt("nr-of-treasures");
                     if(nrOfTreasures == 0){
@@ -143,7 +165,7 @@ public class CommandManager implements CommandExecutor{
                     }
 
                     //Gets all the players and opens the book after openBookDelay seconds
-                    getPlayers();
+                    initializePlayers();
                     long openBookDelay = plugin.getConfig().getInt("start-book.delay") * 20L;
                     for(Player p : Bukkit.getOnlinePlayers()){
                         teleportPlayers(p);
@@ -175,9 +197,6 @@ public class CommandManager implements CommandExecutor{
                         plugin.getScoreboardManager().startScoreboard();
                     }
 
-                    //Sets up the players account
-                    setupPlayerAccounts();
-
                     //Starts the event
                     plugin.setEventActive(true);
                     Bukkit.getLogger().info("[E.O.G] Event started successfully");
@@ -195,7 +214,7 @@ public class CommandManager implements CommandExecutor{
                     plugin.getTreasureManager().removeTreasures();
 
                     //Removing the particles of the treasures attached to all players
-                    for(OfflinePlayer p :  Bukkit.getOfflinePlayers()) plugin.getTreasureManager().cancelParticles();
+                    plugin.getTreasureManager().cancelParticles();
 
                     plugin.getPlayerData().getConfig().set("players", null);
                     plugin.getPlayerData().saveConfig();
@@ -306,7 +325,7 @@ public class CommandManager implements CommandExecutor{
     }
 
     //Helper method to initialize players in 'playerdata.yml'
-    private void getPlayers(){
+    private void initializePlayers(){
         FileConfiguration data = plugin.getPlayerData().getConfig();
         FileConfiguration treasures = plugin.getTreasures().getConfig();
 
@@ -318,7 +337,7 @@ public class CommandManager implements CommandExecutor{
 
                 //Adding 'coins-gathered' to player's data if the economy is toggled and working
                 boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", false);
-                if(toggleEconomy && plugin.getEconomy() != null) data.set(path + ".coins-gathered", 0);
+                if(toggleEconomy) data.set(path + ".coins-gathered", 0);
 
                 if(treasures.isConfigurationSection("treasures")){
                     for(String key : treasures.getConfigurationSection("treasures").getKeys(false)){
@@ -335,7 +354,7 @@ public class CommandManager implements CommandExecutor{
         Economy economy = plugin.getEconomy();
 
         for(OfflinePlayer p : Bukkit.getOfflinePlayers()){
-            economy.createPlayerAccount(p);
+            if(!economy.hasAccount(p)) economy.createPlayerAccount(p);
         }
 
         plugin.getLogger().info("[E.O.G] Bank Accounts successfully created for each player of the server.");

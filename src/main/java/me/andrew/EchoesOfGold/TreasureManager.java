@@ -195,7 +195,7 @@ public class TreasureManager{
             try{
                 tasks = treasureParticleTasks.get(p.getUniqueId());
 
-                //Looping through all the  treasures
+                //Looping through all the treasures
                 ConfigurationSection treasures = plugin.getTreasures().getConfig().getConfigurationSection("treasures");
                 for(String treasureId : treasures.getKeys(false)){
                     BukkitTask task = tasks.get(treasureId);
