@@ -263,6 +263,63 @@ public class CommandManager implements CommandExecutor{
                     player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                     break;
 
+                case "shop": //This will only work if the internal economy is toggled on
+                    boolean toggleInternalEconomy = plugin.getConfig().getBoolean("economy.internal-economy.toggle", true);
+                    if(!toggleInternalEconomy) {
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou cannot use this since the internal economy is not enabled!"));
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                        return true;
+                    }
+
+                    if(strings.length < 2){
+                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog shop <addItem | removeItem>"));
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                        return true;
+                    }
+
+                    String shopArgument = strings[1];
+                    switch(shopArgument){
+                        case "addItem" -> {
+                            if(strings.length < 3){
+                                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog shop addItem <item> <price>"));
+                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                                return true;
+                            }
+
+                            ItemStack itemInHand = player.getInventory().getItemInMainHand();
+                            ConfigurationSection itemsSection = plugin.getConfig().getConfigurationSection("economy.shop-gui.items");
+                            if(itemInHand.getType().equals(Material.AIR)){
+                                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou must be holding an item in your hand!"));
+                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                                return true;
+                            }
+
+                            //Checking if the item is already in the shop
+                            if(itemAlreadyInShop(itemInHand)){
+                                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThis item is already in the shop!"));
+                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                                return true;
+                            }
+
+                            //Saving the item in the 'items' section
+                            int slot = itemsSection.getKeys(false).isEmpty() ? 1 : itemsSection.getKeys(false).size() + 1;
+                            String itemPath = "economy.shop-gui.items."+slot+".item";
+                            int price = Integer.parseInt(strings[2]);
+                            plugin.getConfig().set(itemPath, itemInHand);
+                            plugin.getConfig().set("economy.shop-gui.items."+slot+".price", price);
+                            plugin.saveConfig();
+
+
+                        }
+
+                        case "removeItem" -> {
+
+                        }
+                    }
+
+
+                    break;
+
                 default:
                     commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/eog help &cfor info."));
                     player.playSound(player.getLocation(), invalidValue, 1f, 1f);
@@ -316,6 +373,21 @@ public class CommandManager implements CommandExecutor{
         }
         book.setItemMeta(meta);
         player.openBook(book);
+    }
+
+    private boolean itemAlreadyInShop(ItemStack item){
+        FileConfiguration mainConfid = plugin.getConfig();
+        ConfigurationSection items = mainConfid.getConfigurationSection("economy.shop-gui.items");
+        if(items == null) return false;
+
+        for(String key : items.getKeys(false)){
+            ItemStack itemInShop = plugin.getConfig().getItemStack("economy.shop-gui.items."+key+".item");
+            if(itemInShop.getType().equals(item.getType())){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     //Teleports the players at the start of the game

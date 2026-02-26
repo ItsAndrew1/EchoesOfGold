@@ -80,7 +80,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
 
         //Setting the commands and their tabs
         getCommand("eog").setExecutor(new CommandManager(this));
-        getCommand("eog").setTabCompleter(new CommandTabs());
+        getCommand("eog").setTabCompleter(new CommandTabs(this));
 
         boolean toggleHints = getConfig().getBoolean("hints-gui.toggle-hints", false);
         if(toggleHints) getCommand("hints").setExecutor(new CommandManager(this));

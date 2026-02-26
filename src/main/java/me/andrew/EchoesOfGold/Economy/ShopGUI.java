@@ -15,6 +15,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.List;
+
 public class ShopGUI implements Listener {
     private final EchoesOfGold plugin;
 
@@ -68,6 +70,14 @@ public class ShopGUI implements Listener {
 
         //Displaying the 'no items' item (if there aren't any items configured
         ConfigurationSection shopItems = mainConfig.getConfigurationSection("economy.shop-gui.items");
+
+        //Getting data for displaying the items
+        int startingSlot = toggleDeco ? 9 : 0;
+        int maximumNrOfItemsPerPage = toggleDeco ? 36 : 45;
+        List<String> itemList = shopItems.getKeys(false).stream().toList();
+        int offset = (page - 1) * maximumNrOfItemsPerPage;
+        int endIndex = Math.min(offset + maximumNrOfItemsPerPage, itemList.size());
+
         if(shopItems.getKeys(false).isEmpty()){
             String noHintsMaterialTXT = mainConfig.getString("economy.shop-gui.no-items-item.material", "barrier");
             ItemStack noHintsItem = new ItemStack(Material.matchMaterial(noHintsMaterialTXT.toUpperCase()));
@@ -84,7 +94,9 @@ public class ShopGUI implements Listener {
 
         //Else, displays the items
         else{
+            for(int i = startingSlot, j = offset; i<45 && j < itemList.size(); i++, j++){
 
+            }
         }
 
         player.openInventory(shopGUI);

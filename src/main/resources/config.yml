@@ -70,8 +70,11 @@ economy:
       material: black_stained_glass_pane #Material for the deco
       display-name: " " #Leave like this for no display name
 
-    #Configure the items for the shop. There is also an in game configuration for this (way easier to use :D).
+    #Configuration for the shop items.
     items:
+      1:
+        item:
+        price:
 
 
 #Configure general messages. Use "&" for style
