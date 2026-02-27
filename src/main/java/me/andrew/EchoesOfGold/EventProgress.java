@@ -460,26 +460,7 @@ public class EventProgress implements Listener {
             data.set(path + ".treasures-found", 0);
 
             //Setting up the economy for the player (if it is toggled)
-            boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", false);
-            if(toggleEconomy){
-                //If the internal economy is toggled off, sets up the Vault Economy
-                boolean internalEconomy = plugin.getConfig().getBoolean("economy.internal-economy.toggle", true);
-                if(!internalEconomy && !plugin.getEconomy().hasAccount(targetPlayer)) plugin.getEconomy().createPlayerAccount(targetPlayer);
-                else{ //Else, write the player economy data to the .db file
-                    if(!plugin.getDbManager().isPlayerInDatabase(targetPlayer.getUniqueId().toString())){
-                        Connection dbConnection = plugin.getDbManager().getDbConnection();
-                        String sql = "INSERT INTO players (uuid, balance, balance_during_event) VALUES (?, 0, 0)";
-
-                        try(PreparedStatement ps = dbConnection.prepareStatement(sql)){
-                            ps.setString(1, targetPlayer.getUniqueId().toString());
-                            ps.executeUpdate();
-                        } catch (SQLException e){
-                            e.printStackTrace();
-                            plugin.getLogger().warning("[E.O.G] Error while writing player data to database: " + e.getMessage());
-                        }
-                    }
-                }
-            }
+            if(plugin.getEconomyProvider() != null) plugin.getEconomyProvider().setupAccounts();
 
             if (treasuresConfig.isConfigurationSection("treasures")) {
                 for (String key : treasuresConfig.getConfigurationSection("treasures").getKeys(false)) {

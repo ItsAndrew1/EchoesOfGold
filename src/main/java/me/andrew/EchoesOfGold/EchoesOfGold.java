@@ -1,8 +1,7 @@
 //Developed by _ItsAndrew_
 package me.andrew.EchoesOfGold;
 
-import me.andrew.EchoesOfGold.Economy.DatabaseManager;
-import me.andrew.EchoesOfGold.Economy.ShopGUI;
+import me.andrew.EchoesOfGold.Economy.*;
 import me.andrew.EchoesOfGold.GUIs.*;
 
 import net.milkbowl.vault.economy.Economy;
@@ -19,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -39,7 +39,8 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     private long eventDuration;
 
     //Defining the Economy Objects
-    private static Economy economy;
+    private EconomyProvider economyProvider;
+    private Economy vaultInstance;
     private ShopGUI shopGUI;
     private DatabaseManager dbManager;
 
@@ -139,44 +140,41 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
             }
         }
 
-        //Setting up economy
-        setupEconomy();
+        //Setting up the economy (if it is toggled)
+        boolean toggleEconomy = getConfig().getBoolean("economy.toggle-using-economy", false);
+        if(toggleEconomy){
+            boolean toggleInternalEconomy = getConfig().getBoolean("economy.internal-economy.toggle", true);
+            if(!toggleInternalEconomy && setupVault()){
+                economyProvider = new VaultEconomyProvider(vaultInstance);
+                getLogger().info("[E.O.G] Enabled using Vault economy!");
+            }
+            else{
+                try {
+                    dbManager.connectDB();
+                    economyProvider = new InternalEconomyProvider(dbManager);
+                    getLogger().info("[E.O.G] Enabled using internal economy!");
+                } catch (SQLException e) {
+                    getLogger().warning("[E.O.G] There was an error connecting to the database! "+e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
-    private void setupEconomy(){
-        if(!getConfig().getBoolean("economy.toggle-using-economy", false)) return;
-
-        //If the internal economy is disabled, it sets up the Vault economy
-        boolean toggleInternalEconomy = getConfig().getBoolean("economy.internal-economy.toggle", true);
-        if(!toggleInternalEconomy){
-            //Checking if the server has the 'Vault' plugin
-            if(getServer().getPluginManager().getPlugin("Vault") == null){
-                getLogger().warning("[E.O.G] The economy is enabled but there is no Vault plugin found! Disabling plugin...");
-                getServer().getPluginManager().disablePlugin(this);
-                return;
-            }
-
-            RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-            if(rsp == null) return;
-
-            economy = rsp.getProvider();
+    private boolean setupVault(){
+        if(getServer().getPluginManager().getPlugin("Vault") == null){
+            getLogger().warning("[E.O.G] Vault is not installed! Disabling plugin...");
+            getServer().getPluginManager().disablePlugin(this);
+            return false;
         }
 
-        //Else, it sets up the database internal economy
-        else{
-            economy = null;
-
-            //Setting up the database
-            try{
-                dbManager.connectDB();
-            } catch (Exception e){
-                getLogger().warning("[E.O.G] The economy is enabled but there was an error connecting to the database! See message below. Disabling plugin...");
-                getLogger().warning("[E.O.G] "+e.getMessage());
-                getServer().getPluginManager().disablePlugin(this);
-            }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
         }
 
-        getLogger().info("[E.O.G] Economy setup successfully!");
+        vaultInstance = rsp.getProvider();
+        return true;
     }
 
     //Saving data after shutting down the server
@@ -291,8 +289,8 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     }
 
     //Getters for Economy objects
-    public Economy getEconomy(){
-        return economy;
+    public EconomyProvider getEconomyProvider(){
+        return economyProvider;
     }
     public DatabaseManager getDbManager(){
         return dbManager;

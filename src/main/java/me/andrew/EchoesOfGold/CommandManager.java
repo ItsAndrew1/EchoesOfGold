@@ -1,7 +1,6 @@
 //Developed by _ItsAndrew_
 package me.andrew.EchoesOfGold;
 
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,8 +13,6 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.util.List;
 
 public class CommandManager implements CommandExecutor{
@@ -84,16 +81,8 @@ public class CommandManager implements CommandExecutor{
                         return true;
                     }
 
-                    //Check if the economy object isn't null (if it is toggled)
-                    boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", false);
-                    if(toggleEconomy && plugin.getEconomy() == null){
-                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou have economy enabled but there is no economy/Vault plugin found!"));
-                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                        return true;
-                    }
-
-                    //Checking if each treasure has the coins set (if the economy is on)
-                    if(plugin.getEconomy() != null){
+                    //Checking if each treasure has the coins set and setting the players accounts (if the economy is on)
+                    if(plugin.getEconomyProvider() != null){
                         boolean allSet = true;
 
                         ConfigurationSection allTreasures = treasures.getConfigurationSection("treasures");
@@ -112,27 +101,9 @@ public class CommandManager implements CommandExecutor{
                             commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cSome treasures in &ltreasures.yml &cdon't have the coins set!"));
                             return true;
                         }
-                    }
 
-                    //Sets up the economy (if it is toggled)
-                    boolean internalEconomy = plugin.getConfig().getBoolean("economy.internal-economy.toggle", true);
-                    if(!internalEconomy) setupPlayerAccounts(); //If the internal economy is toggled off, it sets up the Vault Account for the player
-                    else{ //Else, it writes the players in the .db file
-                        Connection dbConnection = plugin.getDbManager().getDbConnection();
-                        for(Player p : Bukkit.getOnlinePlayers()){
-                            if(plugin.getDbManager().isPlayerInDatabase(p.getUniqueId().toString())) continue;
-
-                            String sql = "INSERT INTO players (uuid, balance, balance_during_event) VALUES (?, 0, 0)";
-                            try(PreparedStatement ps = dbConnection.prepareStatement(sql)){
-                                ps.setString(1, p.getUniqueId().toString());
-                                ps.executeUpdate();
-                            } catch (Exception e){
-                                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThere was an error while trying to write the players in the database! See message below: "));
-                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                                plugin.getLogger().warning("[E.O.G] Error while writing players in database: " + e.getMessage());
-                                return true;
-                            }
-                        }
+                        //Setting up the accounts
+                        plugin.getEconomyProvider().setupAccounts();
                     }
 
                     //Checking if the number of treasures is equal with the value set for 'nr-of-treasures'
@@ -302,14 +273,17 @@ public class CommandManager implements CommandExecutor{
                             }
 
                             //Saving the item in the 'items' section
-                            int slot = itemsSection.getKeys(false).isEmpty() ? 1 : itemsSection.getKeys(false).size() + 1;
-                            String itemPath = "economy.shop-gui.items."+slot+".item";
-                            int price = Integer.parseInt(strings[2]);
+                            int crt = itemsSection.getKeys(false).isEmpty() ? 1 : itemsSection.getKeys(false).size() + 1;
+                            String itemPath = "economy.shop-gui.items."+ crt +".item";
                             plugin.getConfig().set(itemPath, itemInHand);
-                            plugin.getConfig().set("economy.shop-gui.items."+slot+".price", price);
+
+                            double price = Double.parseDouble(strings[2]);
+                            plugin.getConfig().set("economy.shop-gui.items."+ crt +".price", price);
                             plugin.saveConfig();
 
-
+                            commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aItem &l"+itemInHand.getType().name()+" &aadded to the shop!"));
+                            player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
+                            return true;
                         }
 
                         case "removeItem" -> {
@@ -408,8 +382,7 @@ public class CommandManager implements CommandExecutor{
                 data.set(path + ".treasures-found", 0);
 
                 //Adding 'coins-gathered' to player's data if the economy is toggled and working
-                boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", false);
-                if(toggleEconomy) data.set(path + ".coins-gathered", 0);
+                if(plugin.getEconomyProvider() != null) data.set(path + ".coins-gathered", 0);
 
                 if(treasures.isConfigurationSection("treasures")){
                     for(String key : treasures.getConfigurationSection("treasures").getKeys(false)){
@@ -419,16 +392,5 @@ public class CommandManager implements CommandExecutor{
             }
         }
         plugin.getPlayerData().saveConfig();
-    }
-
-    //Creates the accounts for each player
-    private void setupPlayerAccounts(){
-        Economy economy = plugin.getEconomy();
-
-        for(OfflinePlayer p : Bukkit.getOfflinePlayers()){
-            if(!economy.hasAccount(p)) economy.createPlayerAccount(p);
-        }
-
-        plugin.getLogger().info("[E.O.G] Bank Accounts successfully created for each player of the server.");
     }
 }

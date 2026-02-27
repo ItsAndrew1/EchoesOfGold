@@ -34,7 +34,7 @@ economy:
 
   #Configure the internal economy. Note that you will need to restart the server if you make changes here when it is online.
   internal-economy:
-    toggle: true #Setting this to false will use the Vault + An economy plugin instead of the internal one. Shop will also be disabled.
+    toggle: true #Setting this to FALSE will use the Vault + An economy plugin instead of the internal one. Shop will also be disabled.
     database-system:
       type: sqlite #Use 'sqlite' if you run only one server. Use 'mysql' if you have multiple servers.
       file-name: "database.db" #This is only used if you use 'sqlite'!
@@ -50,6 +50,7 @@ economy:
   shop-gui:
     rows: 6 #Value must be between 1 and 6. Each row has 9 slots.
     title: "Event Shop"
+    displaying-the-price: "&aPrice: &f%item_price%" #Use '%item_price%' for displaying the price of the item
 
     #Configure an exit item
     exit-item:

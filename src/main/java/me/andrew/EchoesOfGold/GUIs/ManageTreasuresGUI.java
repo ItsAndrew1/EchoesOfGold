@@ -205,8 +205,7 @@ public class ManageTreasuresGUI implements Listener{
         Material setCoinsButton = Material.GOLD_INGOT;
         if(clickedItem.getType() == setCoinsButton){
             //Checking if the economy is toggled or if it is working properly
-            boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", false);
-            if(!toggleEconomy || !isEconomyWorking()){
+            if(plugin.getEconomyProvider() == null){
                 player.closeInventory();
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou cannot do that because the economy is &ldisabled &cor it's not working properly!"));
                 player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
@@ -246,17 +245,6 @@ public class ManageTreasuresGUI implements Listener{
             plugin.setTreasureManagerChoice("set hint");
             plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
         }
-    }
-
-    private boolean isEconomyWorking(){
-        FileConfiguration mainConfig = plugin.getConfig();
-
-        //Checking if the economy is toggled
-        boolean toggleEconomy = mainConfig.getBoolean("economy.toggle-using-economy", false);
-        if(!toggleEconomy) return false;
-
-        //Checking if the economy provider isn't null
-        return plugin.getEconomy() != null;
     }
 
     //Helper method for creating and setting a treasure's data in 'treasures.yml'

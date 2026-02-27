@@ -144,8 +144,7 @@ public class AllTreasuresGUI implements Listener{
             }
 
             //Displays the coins of the treasure if the economy is toggled and working properly
-            boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", false);
-            if(toggleEconomy && plugin.getEconomy() != null) coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Coins: &f"+treasureCoins));
+            if(plugin.getEconomyProvider() != null) coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Coins: &f"+treasureCoins));
 
             coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - Location: &f"+treasureX+" "+treasureY+" "+treasureZ));
             coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&b - World: &f"+treasureWorld));

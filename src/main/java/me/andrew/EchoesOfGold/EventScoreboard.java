@@ -104,13 +104,6 @@ public class EventScoreboard{
     }
 
     private boolean isEconomyWorking(){
-        FileConfiguration mainConfig = plugin.getConfig();
-
-        //Checking if the economy is toggled
-        boolean toggleEconomy = mainConfig.getBoolean("economy.toggle-using-economy", false);
-        if(!toggleEconomy) return false;
-
-        //Checking if the economy provider isn't null
-        return plugin.getEconomy() != null;
+        return plugin.getEconomyProvider() != null;
     }
 }

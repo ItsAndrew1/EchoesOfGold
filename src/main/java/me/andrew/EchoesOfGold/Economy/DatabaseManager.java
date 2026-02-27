@@ -57,7 +57,7 @@ public class DatabaseManager {
                 CREATE TABLE IF NOT EXISTS players (
                 crt INTEGER PRIMARY KEY AUTOINCREMENT,
                 uuid TEXT UNIQUE NOT NULL,
-                balance DECIMAL(12,2) DEFAULT 0.00,
+                balance DECIMAL(12,2) DEFAULT 0.00
             );
         """;
         try(PreparedStatement statement = dbConnection.prepareStatement(playersTable)){
@@ -77,6 +77,21 @@ public class DatabaseManager {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public double getPlayerBalance(String uuid){
+        String query = "SELECT balance FROM players WHERE uuid = ?";
+        try(PreparedStatement statement = dbConnection.prepareStatement(query)){
+            statement.setString(1, uuid);
+            try(ResultSet resultSet = statement.executeQuery()){
+                if(resultSet.next()) return resultSet.getDouble("balance");
+            }
+        } catch (SQLException e){
+            plugin.getLogger().warning("[E.O.G] There was an error getting the player balance!");
+            e.printStackTrace();
+        }
+
+        return 0;
     }
 
     public void insertIntoPlayerBalance(String uuid, double amount){
@@ -103,6 +118,18 @@ public class DatabaseManager {
             ps.setString(2, uuid);
             ps.executeUpdate();
         } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void withdrawFromPlayer(String uuid, double amount){
+        String query = "UPDATE players SET balance = balance - ? WHERE uuid = ?";
+        try(PreparedStatement statement = dbConnection.prepareStatement(query)){
+            statement.setDouble(1, amount);
+            statement.setString(2, uuid);
+            statement.executeUpdate();
+        } catch (SQLException e){
+            plugin.getLogger().warning("[E.O.G] There was an error withdrawing from the player!");
             e.printStackTrace();
         }
     }

@@ -155,15 +155,10 @@ public class TreasureClickEvent implements Listener{
 
         //Adding money to the player's account (if the economy is toggled and working)
         if(isEconomyWorking()){
-            boolean internalEconomy = plugin.getConfig().getBoolean("economy.internal-economy.toggle", true);
-
             double treasureAmount = treasures.getDouble("treasures."+treasureID+".coins");
 
-            //If the internal economy is toggled off, it will deposit the amount in the Vault Player account
-            if(!internalEconomy) plugin.getEconomy().depositPlayer(player, treasureAmount);
-            else{ //Else, it will write the amount to the .db file
-                plugin.getDbManager().insertIntoPlayerBalance(player.getUniqueId().toString(), treasureAmount);
-            }
+            //Deposit the amount to the player's account
+            plugin.getEconomyProvider().addBalance(treasureAmount, player);
 
             //Adding the amount to 'coins-gathered' in the player's data
             double newAmount = data.getDouble(playerPath+".coins-gathered", 0) + treasureAmount;
@@ -256,14 +251,6 @@ public class TreasureClickEvent implements Listener{
     }
 
     private boolean isEconomyWorking(){
-        FileConfiguration mainConfig = plugin.getConfig();
-        Connection dbConnection = plugin.getDbManager().getDbConnection();
-
-        //Checking if the economy is toggled
-        boolean toggleEconomy = mainConfig.getBoolean("economy.toggle-using-economy", false);
-        if(!toggleEconomy) return false;
-
-        //Checking if the economy provider isn't null
-        return plugin.getEconomy() != null || dbConnection != null;
+        return plugin.getEconomyProvider() != null;
     }
 }
