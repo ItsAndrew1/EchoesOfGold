@@ -14,6 +14,9 @@ permissions:
   eog.use:
     description: Gives access to hints
     default: true
+  eog.shop.use:
+    description: Gives access to shop
+    default: true
 
 commands:
   eog:
@@ -24,3 +27,7 @@ commands:
     usage: /hints
     description: Allows you to access the hints
     permission: eog.use
+  thuntshop:
+    usage: /thuntshop
+    description: Allows you to access the shop
+    permission: eog.shop.use

@@ -24,8 +24,8 @@ public class VaultEconomyProvider implements EconomyProvider{
     }
 
     @Override
-    public boolean withdrawBalance(double amount, OfflinePlayer player) {
-        return vault.withdrawPlayer(player, amount).transactionSuccess();
+    public void withdrawBalance(double amount, OfflinePlayer player) {
+        vault.withdrawPlayer(player, amount);
     }
 
     @Override

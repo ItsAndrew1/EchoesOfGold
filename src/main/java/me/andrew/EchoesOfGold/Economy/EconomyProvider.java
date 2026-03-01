@@ -11,7 +11,7 @@ public interface EconomyProvider {
     void addBalance(double amount, OfflinePlayer Player);
 
     //Method for withdrawing
-    boolean withdrawBalance(double amount, OfflinePlayer Player);
+    void withdrawBalance(double amount, OfflinePlayer Player);
 
     //Method for setting up accounts
     void setupAccounts();

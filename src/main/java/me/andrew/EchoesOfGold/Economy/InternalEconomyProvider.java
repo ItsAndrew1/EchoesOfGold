@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class InternalEconomyProvider implements EconomyProvider{
     private final DatabaseManager dbManager;
@@ -28,13 +29,8 @@ public class InternalEconomyProvider implements EconomyProvider{
     }
 
     @Override
-    public boolean withdrawBalance(double amount, OfflinePlayer Player) {
-        if(dbManager.getPlayerBalance(Player.getUniqueId().toString()) >= amount){
-            dbManager.withdrawFromPlayer(Player.getUniqueId().toString(), amount);
-            return true;
-        }
-
-        return false;
+    public void withdrawBalance(double amount, OfflinePlayer Player) {
+        dbManager.withdrawFromPlayer(Player.getUniqueId().toString(), amount);
     }
 
     @Override
@@ -57,10 +53,9 @@ public class InternalEconomyProvider implements EconomyProvider{
         String query = "SELECT balance FROM players WHERE uuid = ?";
         try(PreparedStatement statement = dbConnection.prepareStatement(query)){
             statement.setString(1, player.getUniqueId().toString());
-            statement.execute();
-            statement.getResultSet().next();
-            double playerBalance = statement.getResultSet().getDouble("balance");
-            if(playerBalance >= amount) return true;
+            try(ResultSet resultSet = statement.executeQuery()){
+                if(resultSet.next()) return resultSet.getDouble("balance") >= amount;
+            }
         } catch (Exception e){
             e.printStackTrace();
         }

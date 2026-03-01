@@ -1,6 +1,7 @@
 //Developed by _ItsAndrew_
 package me.andrew.EchoesOfGold;
 
+import me.andrew.EchoesOfGold.Economy.ShopGuiChoice;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,6 +15,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Random;
 
 public class CommandManager implements CommandExecutor{
     private final EchoesOfGold plugin;
@@ -58,9 +60,9 @@ public class CommandManager implements CommandExecutor{
                     String coordZ = plugin.getConfig().getString("teleport-location-z");
                     if(coordX != null && coordY != null && coordZ != null){
                         try{
-                            int intCoordX = Integer.parseInt(coordX);
-                            int intCoordY = Integer.parseInt(coordY);
-                            int intCoordZ = Integer.parseInt(coordZ);
+                            double intCoordX = Double.parseDouble(coordX);
+                            double intCoordY = Double.parseDouble(coordY);
+                            double intCoordZ = Double.parseDouble(coordZ);
                         } catch (NumberFormatException e){
                             player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cOne/More values of the teleport coordinates are &linvalid&c!"));
@@ -252,13 +254,12 @@ public class CommandManager implements CommandExecutor{
                     switch(shopArgument){
                         case "addItem" -> {
                             if(strings.length < 3){
-                                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog shop addItem <item> <price>"));
+                                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog shop addItem <price>"));
                                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                 return true;
                             }
 
                             ItemStack itemInHand = player.getInventory().getItemInMainHand();
-                            ConfigurationSection itemsSection = plugin.getConfig().getConfigurationSection("economy.shop-gui.items");
                             if(itemInHand.getType().equals(Material.AIR)){
                                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou must be holding an item in your hand!"));
                                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
@@ -273,12 +274,12 @@ public class CommandManager implements CommandExecutor{
                             }
 
                             //Saving the item in the 'items' section
-                            int crt = itemsSection.getKeys(false).isEmpty() ? 1 : itemsSection.getKeys(false).size() + 1;
-                            String itemPath = "economy.shop-gui.items."+ crt +".item";
+                            String itemID = getItemRandomID();
+                            String itemPath = "economy.shop-gui.items."+ itemID +".item";
                             plugin.getConfig().set(itemPath, itemInHand);
 
                             double price = Double.parseDouble(strings[2]);
-                            plugin.getConfig().set("economy.shop-gui.items."+ crt +".price", price);
+                            plugin.getConfig().set("economy.shop-gui.items."+ itemID +".price", price);
                             plugin.saveConfig();
 
                             commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aItem &l"+itemInHand.getType().name()+" &aadded to the shop!"));
@@ -287,11 +288,10 @@ public class CommandManager implements CommandExecutor{
                         }
 
                         case "removeItem" -> {
-
+                            plugin.getShopGUI().showGUI(player, 1, ShopGuiChoice.REMOVE_ITEM);
+                            return true;
                         }
                     }
-
-
                     break;
 
                 default:
@@ -326,6 +326,21 @@ public class CommandManager implements CommandExecutor{
             player.playSound(player.getLocation(), invalidValue, 1f, 1f);
             return true;
         }
+
+        //Treasure Hunt Shop command
+        if(command.getName().equalsIgnoreCase("thuntshop")){
+            //Checking if the player has the permission
+            if(!commandSender.hasPermission("eog.shop.use")){
+                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou don't have permission to run this command!"));
+                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                return true;
+            }
+
+            player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
+            plugin.getShopGUI().showGUI(player, 1, ShopGuiChoice.SHOP);
+            return true;
+        }
+
         return false;
     }
 
@@ -350,8 +365,8 @@ public class CommandManager implements CommandExecutor{
     }
 
     private boolean itemAlreadyInShop(ItemStack item){
-        FileConfiguration mainConfid = plugin.getConfig();
-        ConfigurationSection items = mainConfid.getConfigurationSection("economy.shop-gui.items");
+        FileConfiguration mainConfig = plugin.getConfig();
+        ConfigurationSection items = mainConfig.getConfigurationSection("economy.shop-gui.items");
         if(items == null) return false;
 
         for(String key : items.getKeys(false)){
@@ -362,6 +377,15 @@ public class CommandManager implements CommandExecutor{
         }
 
         return false;
+    }
+
+    //Helper method to get random IDs for saving items in config
+    private String getItemRandomID(){
+        StringBuilder id = new StringBuilder();
+        Random random = new Random();
+        id.append("#");
+        for(int i = 0; i < 5; i++) id.append(random.nextInt(10));
+        return id.toString();
     }
 
     //Teleports the players at the start of the game

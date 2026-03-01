@@ -42,6 +42,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     private EconomyProvider economyProvider;
     private Economy vaultInstance;
     private ShopGUI shopGUI;
+    private ShopGuiFinalChoice shopGuiFinalChoice;
     private DatabaseManager dbManager;
 
     //Defining the GUIs
@@ -73,6 +74,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         allTreasuresGUI = new AllTreasuresGUI(this);
         addRewardsGUI = new AddRewardsGUI(this);
         hintsGUI = new HintsGUI(this);
+        shopGuiFinalChoice = new ShopGuiFinalChoice(this);
         shopGUI = new ShopGUI(this);
 
         reloadConfig();
@@ -82,6 +84,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         //Setting the commands and their tabs
         getCommand("eog").setExecutor(new CommandManager(this));
         getCommand("eog").setTabCompleter(new CommandTabs(this));
+        getCommand("thuntshop").setExecutor(new CommandManager(this));
 
         boolean toggleHints = getConfig().getBoolean("hints-gui.toggle-hints", false);
         if(toggleHints) getCommand("hints").setExecutor(new CommandManager(this));
@@ -96,6 +99,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         getServer().getPluginManager().registerEvents(eventProgressManager, this); //Events of EventProgress class
         getServer().getPluginManager().registerEvents(addRewardsGUI, this); //Events of AddRewards GUI
         getServer().getPluginManager().registerEvents(shopGUI, this); //Events of Shop GUI
+        getServer().getPluginManager().registerEvents(shopGuiFinalChoice, this);
 
         //Regaining data after a reload
         if(savedDuration > 0){
@@ -279,6 +283,9 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     public ShopGUI getShopGUI(){
         return shopGUI;
     }
+    public ShopGuiFinalChoice getShopGuiFinalChoice(){
+        return shopGuiFinalChoice;
+    }
 
     //Setter and getter for treasureManagerChoice
     public void setTreasureManagerChoice(String choice){
@@ -291,8 +298,5 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     //Getters for Economy objects
     public EconomyProvider getEconomyProvider(){
         return economyProvider;
-    }
-    public DatabaseManager getDbManager(){
-        return dbManager;
     }
 }

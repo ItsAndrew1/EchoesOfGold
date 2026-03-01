@@ -49,8 +49,14 @@ economy:
   #Configure the shop GUI. If the internal economy is disabled, the shop won't work.
   shop-gui:
     rows: 6 #Value must be between 1 and 6. Each row has 9 slots.
-    title: "Event Shop"
+    shop-title: "Event Shop" #This will appear to the players.
+    remove-item-title: "Click To Remove" #This will appear if you want to remove an item from the shop.
     displaying-the-price: "&aPrice: &f%item_price%" #Use '%item_price%' for displaying the price of the item
+
+    #Configure some chat messages
+    not-enough-money-message: "&cYou don't have enough money to buy this!"
+    no-inventory-space-message: "&cYou don't have enough inventory space!"
+    successful-purchase-message: "&aYou bought &l%item_name% &afor &l%item_price% &acoins!" #Use '%item_name%' and '%item_price%' for displaying the name and price of the item.
 
     #Configure an exit item
     exit-item:
@@ -61,7 +67,7 @@ economy:
     #Configure a 'no items' item
     no-items-item:
       material: barrier
-      slot: 31
+      slot: 22
       display-name: "&eThere are no items set yet!"
 
     #Configure some decoration (on top of the gui)
@@ -73,10 +79,6 @@ economy:
 
     #Configuration for the shop items.
     items:
-      1:
-        item:
-        price:
-
 
 #Configure general messages. Use "&" for style
 treasure-already-found: "&cYou have &lalready found &cthis treasure!" #Use & for style
