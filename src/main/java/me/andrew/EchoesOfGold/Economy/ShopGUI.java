@@ -13,6 +13,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
@@ -61,6 +62,11 @@ public class ShopGUI implements Listener {
             ItemStack decoItem = createButton(Material.matchMaterial(decoMaterialTXT.toUpperCase()), mainConfig.getString("economy.shop-gui.decoration.display-name", " "));
             for(int i = 0; i<9; i++) shopGUI.setItem(i, decoItem);
         }
+
+        //Adding the player head to the gui
+        ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta headMeta = (SkullMeta) playerHead.getItemMeta();
+        headMeta.setOwner(player.getName());
 
         //Getting data for displaying the items
         ConfigurationSection shopItems = mainConfig.getConfigurationSection("economy.shop-gui.items");

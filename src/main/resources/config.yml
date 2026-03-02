@@ -8,9 +8,9 @@ fw-main-color: "#5d30bf"  #Use HEX COLORS
 fw-second-color: "#23bad9" #Use HEX COLORS
 
 #Configure the location where players are teleported when event begins
-teleport-location-x:
-teleport-location-y:
-teleport-location-z:
+teleport-location-x: ""
+teleport-location-y: ""
+teleport-location-z: ""
 
 #Configure the title/subtitle when the event begins
 title: "" #Use "&" for style
@@ -42,11 +42,11 @@ economy:
       file-name: "database.db" #This is only used if you use 'sqlite'!
 
       #These are the settings for the MySQL database. If you don't use MySQL, you can ignore this.
-      host:
-      port:
-      database:
-      username:
-      password:
+      host: ""
+      port: ""
+      database: ""
+      username: ""
+      password: ""
 
   #Configure the shop GUI. If the internal economy is disabled, the shop won't work.
   shop-gui:
@@ -80,7 +80,7 @@ economy:
       display-name: " " #Leave like this for no display name
 
     #Configuration for the shop items. (Use /eog shop addItem <price>/removeItem)
-    items:
+    items: ""
 
   #Configure a shop item, which players can interact with and open the shop.
   #Note that if the internal economy is disabled, this feature will be disabled as well.

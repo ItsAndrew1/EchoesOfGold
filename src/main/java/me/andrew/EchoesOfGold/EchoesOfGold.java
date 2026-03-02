@@ -136,7 +136,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
                 }
             }
 
-            getLogger().warning("[E.O.G] Resumed event!");
+            getLogger().warning("Resumed event!");
         }
         else{
             eventActive = false;
@@ -151,18 +151,21 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
             boolean toggleInternalEconomy = getConfig().getBoolean("economy.internal-economy.toggle", true);
             if(!toggleInternalEconomy && setupVault()){
                 economyProvider = new VaultEconomyProvider(vaultInstance);
-                getLogger().info("[E.O.G] Enabled using Vault economy!");
+                getLogger().info("Enabled using Vault economy!");
             }
             else{
                 //Setting up the PlayerBalance custom placeholder
-                if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) new PlayerBalancePP(this).register();
+                if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+                    new PlayerBalancePP(this).register();
+                    getLogger().info("Enabled the placeholder for player balance!");
+                }
 
                 try {
                     dbManager.connectDB();
                     economyProvider = new InternalEconomyProvider(dbManager);
-                    getLogger().info("[E.O.G] Enabled using internal economy!");
+                    getLogger().info("Enabled using internal economy!");
                 } catch (SQLException e) {
-                    getLogger().warning("[E.O.G] There was an error connecting to the database! "+e.getMessage());
+                    getLogger().warning("There was an error connecting to the database! "+e.getMessage());
                     e.printStackTrace();
                 }
             }

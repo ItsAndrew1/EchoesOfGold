@@ -40,6 +40,14 @@ public class CommandManager implements CommandExecutor{
                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                 return true;
             }
+
+            //Checking if the player is in one of the 'lobby' worlds
+            if(plugin.getConfig().getStringList("economy.shop-item.lobby-worlds").contains(player.getWorld().getName())){
+                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou cannot enable the event since you are in the lobby!"));
+                return true;
+            }
+
             if(strings.length == 0){
                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt <enable | disable | treasures | reload | hints | help>"));
                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
@@ -80,13 +88,6 @@ public class CommandManager implements CommandExecutor{
                     if(treasureSection == null || treasureSection.getKeys(false).isEmpty()){
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThere are no treasures configured! Use &l/eog treasures &cto set up some."));
-                        return true;
-                    }
-
-                    //Checking if the player is in one of the 'lobby' worlds
-                    if(plugin.getConfig().getStringList("economy.shop-item.lobby-worlds").contains(player.getWorld().toString())){
-                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou cannot enable the event since you are in the lobby!"));
                         return true;
                     }
 

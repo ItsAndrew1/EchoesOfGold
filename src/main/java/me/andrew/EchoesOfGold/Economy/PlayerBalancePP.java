@@ -37,6 +37,7 @@ public class PlayerBalancePP extends PlaceholderExpansion {
 
     @Override
     public String onRequest(OfflinePlayer player, @NotNull String params){
-        return String.valueOf(plugin.getEconomyProvider().getBalance(player));
+        if(params.equals("balance")) return String.valueOf(plugin.getEconomyProvider().getBalance(player));
+        return null;
     }
 }
