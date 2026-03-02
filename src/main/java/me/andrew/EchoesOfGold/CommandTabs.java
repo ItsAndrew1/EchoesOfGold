@@ -28,6 +28,7 @@ public class CommandTabs implements TabCompleter {
                 tabs.add("enable");
                 tabs.add("disable");
                 tabs.add("reload");
+                tabs.add("event");
                 tabs.add("treasures");
                 if(toggleInternalEconomy) tabs.add("shop");
                 tabs.add("help");
@@ -36,6 +37,10 @@ public class CommandTabs implements TabCompleter {
 
             if(args.length == 2 && args[0].equals("shop") && toggleInternalEconomy){
                 return Arrays.asList("addItem", "removeItem");
+            }
+
+            if(args.length == 2 && args[0].equals("event")){
+                return Arrays.asList("setstartposition", "setstarttitle", "setstartsubtitle", "settreasurenr");
             }
         }
 

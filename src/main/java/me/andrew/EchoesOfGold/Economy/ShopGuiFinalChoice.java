@@ -37,11 +37,11 @@ public class ShopGuiFinalChoice implements Listener {
         ShopGuiChoice guiChoice = plugin.getShopGUI().getGuiChoices().get(player.getUniqueId());
 
         //Displaying the 2 choice buttons
-        String greenButtonDisplayName = guiChoice.equals(ShopGuiChoice.SHOP) ? "&a&lPurchase" : "&e&lRemove";
+        String greenButtonDisplayName = ChatColor.translateAlternateColorCodes('&', guiChoice.equals(ShopGuiChoice.SHOP) ? "&a&lPurchase" : "&e&lRemove");
         ItemStack greenButton = createButton(Material.GREEN_CONCRETE, greenButtonDisplayName);
         shopFinalChoice.setItem(41, greenButton);
 
-        ItemStack cancelButton = createButton(Material.RED_CONCRETE, "&c&lCancel");
+        ItemStack cancelButton = createButton(Material.RED_CONCRETE, ChatColor.translateAlternateColorCodes('&', "&c&lCancel"));
         shopFinalChoice.setItem(39, cancelButton);
 
         //Displaying the item

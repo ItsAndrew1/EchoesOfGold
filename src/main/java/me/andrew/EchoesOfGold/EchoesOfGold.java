@@ -43,7 +43,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     private Economy vaultInstance;
     private ShopGUI shopGUI;
     private ShopGuiFinalChoice shopGuiFinalChoice;
-    private DatabaseManager dbManager;
 
     //Defining the GUIs
     private MainManageGUI manageGUI;
@@ -65,7 +64,8 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         playerdata = new YMLfiles(this, "playerdata.yml");
         scoreboardManager = new EventScoreboard(this);
         eventProgressManager = new EventProgress(this);
-        dbManager = new DatabaseManager(this);
+        DatabaseManager dbManager = new DatabaseManager(this);
+        ShopItem shopItem = new ShopItem(this);
 
         //Defining the GUIs
         manageTreasuresGUI = new ManageTreasuresGUI(this);
@@ -100,6 +100,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         getServer().getPluginManager().registerEvents(addRewardsGUI, this); //Events of AddRewards GUI
         getServer().getPluginManager().registerEvents(shopGUI, this); //Events of Shop GUI
         getServer().getPluginManager().registerEvents(shopGuiFinalChoice, this);
+        getServer().getPluginManager().registerEvents(shopItem, this);
 
         //Regaining data after a reload
         if(savedDuration > 0){
@@ -153,6 +154,9 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
                 getLogger().info("[E.O.G] Enabled using Vault economy!");
             }
             else{
+                //Setting up the PlayerBalance custom placeholder
+                if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) new PlayerBalancePP(this).register();
+
                 try {
                     dbManager.connectDB();
                     economyProvider = new InternalEconomyProvider(dbManager);

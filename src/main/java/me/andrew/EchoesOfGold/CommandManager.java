@@ -83,6 +83,13 @@ public class CommandManager implements CommandExecutor{
                         return true;
                     }
 
+                    //Checking if the player is in one of the 'lobby' worlds
+                    if(plugin.getConfig().getStringList("economy.shop-item.lobby-worlds").contains(player.getWorld().toString())){
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou cannot enable the event since you are in the lobby!"));
+                        return true;
+                    }
+
                     //Checking if each treasure has the coins set and setting the players accounts (if the economy is on)
                     if(plugin.getEconomyProvider() != null){
                         boolean allSet = true;
@@ -225,15 +232,101 @@ public class CommandManager implements CommandExecutor{
                     }
                     break;
 
-                case "treasures":
-                    if(strings.length > 1){
-                        commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog treasures"));
+                case "event":
+                    if(strings.length < 2){
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog event <setstartposition | setstarttitle | setstartsubtitle | settreasurenr"));
                         return true;
                     }
 
+                    String option1 = strings[1].toLowerCase();
+                    switch(option1){
+                        case "setstartposition" -> {
+                            if(strings.length < 5){
+                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog event setstartposition <x> <y> <z>"));
+                                return true;
+                            }
+
+                            double x, y, z;
+                            try{
+                                x = Double.parseDouble(strings[2]);
+                                y = Double.parseDouble(strings[3]);
+                                z = Double.parseDouble(strings[4]);
+                            } catch (NumberFormatException e){
+                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe coordinates must be numbers!"));
+                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                                return true;
+                            }
+
+                            plugin.getConfig().set("teleport-location-x", x);
+                            plugin.getConfig().set("teleport-location-y", y);
+                            plugin.getConfig().set("teleport-location-z", z);
+                            plugin.saveConfig();
+
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aCoordinates &l"+x+" "+y+" "+z+" &asaved!"));
+                            player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
+                        }
+
+                        case "setstarttitle" -> {
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter the title: "));
+                            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
+
+                            plugin.waitForPlayerInput(player, input -> {
+                                plugin.getConfig().set("title", input);
+                                plugin.saveConfig();
+
+                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aTitle saved successfully!"));
+                                player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
+                            });
+                        }
+
+                        case "setstartsubtitle" -> {
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter the subtitle: "));
+                            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
+
+                            plugin.waitForPlayerInput(player, input -> {
+                                plugin.getConfig().set("subtitle", input);
+                                plugin.saveConfig();
+
+                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" Subtitle saved successfully!"));
+                                player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
+                            });
+                        }
+
+                        case "settreasurenr" -> {
+                            // /eog event set 5
+                            if(strings.length < 3){
+                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog event settreasurenr <number>"));
+                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                                return true;
+                            }
+
+                            int treasureNumber;
+                            try{
+                                treasureNumber = Integer.parseInt(strings[2]);
+                            } catch (NumberFormatException e){
+                                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe number must be an integer!"));
+                                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                                return true;
+                            }
+
+                            treasures.set("nr-of-treasures",  treasureNumber);
+                            plugin.getTreasures().saveConfig();
+
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aNumber of treasures saved!"));
+                            player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
+                        }
+
+                        default -> {
+                            commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/eog help &cfor info."));
+                            player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                        }
+                    }
+                    break;
+
+                case "treasures":
                     plugin.getManageGUI().showMainManageGui(player);
-                    player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                     break;
 
                 case "shop": //This will only work if the internal economy is toggled on
@@ -284,12 +377,13 @@ public class CommandManager implements CommandExecutor{
 
                             commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aItem &l"+itemInHand.getType().name()+" &aadded to the shop!"));
                             player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
-                            return true;
                         }
 
-                        case "removeItem" -> {
-                            plugin.getShopGUI().showGUI(player, 1, ShopGuiChoice.REMOVE_ITEM);
-                            return true;
+                        case "removeItem" -> plugin.getShopGUI().showGUI(player, 1, ShopGuiChoice.REMOVE_ITEM);
+
+                        default -> {
+                            commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/eog help &cfor info."));
+                            player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         }
                     }
                     break;

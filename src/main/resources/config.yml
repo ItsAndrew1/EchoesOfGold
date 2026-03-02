@@ -7,10 +7,12 @@ toggle-fireworks-effect: true #Toggle the fireworks effect when a player clicks 
 fw-main-color: "#5d30bf"  #Use HEX COLORS
 fw-second-color: "#23bad9" #Use HEX COLORS
 
-#Configure the /eog enable command
+#Configure the location where players are teleported when event begins
 teleport-location-x:
 teleport-location-y:
 teleport-location-z:
+
+#Configure the title/subtitle when the event begins
 title: "" #Use "&" for style
 subtitle: "" #Use "&" for style
 
@@ -77,8 +79,26 @@ economy:
       material: black_stained_glass_pane #Material for the deco
       display-name: " " #Leave like this for no display name
 
-    #Configuration for the shop items.
+    #Configuration for the shop items. (Use /eog shop addItem <price>/removeItem)
     items:
+
+  #Configure a shop item, which players can interact with and open the shop.
+  #Note that if the internal economy is disabled, this feature will be disabled as well.
+  shop-item:
+    toggle: true #Whether you want this feature or not
+
+    #This item will only be available in 'lobby' worlds, so here enter the name of the 'lobby worlds'
+    #The name of the world is the name of the world folder.
+    #If you make any changes here, you need to restart the server!
+    lobby-worlds:
+      -
+
+    hotbar-slot: 2 #The slots start from 0 -> 8
+    material: emerald
+    display-name: "&6&lEVENT SHOP" #Use '&' for styles
+    lore:
+      - " "
+      - "&7Right click to access the shop"
 
 #Configure general messages. Use "&" for style
 treasure-already-found: "&cYou have &lalready found &cthis treasure!" #Use & for style
