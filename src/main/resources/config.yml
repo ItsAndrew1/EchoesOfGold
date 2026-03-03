@@ -104,10 +104,7 @@ economy:
 treasure-already-found: "&cYou have &lalready found &cthis treasure!" #Use & for style
 treasure-found: "&aYou have found a &ltreasure&a!"
 player-found-all-treasures: "&6&lGG! &6You have found all the treasures!"
-treasure-has-no-rewards: "&cThis treasure does not have any rewards. Contact the server administrators about this!"
 no-inventory-space-message: "&cYou don't have enough inventory space!"
-hints-no-books-configured: "&cThere are no books configured."
-hint-not-found-yet: "&cYou have not found this hint yet!"
 
 #Configure the messages/titles/subtitles during the event. Use '&' for style.
 toggle-event-messages: true
@@ -186,7 +183,7 @@ hints-gui:
     - " "
     - "&cYou already found this treasure!"
 
-  #Configure a 'Hints Item' during the event which players can right click on
+  #Configure a 'Hints Item' during the event which players can interact with to open the gui
   hints-item:
     toggle: true #Whether you want this item or not
     hotbar-slot: 8 #The slot in which the player will get this item. Values are from 0 to 8!
@@ -212,13 +209,6 @@ hints-gui:
     slot: 49
     material: red_concrete #The item that the button will have
     display-name: "&c&lEXIT"
-
-  #Configure the no-hints-item. It appears if there aren't any hints created
-  gui-no-hints-item:
-    chat-message: "&eThere are no hints configured for this event."
-    material: barrier
-    slot: 22
-    display-name: "&cThere are no hints configured. You are on your own!"
 
 #Configure every sound for the plugin. For checking AND hearing every sound, run /playsound in minecraft, then write what is after "minecraft:"
 #As for the volume and pitch, the default value is 1
@@ -333,16 +323,17 @@ scoreboard-lines:
 #Configure the help command message
 #Use '&' for color codes
 help-message:
-  title: "&f&l====[&6&lTREASURE HUNT HELP&f&l]===="
   lines:
-    - ""
-    - "&l/th enable &r-> enables the event"
-    - "&l/th disable &r-> disables the event"
-    - "&l/th reload &r-> reloads the config of the plugin"
-    - "&l/th treasures &r-> opens the treasure manager"
-    - "&l/th hints create <name> &r-> creates a book with that name"
-    - "&l/th hints delete <name> &r-> deletes the book with that name"
-    - "&l/th hints manage <name> &r-> helps managing the hints"
-
-#This is for saving the duration over time (in case of a server reload)
-saving-duration:
+    - "&c&l--------------------------------------------------------"
+    - "&f&l====[&6&lECHOES OF GOLD HELP&f&l]===="
+    - " "
+    - "&l/eog enable &r-> enables the event"
+    - "&l/eog disable &r-> disables the event"
+    - "&l/eog reload &r-> reloads the config of the plugin"
+    - "&l/eog event ... &r-> manage main parts of the event"
+    - "&l/eog treasures &r-> opens the treasure manager"
+    - "&l/eog shop ... &r-> manages the shop part"
+    - " "
+    - "&e&l! &eThe shop commands work if you the internal economy is enabled"
+    - " "
+    - "&c&l---------------------------------------------------------"

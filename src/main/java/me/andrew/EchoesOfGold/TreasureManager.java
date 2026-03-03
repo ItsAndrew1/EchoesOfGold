@@ -26,7 +26,7 @@ public class TreasureManager{
 
     //Spawns treasures
     public void spawnTreasures(){
-        String valueOfCustomHead = plugin.getConfig().getString("custom-head");
+        String valueOfCustomHead = plugin.getConfig().getString("custom-head", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGJmNzJiNmZjZGM4Zjk1ZGYyOGYwNmY0MTUyZWE4YzliZTM4ZGEyODViMmNlZTA0ZTViZWQyMTUzYjM4OWQ5YiJ9fX0=");
         FileConfiguration treasures = plugin.getTreasures().getConfig();
 
         //Checks if there are any treasures configured

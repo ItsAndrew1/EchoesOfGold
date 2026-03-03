@@ -2,8 +2,9 @@
 package me.andrew.EchoesOfGold;
 
 import me.andrew.EchoesOfGold.Economy.*;
-import me.andrew.EchoesOfGold.GUIs.*;
+import me.andrew.EchoesOfGold.TreasureManagerGUIs.*;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -201,6 +202,14 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
 
     public void waitForPlayerInput(Player player, Consumer<String> callback){
         chatInput.put(player.getUniqueId(), callback);
+    }
+
+    public String ParsePP(Player player, String text){
+        if(text == null) return null;
+
+        if(!Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) return null;
+
+        return PlaceholderAPI.setPlaceholders(player, text);
     }
 
     private String formatTime(long seconds){

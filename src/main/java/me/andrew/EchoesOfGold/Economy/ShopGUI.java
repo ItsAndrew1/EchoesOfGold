@@ -219,6 +219,7 @@ public class ShopGUI implements Listener {
             player.closeInventory();
 
             String chatMessage = plugin.getConfig().getString("economy.shop-gui.not-enough-money-message", "&cYou don't have enough money to buy this!");
+            chatMessage = plugin.ParsePP(player, chatMessage);
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatMessage));
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 1f);
         }
@@ -229,6 +230,7 @@ public class ShopGUI implements Listener {
                 player.closeInventory();
 
                 String chatMessage = plugin.getConfig().getString("economy.shop-gui.no-inventory-space-message", "&cYou don't have enough space in your inventory to buy this!");
+                chatMessage = plugin.ParsePP(player, chatMessage);
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatMessage));
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 1f);
                 return;

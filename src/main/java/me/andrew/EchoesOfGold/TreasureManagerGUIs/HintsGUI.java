@@ -1,5 +1,5 @@
 //Developed by _ItsAndrew_
-package me.andrew.EchoesOfGold.GUIs;
+package me.andrew.EchoesOfGold.TreasureManagerGUIs;
 
 import me.andrew.EchoesOfGold.EchoesOfGold;
 import org.bukkit.*;
@@ -85,6 +85,7 @@ public class HintsGUI implements Listener {
             int infoItemSlot = plugin.getConfig().getInt("hints-gui.info-item.slot", 4);
             String stringInfoItemMaterial = plugin.getConfig().getString("hints-gui.info-item.material", "oak_sign");
             String infoItemDisplayName = plugin.getConfig().getString("hints-gui.info-item.display-name", "&fChoose a hint to open!");
+            infoItemDisplayName = plugin.ParsePP(player, infoItemDisplayName);
 
             ItemStack infoItem = new ItemStack(Material.matchMaterial(stringInfoItemMaterial.toUpperCase()));
             ItemMeta iiMeta = infoItem.getItemMeta();
@@ -92,21 +93,6 @@ public class HintsGUI implements Listener {
 
             infoItem.setItemMeta(iiMeta);
             hintsGUI.setItem(infoItemSlot, infoItem);
-        }
-
-        //NoHints Item
-        int nhiSlot = plugin.getConfig().getInt("hints-gui.gui-no-hints-item.slot", 22);
-        if(!thereAreHints()){
-            ItemStack noHintsItem = new ItemStack(Material.matchMaterial(plugin.getConfig().getString("hints-gui.gui-no-hints-item.material", "barrier").toUpperCase()));
-            ItemMeta nhiMeta = noHintsItem.getItemMeta();
-
-            String nhiDisplayName = plugin.getConfig().getString("hints-gui.gui-no-hints-item.title", "&cThere are no hints configured. You are on your own!");
-            nhiMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', nhiDisplayName));
-            noHintsItem.setItemMeta(nhiMeta);
-
-            hintsGUI.setItem(nhiSlot, noHintsItem);
-            player.openInventory(hintsGUI);
-            return;
         }
 
         int startSlot = toggleDecoration ? 9 : 0;
@@ -203,20 +189,6 @@ public class HintsGUI implements Listener {
         }
 
         return numberOfHints;
-    }
-
-    private boolean thereAreHints(){
-        FileConfiguration treasures = plugin.getTreasures().getConfig();
-        ConfigurationSection treasuresSection = treasures.getConfigurationSection("treasures");
-
-        if(treasuresSection == null) return false;
-
-        for(String key : treasuresSection.getKeys(false)) {
-            ConfigurationSection treasureHint = treasures.getConfigurationSection("treasures."+key+".hint");
-            if(treasureHint != null) return true;
-        }
-
-        return false;
     }
 
     private int getPageNr(String title){

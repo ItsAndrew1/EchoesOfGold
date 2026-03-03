@@ -1,6 +1,7 @@
 //Developed by _ItsAndrew_
 package me.andrew.EchoesOfGold;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -15,8 +16,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class EventScoreboard{
-    EchoesOfGold plugin;
-    BukkitRunnable task;
+    private final EchoesOfGold plugin;
+    private BukkitRunnable task;
 
     public EventScoreboard(EchoesOfGold plugin){
         this.plugin = plugin;
@@ -84,6 +85,9 @@ public class EventScoreboard{
                     .replace("%coins_gathered%", String.valueOf(playerdata.getDouble("players." + player.getUniqueId() + ".coins-gathered")))
                     .replace("%top3_count%", String.valueOf(top3count));
             String coloredLine = ChatColor.translateAlternateColorCodes('&', parsed);
+
+            //Parsing any PAPI placeholders
+            for(Player p : Bukkit.getOnlinePlayers()) coloredLine = plugin.ParsePP(p, coloredLine);
 
             while(scoreboard.getEntries().contains(coloredLine)){
                 coloredLine+= ChatColor.COLOR_CHAR;

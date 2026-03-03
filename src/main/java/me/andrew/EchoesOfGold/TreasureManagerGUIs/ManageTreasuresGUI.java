@@ -1,5 +1,5 @@
 //Developed by _ItsAndrew_
-package me.andrew.EchoesOfGold.GUIs;
+package me.andrew.EchoesOfGold.TreasureManagerGUIs;
 
 import me.andrew.EchoesOfGold.EchoesOfGold;
 import org.bukkit.*;
@@ -11,7 +11,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 

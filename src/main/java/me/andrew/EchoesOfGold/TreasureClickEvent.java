@@ -114,13 +114,17 @@ public class TreasureClickEvent implements Listener{
                     return;
                 } finally{
                     player.playSound(player.getLocation(), treasureAlreadyFound, tafVolume, tafPitch);
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("treasure-already-found")));
+                    String treasureAlreadyFoundMessage = plugin.getConfig().getString("treasure-already-found", "&cYou have &lalready found &cthis treasure!");
+                    treasureAlreadyFoundMessage = plugin.ParsePP(player, treasureAlreadyFoundMessage);
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', treasureAlreadyFoundMessage));
                 }
                 return;
             }
 
+            String treasureAlreadyFoundMessage = plugin.getConfig().getString("treasure-already-found", "&cYou have &lalready found &cthis treasure!");
+            treasureAlreadyFoundMessage = plugin.ParsePP(player, treasureAlreadyFoundMessage);
             player.playSound(player.getLocation(), treasureAlreadyFound, tafVolume, tafPitch);
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("treasure-already-found")));
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', treasureAlreadyFoundMessage));
             return;
         }
 
@@ -134,7 +138,9 @@ public class TreasureClickEvent implements Listener{
             float nissPitch = plugin.getConfig().getInt("niss-pitch");
 
             player.playSound(player.getLocation(), noInventorySpace, nissVolume, nissPitch);
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("no-inventory-space-message")));
+            String noInvSpaceMessage = plugin.getConfig().getString("no-inventory-space-message");
+            noInvSpaceMessage = plugin.ParsePP(player, noInvSpaceMessage);
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', noInvSpaceMessage));
             return;
         }
 
@@ -201,12 +207,16 @@ public class TreasureClickEvent implements Listener{
 
         //If they found all rewards
         if(foundCount == treasures.getInt("nr-of-treasures")){
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("player-found-all-treasures")));
+            String foundAllTreasuresMessage = plugin.getConfig().getString("player-found-all-treasures", "&6&lGG! &6You have found all the treasures!");
+            foundAllTreasuresMessage = plugin.ParsePP(player, foundAllTreasuresMessage);
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', foundAllTreasuresMessage));
             foundCount++;
             return;
         }
 
-        player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("treasure-found")));
+        String treasureFoundMessage = plugin.getConfig().getString("treasure-found", "&aYou have found a &ltreasure&a!");
+        treasureFoundMessage = plugin.ParsePP(player, treasureFoundMessage);
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', treasureFoundMessage));
     }
 
     private void spawnFirework(Player player, String treasure){

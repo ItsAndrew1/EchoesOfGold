@@ -53,7 +53,7 @@ public class EventProgress implements Listener {
 
         //Giving the hints item to the players in the hotbar (if it is toggled)
         boolean toggleHintsItem = plugin.getConfig().getBoolean("hints-gui.hints-item.toggle", false);
-        if(toggleHintsItem){
+        if(toggleHintsItem && thereAreHints()){
             //Building the item
             ItemStack hintsItem = createHintsItem();
 
@@ -92,12 +92,17 @@ public class EventProgress implements Listener {
                     float csPitch = plugin.getConfig().getInt("cs-pitch");
 
                     //Getting the title/subtitle and replacing the %% placeholder
-                    String countdownTitle = plugin.getConfig().getString("event-final-time.final-countdown.title");
-                    String countdownSubtitle = plugin.getConfig().getString("event-final-time.final-countdown.subtitle");
-                    if(countdownTitle.contains("%cooldown_time%")) countdownTitle =  countdownTitle.replace("%cooldown_time%", String.valueOf(duration));
-                    if(countdownSubtitle.contains("%cooldown_time%"))countdownSubtitle = countdownSubtitle.replace("%cooldown_time%", String.valueOf(duration));
+                    String countdownTitle = plugin.getConfig().getString("event-final-time.final-countdown.title", "&d&l%cooldown_time%")
+                            .replace("%cooldown_time%", String.valueOf(duration));
+
+                    String countdownSubtitle = plugin.getConfig().getString("event-final-time.final-countdown.subtitle", "")
+                            .replace("%cooldown_time%", String.valueOf(duration));
 
                     for(Player p : Bukkit.getOnlinePlayers()){
+                        //Parsing any PAPI placeholders
+                        countdownTitle = plugin.ParsePP(p, countdownTitle);
+                        countdownSubtitle = plugin.ParsePP(p, countdownSubtitle);
+
                         p.sendTitle(ChatColor.translateAlternateColorCodes('&', countdownTitle), ChatColor.translateAlternateColorCodes('&', countdownSubtitle));
                         p.playSound(p.getLocation(), countdownSound, csVolume, csPitch);
                     }
@@ -157,7 +162,7 @@ public class EventProgress implements Listener {
 
     private void showEventChatMessages(){
         //Check if these messages are toggled.
-        boolean toggleMessages = plugin.getConfig().getBoolean("toggle-event-messages");
+        boolean toggleMessages = plugin.getConfig().getBoolean("toggle-event-messages", true);
         if(!toggleMessages) return;
 
         long threeQuartersTime = (fullDuration * 3)/4;
@@ -166,7 +171,7 @@ public class EventProgress implements Listener {
 
         if(plugin.getEventDuration() == threeQuartersTime){
             //Check if the threeQuarterTime message is toggled
-            boolean toggle3Qmessage = plugin.getConfig().getBoolean("event-three-quarters-time.toggle");
+            boolean toggle3Qmessage = plugin.getConfig().getBoolean("event-three-quarters-time.toggle", true);
             if(!toggle3Qmessage) return;
 
             Sound tqtSound = Registry.SOUNDS.get(NamespacedKey.minecraft(plugin.getConfig().getString("event-three-quarter-time-sound").toLowerCase()));
@@ -177,42 +182,31 @@ public class EventProgress implements Listener {
             for(Player p : Bukkit.getOnlinePlayers()){
                 for(String messageLine : threeQmessageLines){ //Displays the message
                     //Replaces the %% placeholder if the line contains it
-                    if(messageLine.contains("%three_quarters_time%")){
-                        String phMessage = ChatColor.translateAlternateColorCodes('&', messageLine.replace("%three_quarters_time%", String.valueOf(threeQuartersTime)));
-                        p.sendMessage(phMessage);
-                    }
-                    else{
-                        String coloredMessageLine = ChatColor.translateAlternateColorCodes('&', messageLine);
-                        p.sendMessage(coloredMessageLine);
-                    }
+                    String phMessage = ChatColor.translateAlternateColorCodes('&', messageLine.replace("%three_quarters_time%", String.valueOf(threeQuartersTime)));
+                    phMessage = plugin.ParsePP(p, phMessage);
+                    p.sendMessage(phMessage);
                 }
 
                 //Sends the players a title/subtitle if they are toggled
-                boolean toggleTitleSubtitle = plugin.getConfig().getBoolean("event-three-quarters-time.toggle-title-subtitle");
+                boolean toggleTitleSubtitle = plugin.getConfig().getBoolean("event-three-quarters-time.toggle-title-subtitle", true);
                 if(toggleTitleSubtitle){
                     String title, subtitle;
-                    title = plugin.getConfig().getString("event-three-quarters-time.title.message");
-                    subtitle = plugin.getConfig().getString("event-three-quarters-time.subtitle.message");
+                    title = plugin.getConfig().getString("event-three-quarters-time.title.message", "&f&lHURRY!").replace("%three_quarters_time%", String.valueOf(threeQuartersTime));
+                    subtitle = plugin.getConfig().getString("event-three-quarters-time.subtitle.message", "&aOnly &l%three_quarters_time% &aseconds left!").replace("%three_quarters_time%", String.valueOf(threeQuartersTime));
 
-                    //Check if the title has the %% placeholder
-                    if(title.contains("%three_quarters_time%")){
-                        title = plugin.getConfig().getString("event-three-quarters-time.title.message").replace("%three_quarters_time%", String.valueOf(threeQuartersTime));
-                    }
-                    //Check if the subtitle has the %% placeholder
-                    if(subtitle.contains("%three_quarters_time%")){
-                        subtitle = plugin.getConfig().getString("event-three-quarters-time.subtitle.message").replace("%three_quarters_time%", String.valueOf(threeQuartersTime));
-                    }
+                    //Parsing the PAPI placeholders
+                    title = plugin.ParsePP(p, title);
+                    subtitle = plugin.ParsePP(p, subtitle);
 
                     p.sendTitle(ChatColor.translateAlternateColorCodes('&', title), ChatColor.translateAlternateColorCodes('&', subtitle)); //Sends the title/subtitle
                 }
                 p.playSound(p.getLocation(), tqtSound, tqtsVolume, tqtsPitch);
             }
-            return;
         }
 
         if(plugin.getEventDuration() == halfTime){
             //Check if the halfTime message is toggled
-            boolean toggleHalfTimeMessage = plugin.getConfig().getBoolean("event-half-time.toggle");
+            boolean toggleHalfTimeMessage = plugin.getConfig().getBoolean("event-half-time.toggle", true);
             if(!toggleHalfTimeMessage) return;
 
             Sound thtSound = Registry.SOUNDS.get(NamespacedKey.minecraft(plugin.getConfig().getString("event-half-time-sound").toLowerCase()));
@@ -222,39 +216,32 @@ public class EventProgress implements Listener {
             List<String> messageLines = plugin.getConfig().getStringList("event-half-time.chat-message-lines");
             for(Player p : Bukkit.getOnlinePlayers()){
                 for(String messageLine : messageLines){ //Displays the message
-                    //Replaces the %% placeholder if the line contains it
-                    if(messageLine.contains("%half_time%")){
-                        String phMessage = ChatColor.translateAlternateColorCodes('&', messageLine.replace("%half_time%", String.valueOf(halfTime)));
-                        p.sendMessage(phMessage);
-                    }
-                    else{
-                        String coloredLine = ChatColor.translateAlternateColorCodes('&', messageLine);
-                        p.sendMessage(coloredLine);
-                    }
+                    String phMessage = ChatColor.translateAlternateColorCodes('&', messageLine.replace("%half_time%", String.valueOf(halfTime)));
+                    phMessage = plugin.ParsePP(p, phMessage);
+                    p.sendMessage(phMessage);
                 }
 
                 //Send the players title/subtitle if they are toggled
-                boolean toggleTitleSubtitle = plugin.getConfig().getBoolean("event-half-time.toggle-title-subtitle");
+                boolean toggleTitleSubtitle = plugin.getConfig().getBoolean("event-half-time.toggle-title-subtitle", true);
                 if(toggleTitleSubtitle){
                     String title, subtitle;
-                    title = plugin.getConfig().getString("event-half-time.title.message");
-                    subtitle = plugin.getConfig().getString("event-half-time.subtitle.message");
+                    title = plugin.getConfig().getString("event-half-time.title.message", "&f&lHURRY!").replace("%half_time%", String.valueOf(halfTime));
+                    subtitle = plugin.getConfig().getString("event-half-time.subtitle.message", "&aOnly &l%half_time% &aseconds left!").replace("%half_time%", String.valueOf(halfTime));
 
-                    //Check if the title/subtitle has the %% placeholder
-                    if(title.contains("%half_time%")) title = title.replace("%half_time%", String.valueOf(halfTime));
-                    if(subtitle.contains("%half_time%")) subtitle = subtitle.replace("%half_time%", String.valueOf(halfTime));
+                    //Parsing the PAPI placeholders
+                    title = plugin.ParsePP(p, title);
+                    subtitle = plugin.ParsePP(p, subtitle);
 
                     p.sendTitle(ChatColor.translateAlternateColorCodes('&', title), ChatColor.translateAlternateColorCodes('&', subtitle));
                 }
 
                 p.playSound(p.getLocation(), thtSound, thtsVolume, thtsPitch);
             }
-            return;
         }
 
         if(plugin.getEventDuration() == oneQuarterTime){
             //Check if the oneQuarterTime message is toggled
-            boolean oqtToggle = plugin.getConfig().getBoolean("event-one-quarter-time.toggle");
+            boolean oqtToggle = plugin.getConfig().getBoolean("event-one-quarter-time.toggle", true);
             if(!oqtToggle) return;
 
             Sound oqtSound = Registry.SOUNDS.get(NamespacedKey.minecraft(plugin.getConfig().getString("event-one-quarter-time-sound").toLowerCase()));
@@ -264,26 +251,19 @@ public class EventProgress implements Listener {
             List<String> chatMessageLines = plugin.getConfig().getStringList("event-one-quarter-time.chat-message-lines");
             for(Player p : Bukkit.getOnlinePlayers()){
                 for(String messageLine : chatMessageLines){
-                    //Check if the message line has the %% placeholder
-                    if(messageLine.contains("%one_quarter_time%")){
-                        String phMessage = ChatColor.translateAlternateColorCodes('&', messageLine.replace("%one_quarter_time%", String.valueOf(oneQuarterTime)));
-                        p.sendMessage(phMessage);
-                    }
-                    else{
-                        String normalLine = ChatColor.translateAlternateColorCodes('&', messageLine);
-                        p.sendMessage(normalLine);
-                    }
+                    String phMessage = ChatColor.translateAlternateColorCodes('&', messageLine.replace("%one_quarter_time%", String.valueOf(oneQuarterTime)));
+                    phMessage = plugin.ParsePP(p, phMessage);
+                    p.sendMessage(phMessage);
                 }
 
                 //Send the players title and subtitle if they are toggled
-                boolean toggleTitleSubtitle = plugin.getConfig().getBoolean("event-one-quarter-time.toggle-title-subtitle");
+                boolean toggleTitleSubtitle = plugin.getConfig().getBoolean("event-one-quarter-time.toggle-title-subtitle", true);
                 if(toggleTitleSubtitle){
-                    String title = plugin.getConfig().getString("event-one-quarter-time.title.message");
-                    String subtitle = plugin.getConfig().getString("event-one-quarter-time.subtitle.message");
+                    String title = plugin.getConfig().getString("event-one-quarter-time.title.message", "&f&lHURRY").replace("%one_quarter_time%", String.valueOf(oneQuarterTime));
+                    String subtitle = plugin.getConfig().getString("event-one-quarter-time.subtitle.message", "&aOnly &a&l%one_quarter_time% &aseconds left!").replace("%one_quarter_time%", String.valueOf(oneQuarterTime));
 
-                    //Check if the title/subtitle contains %% placeholder
-                    if(title.contains("%one_quarter_time%")) title = title.replace("%one_quarter_time%", String.valueOf(oneQuarterTime));
-                    if(subtitle.contains("%one_quarter_time%")) subtitle = subtitle.replace("%one_quarter_time%", String.valueOf(oneQuarterTime));
+                    title = plugin.ParsePP(p, title);
+                    subtitle = plugin.ParsePP(p, subtitle);
 
                     p.sendTitle(ChatColor.translateAlternateColorCodes('&', title), ChatColor.translateAlternateColorCodes('&', subtitle));
                 }
@@ -295,12 +275,11 @@ public class EventProgress implements Listener {
 
     private void eventFinishChatMessage(){
         //Check if the message is toggled
-        boolean toggleMessage = plugin.getConfig().getBoolean("event-final-time.finish-event-message.toggle");
+        boolean toggleMessage = plugin.getConfig().getBoolean("event-final-time.finish-event-message.toggle", true);
         if(!toggleMessage) return;
 
         //Sends the chat message
         List<String> messageLines = plugin.getConfig().getStringList("event-final-time.finish-event-message.message-lines");
-        List<Map.Entry<UUID, Integer>> top3Players = plugin.getTreasureManager().getTopPlayers();
         for(Player p : Bukkit.getOnlinePlayers()){
             List<Map.Entry<UUID, Integer>> top = plugin.getTreasureManager().getTopPlayers();
             UUID top1UUID = !top.isEmpty() ? top.getFirst().getKey() : null;
@@ -318,8 +297,11 @@ public class EventProgress implements Listener {
             float efsVolume = plugin.getConfig().getInt("efs-volume");
             float efsPitch = plugin.getConfig().getInt("efs-pitch");
 
-            String title = plugin.getConfig().getString("event-final-time.finish-event-title");
-            String subtitle = plugin.getConfig().getString("event-final-time.finish-event-subtitle");
+            String title = plugin.getConfig().getString("event-final-time.finish-event-title", "&e&lTREASURE HUNT IS FINISHED!");
+            String subtitle = plugin.getConfig().getString("event-final-time.finish-event-subtitle", "&aCongrats %player_name% for your progress.");
+
+            title = plugin.ParsePP(p, title);
+            subtitle = plugin.ParsePP(p, subtitle);
 
             for(String messageLine : messageLines){
                 title = title.replace("%player_name%", p.getName());
@@ -333,9 +315,11 @@ public class EventProgress implements Listener {
                         .replace("%top3_count%", String.valueOf(top3count));
 
                 String coloredParsed = ChatColor.translateAlternateColorCodes('&', phLine);
+                coloredParsed = plugin.ParsePP(p, coloredParsed);
                 p.sendMessage(coloredParsed);
-                p.sendTitle(ChatColor.translateAlternateColorCodes('&', title),  ChatColor.translateAlternateColorCodes('&', subtitle));
             }
+
+            p.sendTitle(ChatColor.translateAlternateColorCodes('&', title),  ChatColor.translateAlternateColorCodes('&', subtitle));
             p.playSound(p.getLocation(), eventFinishSound, efsVolume, efsPitch);
         }
     }
@@ -367,7 +351,7 @@ public class EventProgress implements Listener {
     @EventHandler
     public void onDropEvent(PlayerDropItemEvent e){
         FileConfiguration mainConfig = plugin.getConfig();
-        if(!plugin.isEventActive()) return; //This event will only trigger when the event is active
+        if(!plugin.isEventActive() || !thereAreHints()) return; //This event will only trigger when the event is active
 
         boolean toggleHintsItem = mainConfig.getBoolean("hints-gui.hints-item.toggle", true);
         if(!toggleHintsItem) return; //If the hints item is not toggled.
@@ -383,7 +367,7 @@ public class EventProgress implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e){
         FileConfiguration mainConfig = plugin.getConfig();
-        if(!plugin.isEventActive()) return; //Again, this event triggers only when the event is active
+        if(!plugin.isEventActive() || !thereAreHints()) return; //Again, this event triggers only when the event is active
 
         boolean toggleHintsItem = mainConfig.getBoolean("hints-gui.hints-item.toggle", true);
         if(!toggleHintsItem) return; //If the hints item is not toggled.
@@ -404,7 +388,7 @@ public class EventProgress implements Listener {
     @EventHandler
     public void onItemInteract(PlayerInteractEvent e){
         FileConfiguration mainConfig = plugin.getConfig();
-        if(!plugin.isEventActive()) return; //This event runs only when the event is active.
+        if(!plugin.isEventActive() || !thereAreHints()) return; //This event runs only when the event is active and if there are hints.
 
         boolean toggleHintsItem = mainConfig.getBoolean("hints-gui.hints-item.toggle", true);
         if(!toggleHintsItem) return; //If the hints item is not toggled.
@@ -468,7 +452,7 @@ public class EventProgress implements Listener {
 
         //Giving the player the Hints item if it is toggled
         boolean toggleHintsItem = plugin.getConfig().getBoolean("hints-gui.hints-item.toggle", false);
-        if(toggleHintsItem){
+        if(toggleHintsItem && thereAreHints()){
             ItemStack hintsItem = createHintsItem();
 
             int hotbarSlot = plugin.getConfig().getInt("hints-gui.hints-item.slot", 8);
@@ -482,7 +466,6 @@ public class EventProgress implements Listener {
                 plugin.getPlayerData().saveConfig();
             }
             inv.setItem(hotbarSlot, hintsItem);
-
         }
     }
 
@@ -505,6 +488,20 @@ public class EventProgress implements Listener {
         hintsItem.setItemMeta(hiMeta);
 
         return hintsItem;
+    }
+
+    private boolean thereAreHints(){
+        FileConfiguration treasures = plugin.getTreasures().getConfig();
+        ConfigurationSection treasuresSection = treasures.getConfigurationSection("treasures");
+
+        if(treasuresSection == null) return false;
+
+        for(String key : treasuresSection.getKeys(false)) {
+            ConfigurationSection treasureHint = treasures.getConfigurationSection("treasures."+key+".hint");
+            if(treasureHint != null) return true;
+        }
+
+        return false;
     }
 
     public void putItemsInMap(UUID uuid, ItemStack item){

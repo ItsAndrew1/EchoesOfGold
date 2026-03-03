@@ -8,10 +8,42 @@ softdepend:
   - PlaceholderAPI
 
 permissions:
-  eog.admin:
-    description: Gives access to configuration commands
+  eog.commands.enable:
+    description: Allows the player to enable the event
     default: op
-  eog.use:
+
+  eog.commands.disable:
+    description: Allows the player to disable the event
+    default: op
+
+  eog.commands.help:
+    description: Allows the player to use /eog help
+    default: op
+
+  eog.commands.event:
+    description: Allows the player to use /eog event
+    default: op
+
+  eog.commands.reload:
+    description: Allows the player to reload the plugin
+    default: op
+
+  eog.commands.treasures:
+    description: Allows the player to open the treasure manager
+    default: op
+
+  eog.commands.shop:
+    description: Allows the player to configure the shop
+    default: op
+  eog.commands.shop.additem:
+    description: Allows the player to add items to the shop
+    default: op
+  eog.commands.shop.removeitem:
+    description: Allows the player to remove items from the shop
+    default: op
+
+
+  eog.hints.use:
     description: Gives access to hints
     default: true
   eog.shop.use:

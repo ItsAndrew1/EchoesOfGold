@@ -133,6 +133,7 @@ public class ShopGuiFinalChoice implements Listener {
         String chatMessage = plugin.getConfig().getString("economy.shop-gui.successful-purchase-message", "&aSuccessfully bought &l%item_name%&a!")
                 .replace("%item_name%", itemToGive.getType().name())
                 .replace("%item_price%", String.valueOf(itemPrice));
+        chatMessage = plugin.ParsePP(player, chatMessage);
         player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatMessage));
         player.closeInventory();
     }
