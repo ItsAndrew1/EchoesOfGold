@@ -85,7 +85,9 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         //Setting the commands and their tabs
         getCommand("eog").setExecutor(new CommandManager(this));
         getCommand("eog").setTabCompleter(new CommandTabs(this));
-        getCommand("thuntshop").setExecutor(new CommandManager(this));
+
+        boolean toggleInternalEconomy = getConfig().getBoolean("economy.internal-economy.toggle", true);
+        if(toggleInternalEconomy) getCommand("thshop").setExecutor(new CommandManager(this));
 
         boolean toggleHints = getConfig().getBoolean("hints-gui.toggle-hints", false);
         if(toggleHints) getCommand("hints").setExecutor(new CommandManager(this));
@@ -149,7 +151,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         //Setting up the economy (if it is toggled)
         boolean toggleEconomy = getConfig().getBoolean("economy.toggle-using-economy", false);
         if(toggleEconomy){
-            boolean toggleInternalEconomy = getConfig().getBoolean("economy.internal-economy.toggle", true);
             if(!toggleInternalEconomy && setupVault()){
                 economyProvider = new VaultEconomyProvider(vaultInstance);
                 getLogger().info("Enabled using Vault economy!");

@@ -31,13 +31,12 @@ public class CommandManager implements CommandExecutor{
         String chatPrefix = plugin.getConfig().getString("chat-prefix");
 
         //Defining the sounds
-        Sound goodValue = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.player.levelup"));
-        Sound invalidValue = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.enderman.teleport"));
+        Sound goodValue = Sound.ENTITY_PLAYER_LEVELUP;
+        Sound invalidValue = Sound.ENTITY_ENDERMAN_TELEPORT;
 
         if(command.getName().equalsIgnoreCase("eog")){
-            if(!commandSender.hasPermission("eog.admin")){
-                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou don't have permission to run this command!"));
-                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+            if(!player.hasPermission("eog.commands")) {
+                noPermission(player);
                 return true;
             }
 
@@ -56,6 +55,12 @@ public class CommandManager implements CommandExecutor{
 
             switch(strings[0].toLowerCase()){
                 case "enable":
+                    //Checking if the player has the necessary permission
+                    if(!player.hasPermission("eog.commands.enable")){
+                        noPermission(player);
+                        return true;
+                    }
+
                     if(plugin.isEventActive()){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe game is &lalready active&c!"));
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
@@ -184,6 +189,12 @@ public class CommandManager implements CommandExecutor{
                     break;
 
                 case "disable":
+                    //Checking if the player has the necessary permission
+                    if(!player.hasPermission("eog.commands.disable")){
+                        noPermission(player);
+                        return true;
+                    }
+
                     if(!plugin.isEventActive()){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe game is &lalready disabled&c!"));
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
@@ -212,6 +223,12 @@ public class CommandManager implements CommandExecutor{
                     break;
 
                 case "reload":
+                    //Checking if the player has the necessary permission
+                    if(!player.hasPermission("eog.commands.reload")){
+                        noPermission(player);
+                        return true;
+                    }
+
                     if(plugin.isEventActive()){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou must disable the event to use this command!"));
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
@@ -226,6 +243,12 @@ public class CommandManager implements CommandExecutor{
                     break;
 
                 case "help":
+                    //Checking if the player has the necessary permission
+                    if(!player.hasPermission("eog.commands.help")){
+                        noPermission(player);
+                        return true;
+                    }
+
                     player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("help-message.title")));
                     for(String line : plugin.getConfig().getStringList("help-message.lines")){
@@ -234,6 +257,12 @@ public class CommandManager implements CommandExecutor{
                     break;
 
                 case "event":
+                    //Checking if the player has the necessary permission
+                    if(!player.hasPermission("eog.commands.event")){
+                        noPermission(player);
+                        return true;
+                    }
+
                     if(strings.length < 2){
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog event <setstartposition | setstarttitle | setstartsubtitle | settreasurenr"));
@@ -243,6 +272,12 @@ public class CommandManager implements CommandExecutor{
                     String option1 = strings[1].toLowerCase();
                     switch(option1){
                         case "setstartposition" -> {
+                            //Checking if the player has the necessary permission
+                            if(!player.hasPermission("eog.commands.event.setstartposition")){
+                                noPermission(player);
+                                return true;
+                            }
+
                             if(strings.length < 5){
                                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog event setstartposition <x> <y> <z>"));
@@ -270,6 +305,12 @@ public class CommandManager implements CommandExecutor{
                         }
 
                         case "setstarttitle" -> {
+                            //Checking if the player has the necessary permission
+                            if(!player.hasPermission("eog.commands.event.setstarttitle")){
+                                noPermission(player);
+                                return true;
+                            }
+
                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter the title: "));
                             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
 
@@ -283,6 +324,12 @@ public class CommandManager implements CommandExecutor{
                         }
 
                         case "setstartsubtitle" -> {
+                            //Checking if the player has the necessary permission
+                            if(!player.hasPermission("eog.commands.event.setstartsubtitle")){
+                                noPermission(player);
+                                return true;
+                            }
+
                             player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEnter the subtitle: "));
                             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
 
@@ -296,7 +343,12 @@ public class CommandManager implements CommandExecutor{
                         }
 
                         case "settreasurenr" -> {
-                            // /eog event set 5
+                            //Checking if the player has the necessary permission
+                            if(!player.hasPermission("eog.commands.event.settreasurenr")){
+                                noPermission(player);
+                                return true;
+                            }
+
                             if(strings.length < 3){
                                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog event settreasurenr <number>"));
                                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
@@ -327,10 +379,22 @@ public class CommandManager implements CommandExecutor{
                     break;
 
                 case "treasures":
+                    //Checking if the player has the necessary permission
+                    if(!player.hasPermission("eog.commands.treasures")){
+                        noPermission(player);
+                        return true;
+                    }
+
                     plugin.getManageGUI().showMainManageGui(player);
                     break;
 
                 case "shop": //This will only work if the internal economy is toggled on
+                    //Checking if the player has the necessary permission
+                    if(!player.hasPermission("eog.commands.shop")){
+                        noPermission(player);
+                        return true;
+                    }
+
                     boolean toggleInternalEconomy = plugin.getConfig().getBoolean("economy.internal-economy.toggle", true);
                     if(!toggleInternalEconomy) {
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou cannot use this since the internal economy is not enabled!"));
@@ -347,6 +411,12 @@ public class CommandManager implements CommandExecutor{
                     String shopArgument = strings[1];
                     switch(shopArgument){
                         case "addItem" -> {
+                            //Checking if the player has the necessary permission
+                            if(!player.hasPermission("eog.commands.shop.additem")){
+                                noPermission(player);
+                                return true;
+                            }
+
                             if(strings.length < 3){
                                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/eog shop addItem <price>"));
                                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
@@ -380,7 +450,15 @@ public class CommandManager implements CommandExecutor{
                             player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
                         }
 
-                        case "removeItem" -> plugin.getShopGUI().showGUI(player, 1, ShopGuiChoice.REMOVE_ITEM);
+                        case "removeItem" ->{
+                            //Checking if the player has the necessary permission
+                            if(!player.hasPermission("eog.commands.shop.removeitem")){
+                                noPermission(player);
+                                return true;
+                            }
+
+                            plugin.getShopGUI().showGUI(player, 1, ShopGuiChoice.REMOVE_ITEM);
+                        }
 
                         default -> {
                             commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUnknown command. Use &l/eog help &cfor info."));
@@ -399,20 +477,14 @@ public class CommandManager implements CommandExecutor{
 
         //Hints command
         if(command.getName().equalsIgnoreCase("hints")){
-            if(!commandSender.hasPermission("eog.use")){
-                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou don't have permission to run this command!"));
-                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+            //Checking if the player has the necessary permission
+            if(!player.hasPermission("eog.hints.use")){
+                noPermission(player);
                 return true;
             }
 
             if(!plugin.isEventActive()){
                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThe event is not enabled."));
-                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                return true;
-            }
-
-            if(strings.length > 0){
-                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cUsage: &l/hints"));
                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                 return true;
             }
@@ -423,11 +495,10 @@ public class CommandManager implements CommandExecutor{
         }
 
         //Treasure Hunt Shop command
-        if(command.getName().equalsIgnoreCase("thuntshop")){
+        if(command.getName().equalsIgnoreCase("thshop")){
             //Checking if the player has the permission
             if(!commandSender.hasPermission("eog.shop.use")){
-                commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou don't have permission to run this command!"));
-                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                noPermission(player);
                 return true;
             }
 
@@ -511,5 +582,12 @@ public class CommandManager implements CommandExecutor{
             }
         }
         plugin.getPlayerData().saveConfig();
+    }
+
+    private void noPermission(Player player){
+        Sound invalidValue = Sound.ENTITY_ENDERMAN_TELEPORT;
+        String chatPrefix = plugin.getConfig().getString("chat-prefix", "&f&l[&6&lEOG&f&l]");
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou don't have permission to run this command!"));
+        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
     }
 }

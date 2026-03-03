@@ -222,7 +222,7 @@ public class TreasureClickEvent implements Listener{
     private void spawnFirework(Player player, String treasure){
         FileConfiguration treasures = plugin.getTreasures().getConfig();
 
-        boolean toggleFireworks = plugin.getConfig().getBoolean("toggle-fireworks-effect");
+        boolean toggleFireworks = plugin.getConfig().getBoolean("toggle-fireworks-effect", true);
         String fwMainColor = plugin.getConfig().getString("fw-main-color");
         String fwSecondaryColor = plugin.getConfig().getString("fw-second-color");
 

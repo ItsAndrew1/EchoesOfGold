@@ -172,6 +172,11 @@ public class ManageTreasuresGUI implements Listener{
         //If the player clicks on the createTreasure button
         Material createButton = Material.SLIME_BALL;
         if (clickedItem.getType() == createButton){
+            if(!player.hasPermission("eog.treasures.create")){
+                noPermission(player);
+                return;
+            }
+
             player.closeInventory();
             createTreasure(player);
         }
@@ -179,6 +184,11 @@ public class ManageTreasuresGUI implements Listener{
         //If the player clicks on the deleteTreasure button
         Material deleteButton = Material.BARRIER;
         if(clickedItem.getType() == deleteButton){
+            if(!player.hasPermission("eog.treasures.delete")){
+                noPermission(player);
+                return;
+            }
+
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
             plugin.setTreasureManagerChoice("delete");
             plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
@@ -187,6 +197,11 @@ public class ManageTreasuresGUI implements Listener{
         //If the player click on the setLocationTreasure button
         Material setLocationButton = Material.COMPASS;
         if(clickedItem.getType() == setLocationButton){
+            if(!player.hasPermission("eog.treasures.setlocation")){
+                noPermission(player);
+                return;
+            }
+
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
             plugin.setTreasureManagerChoice("set location");
             plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
@@ -195,6 +210,11 @@ public class ManageTreasuresGUI implements Listener{
         //If the player clicks on the setWorld button
         Material setWorldButton = Material.MAP;
         if(clickedItem.getType() == setWorldButton){
+            if(!player.hasPermission("eog.treasures.setworld")){
+                noPermission(player);
+                return;
+            }
+
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
             plugin.setTreasureManagerChoice("set world");
             plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
@@ -213,6 +233,11 @@ public class ManageTreasuresGUI implements Listener{
                 return;
             }
 
+            if(!player.hasPermission("eog.treasures.setcoins")){
+                noPermission(player);
+                return;
+            }
+
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
             plugin.setTreasureManagerChoice("set coins");
             plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
@@ -221,6 +246,11 @@ public class ManageTreasuresGUI implements Listener{
         //If the player clicks on setFacing button
         Material setFacingButton = Material.GLOW_ITEM_FRAME;
         if(clickedItem.getType() == setFacingButton){
+            if(!player.hasPermission("eog.treasures.setfacing")){
+                noPermission(player);
+                return;
+            }
+
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
             plugin.setTreasureManagerChoice("set facing");
             plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
@@ -240,10 +270,20 @@ public class ManageTreasuresGUI implements Listener{
                 return;
             }
 
+            if(!player.hasPermission("eog.treasures.sethint")){
+                noPermission(player);
+                return;
+            }
+
             player.playSound(player.getLocation(), clickButtonSound, 1f, 1f);
             plugin.setTreasureManagerChoice("set hint");
             plugin.getAllTreasuresGUI().showAllTreasuresGUI(player);
         }
+    }
+
+    private void noPermission(Player player){
+        player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou don't have permission to do that!"));
     }
 
     //Helper method for creating and setting a treasure's data in 'treasures.yml'

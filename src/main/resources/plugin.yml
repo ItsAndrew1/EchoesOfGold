@@ -8,6 +8,12 @@ softdepend:
   - PlaceholderAPI
 
 permissions:
+  #Main permission to access commands
+  eog.commands:
+    description: Allows the player to use /eog
+    default: op
+
+
   eog.commands.enable:
     description: Allows the player to enable the event
     default: op
@@ -20,10 +26,6 @@ permissions:
     description: Allows the player to use /eog help
     default: op
 
-  eog.commands.event:
-    description: Allows the player to use /eog event
-    default: op
-
   eog.commands.reload:
     description: Allows the player to reload the plugin
     default: op
@@ -32,8 +34,28 @@ permissions:
     description: Allows the player to open the treasure manager
     default: op
 
+
+  #Permissions for the event commands
+  eog.commands.event:
+    description: Allows the player to use /eog event
+    default: op
+  eog.commands.event.setstartposition:
+    description: Allows the player to set the start position of the event
+    default: op
+  eog.commands.event.setstarttitle:
+    description: Allows the player to set the start title of the event
+    default: op
+  eog.commands.event.setstartsubtitle:
+    description: Allows the player to set the start subtitle of the event
+    default: op
+  eog.commands.event.settreasurenr:
+    description: Allows the player to set the treasure number of the event
+    default: op
+
+
+  #Permissions for the shop commands
   eog.commands.shop:
-    description: Allows the player to configure the shop
+    description: Allows the player to use /eog shop
     default: op
   eog.commands.shop.additem:
     description: Allows the player to add items to the shop
@@ -42,24 +64,50 @@ permissions:
     description: Allows the player to remove items from the shop
     default: op
 
-
+  #Permission for using and opening the hints gui
   eog.hints.use:
-    description: Gives access to hints
+    description: Gives access to hints gui
     default: true
+
+  #Permission for using and opening the shop gui
   eog.shop.use:
-    description: Gives access to shop
+    description: Gives access to shop gui
     default: true
+
+
+  #Permissions for the treasure manager
+  eog.treasures.create:
+    description: Allows the player to create a treasure
+    default: op
+  eog.treasures.delete:
+    description: Allows the player to delete a treasure
+    default: op
+  eog.treasures.setlocation:
+    description: Allows the player to set the location of a treasure
+    default: op
+  eog.treasures.setworld:
+    description: Allows the player to set the world of a treasure
+    default: op
+  eog.treasures.setfacing:
+    description: Allows the player to set the facing of a treasure block
+    default: op
+  eog.treasures.setcoins:
+    description: Allows the player to set the coins of a treasure
+    default: op
+  eog.treasures.sethint:
+    description: Allows the player to set the hint of a treasure
+    default: op
 
 commands:
   eog:
     usage: /eog help
     description: The commands for the event
-    permission: eog.admin
+    permission: eog.commands
   hints:
     usage: /hints
-    description: Allows you to access the hints
-    permission: eog.use
-  thuntshop:
-    usage: /thuntshop
-    description: Allows you to access the shop
+    description: Opens the hints gui
+    permission: eog.hints.use
+  thshop:
+    usage: /thshop
+    description: Opens the shop gui
     permission: eog.shop.use

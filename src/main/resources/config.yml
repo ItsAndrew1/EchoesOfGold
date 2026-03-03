@@ -7,7 +7,7 @@ toggle-fireworks-effect: true #Toggle the fireworks effect when a player clicks 
 fw-main-color: "#5d30bf"  #Use HEX COLORS
 fw-second-color: "#23bad9" #Use HEX COLORS
 
-#Configure the location where players are teleported when event begins
+#Configure the location where players are teleported when the event begins
 teleport-location-x: ""
 teleport-location-y: ""
 teleport-location-z: ""
