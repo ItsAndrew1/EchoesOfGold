@@ -40,13 +40,6 @@ public class CommandManager implements CommandExecutor{
                 return true;
             }
 
-            //Checking if the player is in one of the 'lobby' worlds
-            if(plugin.getConfig().getStringList("economy.shop-item.lobby-worlds").contains(player.getWorld().getName())){
-                player.playSound(player.getLocation(), invalidValue, 1f, 1f);
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou cannot enable the event since you are in the lobby!"));
-                return true;
-            }
-
             if(strings.length == 0){
                 commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/treasurehunt <enable | disable | treasures | reload | hints | help>"));
                 player.playSound(player.getLocation(), invalidValue, 1f, 1f);
@@ -55,6 +48,13 @@ public class CommandManager implements CommandExecutor{
 
             switch(strings[0].toLowerCase()){
                 case "enable":
+                    //Checking if the player is in one of the 'lobby' worlds
+                    if(plugin.getConfig().getStringList("economy.shop-item.lobby-worlds").contains(player.getWorld().getName())){
+                        player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou cannot enable the event since you are in the lobby!"));
+                        return true;
+                    }
+
                     //Checking if the player has the necessary permission
                     if(!player.hasPermission("eog.commands.enable")){
                         noPermission(player);
@@ -250,10 +250,7 @@ public class CommandManager implements CommandExecutor{
                     }
 
                     player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("help-message.title")));
-                    for(String line : plugin.getConfig().getStringList("help-message.lines")){
-                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', line));
-                    }
+                    for(String line : plugin.getConfig().getStringList("help-message.lines")) player.sendMessage(ChatColor.translateAlternateColorCodes('&', line));
                     break;
 
                 case "event":
