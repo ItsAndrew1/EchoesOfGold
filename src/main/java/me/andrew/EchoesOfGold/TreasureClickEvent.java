@@ -11,6 +11,7 @@ import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -239,11 +240,21 @@ public class TreasureClickEvent implements Listener{
                         .flicker(true)
                         .trail(true)
                         .build());
-        fwMeta.setPower(1);
+        fwMeta.setPower(0);
         firework.setFireworkMeta(fwMeta);
 
         //Detonating the firework
         Bukkit.getScheduler().runTaskLater(plugin, firework::detonate, 1L);
+    }
+
+    //Event to cancel the firework damage
+    @EventHandler
+    public void onFireworkDamage(EntityDamageByEntityEvent e) {
+        if(!plugin.isEnabled()) return; //Runs only when the event is enabled
+
+        if(!(e.getEntity() instanceof Player)) return;
+
+        if(e.getDamager() instanceof Firework) e.setCancelled(true);
     }
 
     //Gets the color from 'config.yml' for the firework

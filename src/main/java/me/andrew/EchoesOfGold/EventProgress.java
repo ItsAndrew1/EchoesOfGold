@@ -128,9 +128,7 @@ public class EventProgress implements Listener {
                             UUID playerUUID = p.getUniqueId();
                             PlayerInventory inv = p.getInventory();
                             int hiHotbarSlot = plugin.getConfig().getInt("hints-gui.hints-item.hotbar-slot", 8);
-                            inv.remove(inv.getItem(hiHotbarSlot));
-
-                            if(savedPlayerItems.containsKey(playerUUID)) inv.setItem(hiHotbarSlot, savedPlayerItems.get(playerUUID));
+                            inv.setItem(hiHotbarSlot, savedPlayerItems.getOrDefault(playerUUID, null));
                         }
                     }
 
