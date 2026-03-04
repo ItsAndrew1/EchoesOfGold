@@ -72,6 +72,15 @@ economy:
       slot: 22
       display-name: "&eThere are no items set yet!"
 
+    #Configure a 'player head' item where players can see their info (e.g. balance)
+    player-head-item:
+      toggle: true #If you want this or not
+      display-name: "&e%player_name%" #Use '%player_name%' to display their ign
+      lore:
+        - " "
+        - "&7Your Balance: &f%eog_balance%" #Use '%eog_balance%' to display their balance
+      slot: 4
+
     #Configure some decoration (on top of the gui)
     decoration:
       #If you set this to 'false', the shop items will appear from the top of the GUI
@@ -183,7 +192,8 @@ hints-gui:
     - " "
     - "&cYou already found this treasure!"
 
-  #Configure a 'Hints Item' during the event which players can interact with to open the gui
+  #Configure a 'Hints Item' during the event which players can interact with to open the gui.
+  #It only appears when there are hints configured!
   hints-item:
     toggle: true #Whether you want this item or not
     hotbar-slot: 8 #The slot in which the player will get this item. Values are from 0 to 8!

@@ -63,10 +63,34 @@ public class ShopGUI implements Listener {
             for(int i = 0; i<9; i++) shopGUI.setItem(i, decoItem);
         }
 
-        //Adding the player head to the gui
-        ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
-        SkullMeta headMeta = (SkullMeta) playerHead.getItemMeta();
-        headMeta.setOwner(player.getName());
+        //Adding the player head to the gui (if it is toggled)
+        boolean togglePlayerHead = plugin.getConfig().getBoolean("economy.shop-gui.player-head-item.toggle", true);
+        if(togglePlayerHead) {
+            ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
+            SkullMeta headMeta = (SkullMeta) playerHead.getItemMeta();
+
+            int slot = plugin.getConfig().getInt("economy.shop-gui.player-head-item.slot", 4);
+            if(slot < 0 || slot > 53) slot = 4;
+
+            headMeta.setOwningPlayer(player);
+
+            //Setting the display name
+            String displayName = plugin.getConfig().getString("economy.shop-gui.player-head-item.display-name", "&e%player_name%")
+                    .replace("%player_name%", player.getName());
+            displayName = plugin.ParsePP(player, displayName);
+            headMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
+
+            //Setting the lore
+            List<String> lore = new ArrayList<>();
+            for(String line : plugin.getConfig().getStringList("economy.shop-gui.player-head-item.lore")) {
+                line = plugin.ParsePP(player, line);
+                lore.add(ChatColor.translateAlternateColorCodes('&', line));
+            }
+            headMeta.setLore(lore);
+
+            playerHead.setItemMeta(headMeta);
+            shopGUI.setItem(slot, playerHead);
+        }
 
         //Getting data for displaying the items
         ConfigurationSection shopItems = mainConfig.getConfigurationSection("economy.shop-gui.items");
