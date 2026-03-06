@@ -37,6 +37,11 @@ public class PlayerBalancePP extends PlaceholderExpansion {
 
     @Override
     public String onRequest(OfflinePlayer player, @NotNull String params){
+        //If the internal economy isn't toggled, returns null
+        boolean toggleInternalEconomy = plugin.getConfig().getBoolean("economy.internal-economy.toggle", true);
+        boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", true);
+        if(!toggleInternalEconomy || !toggleEconomy) return null;
+
         if(params.equals("balance")) return String.valueOf(plugin.getEconomyProvider().getBalance(player));
         return null;
     }
