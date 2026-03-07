@@ -175,7 +175,7 @@ event-final-time: #This is the time when the event ends
 
 #Configure the Hints GUI settings
 hints-gui:
-  toggle-hints: true #If you want to use hints or not
+  toggle-hints: false #If you want to use hints or not. You will have to restart the server for changes to take effect.
 
   gui-rows: 6 #Value must be between 1 and 6. Each row has 9 slots => 9 slots-minimum, 54 slots-maximum
   gui-title: "Hints"

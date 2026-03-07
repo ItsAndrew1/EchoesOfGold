@@ -1,8 +1,8 @@
 name: EchoesOfGold
-version: '1.2.2'
+version: '1.3'
 main: me.andrew.EchoesOfGold.EchoesOfGold
 api-version: '1.21'
-author: ItsAndrew
+author: _ItsAndrew_
 softdepend:
   - Vault
   - PlaceholderAPI
@@ -100,14 +100,12 @@ permissions:
 
 commands:
   eog:
-    usage: /eog help
+    usage: Use '/eog help' for information
     description: The commands for the event
     permission: eog.commands
   hints:
-    usage: /hints
     description: Opens the hints gui
     permission: eog.hints.use
   thshop:
-    usage: /thshop
     description: Opens the shop gui
     permission: eog.shop.use
