@@ -200,6 +200,8 @@ public class CommandManager implements CommandExecutor{
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         return true;
                     }
+
+                    //Removing the scoreboard
                     for(Player p : Bukkit.getOnlinePlayers()){
                         plugin.getScoreboardManager().stopScoreboard(p);
                     }
@@ -211,8 +213,12 @@ public class CommandManager implements CommandExecutor{
                     plugin.getPlayerData().getConfig().set("players", null);
                     plugin.getPlayerData().saveConfig();
 
+                    //Deleting the saved duration
+                    plugin.getConfig().set("saving-duration", null);
+                    plugin.saveConfig();
+
                     //Disable the boss bar if it is toggled
-                    boolean toggleBossBar = plugin.getConfig().getBoolean("boss-bar");
+                    boolean toggleBossBar = plugin.getConfig().getBoolean("boss-bar", false);
                     if(toggleBossBar) plugin.getBossBar().stopBossBar();
 
                     Bukkit.getLogger().info("[ECHOES OF GOLD] Event successfully disabled!");

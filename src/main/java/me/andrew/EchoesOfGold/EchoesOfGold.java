@@ -197,7 +197,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         playerdata.saveConfig();
         treasures.saveConfig();
 
-        savedDuration = getConfig().getInt("saved-duration");
         Bukkit.getLogger().info("Echoes of Gold shut down successfully!");
     }
 
@@ -208,7 +207,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     public String ParsePP(Player player, String text){
         if(text == null) return null;
 
-        if(!Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) return null;
+        if(!Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) return text;
 
         return PlaceholderAPI.setPlaceholders(player, text);
     }
