@@ -3,6 +3,7 @@ package me.andrew.EchoesOfGold;
 
 import me.andrew.EchoesOfGold.Economy.ShopGuiChoice;
 import org.bukkit.*;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -128,12 +129,14 @@ public class CommandManager implements CommandExecutor{
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         return true;
                     }
-
                     if(nrOfTreasures != treasureSection.getKeys(false).size()){
                         commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cThe number of treasures in &ltreasures.yml &cdoesn't match the value set for &lnr-of-treasures&c!"));
                         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
                         return true;
                     }
+
+                    //Checking if the treasures are configured properly
+                    if(!treasuresAreConfigured(player)) return true;
 
                     //Get all the details about the start-event-sound. Prints an error if the sound is invalid
                     String startEventSoundString = plugin.getConfig().getString("start-event-sound");
@@ -150,22 +153,30 @@ public class CommandManager implements CommandExecutor{
                         return true;
                     }
 
-                    //Gets all the players and opens the book after openBookDelay seconds
-                    initializePlayers();
-                    long openBookDelay = plugin.getConfig().getInt("start-book.delay") * 20L;
-                    for(Player p : Bukkit.getOnlinePlayers()){
-                        teleportPlayers(p);
-                        p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
-                        p.sendTitle(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("title")), ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("subtitle")), 10, 60, 20);
+                    //Teleports all players to the configured location
+                    teleportPlayers();
 
-                        new BukkitRunnable(){
-                            @Override
-                            public void run(){
-                                openStartBook(p);
-                            }
-                        }.runTaskLater(plugin, openBookDelay);
-                        p.playSound(p.getLocation(), startEventSound, startEventSoundVolume, startEventSoundPitch);
+                    //Initializes the players in playerdata.yml
+                    initializePlayers();
+
+                    //Opens the start book if it is toggled to all players
+                    boolean toggleStartBook = plugin.getConfig().getBoolean("start-book.toggle", true);
+                    if(toggleStartBook){
+                        long openBookDelay = plugin.getConfig().getInt("start-book.delay") * 20L;
+                        for(Player p : Bukkit.getOnlinePlayers()){
+                            p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+                            p.sendTitle(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("title")), ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("subtitle")), 10, 60, 20);
+
+                            new BukkitRunnable(){
+                                @Override
+                                public void run(){
+                                    openStartBook(p);
+                                }
+                            }.runTaskLater(plugin, openBookDelay);
+                            p.playSound(p.getLocation(), startEventSound, startEventSoundVolume, startEventSoundPitch);
+                        }
                     }
+
                     plugin.getTreasureManager().spawnTreasures();
                     plugin.getTreasureManager().spawnChestParticles();
 
@@ -558,9 +569,11 @@ public class CommandManager implements CommandExecutor{
     }
 
     //Teleports the players at the start of the game
-    private void teleportPlayers(Player player){
-        Location teleportLocation = new Location(player.getWorld(), plugin.getConfig().getInt("teleport-location-x"), plugin.getConfig().getInt("teleport-location-y"), plugin.getConfig().getInt("teleport-location-z"));
-        player.teleport(teleportLocation);
+    private void teleportPlayers(){
+        for(Player p : Bukkit.getOnlinePlayers()){
+            Location teleportLocation = new Location(p.getWorld(), plugin.getConfig().getDouble("teleport-location-x"), plugin.getConfig().getDouble("teleport-location-y"), plugin.getConfig().getDouble("teleport-location-z"));
+            p.teleport(teleportLocation);
+        }
     }
 
     //Helper method to initialize players in 'playerdata.yml'
@@ -592,5 +605,46 @@ public class CommandManager implements CommandExecutor{
         String chatPrefix = plugin.getConfig().getString("chat-prefix", "&f&l[&6&lEOG&f&l]");
         player.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cYou don't have permission to run this command!"));
         player.playSound(player.getLocation(), invalidValue, 1f, 1f);
+    }
+
+    private boolean treasuresAreConfigured(Player staff){
+        FileConfiguration treasures = plugin.getTreasures().getConfig();
+        String chatPrefix = plugin.getConfig().getString("chat-prefix", "&f&l[&6&lEOG&f&l]");
+
+        for(String treasure : treasures.getConfigurationSection("treasures").getKeys(false)){
+            //Checking for the world
+            String world = treasures.getString("treasures."+treasure+".world");
+            if(world == null){
+                staff.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cOne/More treasure(s) has/have the world null!"));
+                return false;
+            }
+
+            //Checking for the location
+            String xCoord = treasures.getString("treasures."+treasure+".x");
+            String yCoord = treasures.getString("treasures."+treasure+".y");
+            String zCoord = treasures.getString("treasures."+treasure+".z");
+            if(xCoord == null || yCoord == null || zCoord == null){
+                staff.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cOne/More treasure(s) has/have the location null!"));
+                return false;
+            }
+
+            //Checking for the facing
+            String facing = treasures.getString("treasures."+treasure+".facing");
+            if(facing == null){
+                staff.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cOne/More treasure(s) has/have the facing null!"));
+                return false;
+            }
+
+            //Checking for the coins (if the economy is toggled)
+            if(plugin.getEconomyProvider() != null){
+                String coins = treasures.getString("treasures."+treasure+".coins");
+                if(coins == null){
+                    staff.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cOne/More treasure(s) has/have the coins null!"));
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }
