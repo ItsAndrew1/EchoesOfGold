@@ -82,7 +82,7 @@ public class EventScoreboard{
                     .replace("%top3_name%", top3name)
                     .replace("%top1_count%", String.valueOf(top1count))
                     .replace("%top2_count%", String.valueOf(top2count))
-                    .replace("%coins_gathered%", String.valueOf(playerdata.getDouble("players." + player.getUniqueId() + ".coins-gathered")))
+                    .replace("%coins_gathered%", String.format("%.2f" ,playerdata.getDouble("players." + player.getUniqueId() + ".coins-gathered")))
                     .replace("%top3_count%", String.valueOf(top3count));
             String coloredLine = ChatColor.translateAlternateColorCodes('&', parsed);
 

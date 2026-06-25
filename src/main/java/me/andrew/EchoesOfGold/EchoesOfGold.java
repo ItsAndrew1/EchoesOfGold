@@ -44,6 +44,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     private Economy vaultInstance;
     private ShopGUI shopGUI;
     private ShopGuiFinalChoice shopGuiFinalChoice;
+    private DatabaseManager dbManager;
 
     //Defining the GUIs
     private MainManageGUI manageGUI;
@@ -65,7 +66,7 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
         playerdata = new YMLfiles(this, "playerdata.yml");
         scoreboardManager = new EventScoreboard(this);
         eventProgressManager = new EventProgress(this);
-        DatabaseManager dbManager = new DatabaseManager(this);
+        dbManager = new DatabaseManager(this);
         ShopItem shopItem = new ShopItem(this);
 
         //Defining the GUIs
@@ -314,5 +315,8 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     //Getters for Economy objects
     public EconomyProvider getEconomyProvider(){
         return economyProvider;
+    }
+    public DatabaseManager getDbManager(){
+        return dbManager;
     }
 }

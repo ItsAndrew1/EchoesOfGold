@@ -107,7 +107,7 @@ public class HintsGUI implements Listener {
         for(int i = 0, j = offset; i<45 && j < treasuresList.size(); i++, j++){
             //Getting the data of the hint
             String treasure = treasuresList.get(j);
-            String hintDisplayName = treasures.getString(treasure + ".hint.title");
+            String hintDisplayName = treasures.getString("treasures."+treasure + ".hint.title", "Hint "+i+1);
 
             for(String p : playerData.getConfigurationSection("players").getKeys(false)){
                 boolean treasureFound = playerData.getBoolean("players." + p + ".found."+treasure);
@@ -138,7 +138,7 @@ public class HintsGUI implements Listener {
                     unlockedHintMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', hintDisplayName));
 
                     //Adding an enchant glint
-                    unlockedHintMeta.addEnchant(Enchantment.DENSITY, 1, true);
+                    unlockedHintMeta.addEnchant(Enchantment.MENDING, 1, true);
                     unlockedHintMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 
                     //Setting the lore
@@ -264,6 +264,7 @@ public class HintsGUI implements Listener {
 
         //Setting the title and pages
         bookMeta.setTitle(bookTitle);
+        bookMeta.setAuthor(plugin.getConfig().getString("treasures."+treasure+".hint.author", "Admin"));
         bookMeta.setPages(bookPages);
 
         book.setItemMeta(bookMeta);

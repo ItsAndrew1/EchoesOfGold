@@ -48,6 +48,18 @@ public class EventProgress implements Listener {
         eventProgress();
     }
 
+    public void removeHintsItem(){
+        boolean toggleHintsItem = plugin.getConfig().getBoolean("hints-gui.hints-item.toggle", false);
+        if(toggleHintsItem){
+            for(Player p : Bukkit.getOnlinePlayers()){
+                UUID playerUUID = p.getUniqueId();
+                PlayerInventory inv = p.getInventory();
+                int hiHotbarSlot = plugin.getConfig().getInt("hints-gui.hints-item.hotbar-slot", 8);
+                inv.setItem(hiHotbarSlot, savedPlayerItems.getOrDefault(playerUUID, null));
+            }
+        }
+    }
+
     private void eventProgress(){
         FileConfiguration playerData = plugin.getPlayerData().getConfig();
 
@@ -122,15 +134,7 @@ public class EventProgress implements Listener {
                     plugin.getPlayerData().saveConfig();
 
                     //Removing the hints item and giving the player's saved item
-                    boolean toggleHintsItem = plugin.getConfig().getBoolean("hints-gui.hints-item.toggle", false);
-                    if(toggleHintsItem){
-                        for(Player p : Bukkit.getOnlinePlayers()){
-                            UUID playerUUID = p.getUniqueId();
-                            PlayerInventory inv = p.getInventory();
-                            int hiHotbarSlot = plugin.getConfig().getInt("hints-gui.hints-item.hotbar-slot", 8);
-                            inv.setItem(hiHotbarSlot, savedPlayerItems.getOrDefault(playerUUID, null));
-                        }
-                    }
+                    removeHintsItem();
 
                     //Stops the boss bar/scoreboard
                     long bossBarDelay = plugin.getConfig().getLong("stop-boss-bar-interval");

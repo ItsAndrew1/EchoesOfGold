@@ -42,7 +42,7 @@ public class PlayerBalancePP extends PlaceholderExpansion {
         boolean toggleEconomy = plugin.getConfig().getBoolean("economy.toggle-using-economy", true);
         if(!toggleInternalEconomy || !toggleEconomy) return null;
 
-        if(params.equals("balance")) return String.valueOf(plugin.getEconomyProvider().getBalance(player));
+        if(params.equals("balance")) return String.format("%.2f", plugin.getEconomyProvider().getBalance(player));
         return null;
     }
 }

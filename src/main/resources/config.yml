@@ -115,6 +115,13 @@ treasure-found: "&aYou have found a &ltreasure&a!"
 player-found-all-treasures: "&6&lGG! &6You have found all the treasures!"
 no-inventory-space-message: "&cYou don't have enough inventory space!"
 
+
+#Configure the /eog disable titles. These will appear when you run /eog disable to disable the event.
+disable-titles:
+  toggle: true #If you want to use these titles or not
+  main-title: "&c&lEVENT CANCELLED!"
+  subtitle: "&f&lBe on the lookout for news about this."
+
 #Configure the messages/titles/subtitles during the event. Use '&' for style.
 toggle-event-messages: true
 event-three-quarters-time: #Configure the messages for the 3/4 of the time left
@@ -273,6 +280,10 @@ tcs-pitch: 1.2
 hint-open-sound: "item.book.page_turn"
 hos-volume: 1
 hos-pitch: 1
+
+event-disabled-sound: "entity.ender_dragon.death"
+eds-volume: 1
+eds-pitch: 1
 
 #Configure the treasures custom head
 #For this you need to go to "https://minecraft-heads.com/", search for a desired custom head, then copy and paste the VALUE

@@ -15,6 +15,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Random;
 
@@ -218,8 +219,19 @@ public class CommandManager implements CommandExecutor{
                     }
                     plugin.getTreasureManager().removeTreasures();
 
+                    //Removing the Hints Item from the players inventory (if it is toggled)
+                    plugin.getEventProgressManager().removeHintsItem();
+
                     //Removing the particles of the treasures attached to all players
                     plugin.getTreasureManager().cancelParticles();
+
+                    //Removing any money the players gained. Of course, if the Economy Provider isn't null.
+                    if(plugin.getEconomyProvider() != null){
+                        for(Player p : Bukkit.getOnlinePlayers()){
+                            double ammount = plugin.getPlayerData().getConfig().getDouble("players."+p.getUniqueId()+".coins-gathered");
+                            plugin.getDbManager().withdrawFromPlayer(p.getUniqueId().toString(), ammount);
+                        }
+                    }
 
                     plugin.getPlayerData().getConfig().set("players", null);
                     plugin.getPlayerData().saveConfig();
@@ -228,11 +240,27 @@ public class CommandManager implements CommandExecutor{
                     plugin.getConfig().set("saving-duration", null);
                     plugin.saveConfig();
 
+                    //Displaying the disable titles (if they are toggled)
+                    boolean toggleDisableTitles = plugin.getConfig().getBoolean("disable-titles.toggle", true);
+                    if(toggleDisableTitles){
+                        String mainTitle = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("disable-titles.main-title", "&c&lEVENT CANCELLED"));
+                        String subTitle = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("disable-titles.sub-title", "&f&lBe on the lookout for news about this."));
+
+                        for(Player p : Bukkit.getOnlinePlayers()){
+                            p.sendTitle(mainTitle, subTitle);
+
+                            float soundVolume = plugin.getConfig().getInt("eds-volume");
+                            float soundPitch = plugin.getConfig().getInt("eds-pitch");
+                            Sound sound = Registry.SOUNDS.get(NamespacedKey.minecraft(plugin.getConfig().getString("event-disabled-sound", "entity.ender_dragon.death").toLowerCase()));
+                            p.playSound(p.getLocation(), sound, soundVolume, soundPitch);
+                        }
+                    }
+
                     //Disable the boss bar if it is toggled
                     boolean toggleBossBar = plugin.getConfig().getBoolean("boss-bar", false);
                     if(toggleBossBar) plugin.getBossBar().stopBossBar();
 
-                    Bukkit.getLogger().info("[ECHOES OF GOLD] Event successfully disabled!");
+                    Bukkit.getLogger().info("[E.O.G] Event successfully disabled!");
                     commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aEvent successfully &ldisabled&a!"));
                     player.playSound(player.getLocation(), goodValue, 1f, 1.4f);
                     plugin.getEventProgressManager().stopEvent();

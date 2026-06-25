@@ -229,8 +229,8 @@ public class TreasureClickEvent implements Listener{
 
         if(!toggleFireworks) return;
 
-        Location playerLocation = new Location(Bukkit.getWorld(treasures.getString("treasures."+treasure+".world")), player.getX(), player.getY()+1.5, player.getZ());
-        Firework firework =  (Firework) player.getWorld().spawnEntity(playerLocation, EntityType.FIREWORK_ROCKET);
+        Location playerLocation = new Location(Bukkit.getWorld(treasures.getString("treasures."+treasure+".world")), player.getLocation().getX(), player.getLocation().getY()+1.5, player.getLocation().getZ());
+        Firework firework =  (Firework) player.getWorld().spawnEntity(playerLocation, EntityType.FIREWORK);
         FireworkMeta fwMeta = firework.getFireworkMeta();
 
         //Adding the colors and effects

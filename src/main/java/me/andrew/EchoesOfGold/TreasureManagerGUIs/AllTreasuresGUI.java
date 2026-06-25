@@ -487,6 +487,7 @@ public class AllTreasuresGUI implements Listener{
                 //Saving the data from the book to the designated treasure
                 String mainPath = "treasures."+treasureID+".hint";
                 treasures.set(mainPath + ".title", hintBook.getTitle());
+                treasures.set(mainPath + ".author", hintBook.getAuthor());
                 treasures.set(mainPath+".pages", hintBook.getPages());
                 plugin.getTreasures().saveConfig();
 
