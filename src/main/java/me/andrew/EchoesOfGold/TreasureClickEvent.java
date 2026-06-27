@@ -57,6 +57,10 @@ public class TreasureClickEvent implements Listener{
             double z = treasures.getDouble(path + ".z");
             String worldName = treasures.getString(path + ".world");
 
+            //Correcting the X/Z coordinates
+            if(x < 0) x--;
+            if(z < 0) z--;
+
             if(loc.getWorld().getName().equalsIgnoreCase(worldName) && loc.getBlockX() == x && loc.getBlockY() == y && loc.getBlockZ() == z){
                 //Handling the rewards and other data
                 handleTreasureFound(player, key);
@@ -92,9 +96,16 @@ public class TreasureClickEvent implements Listener{
             //Spawning the particle (if it is toggled)
             boolean toggleFoundParticle = plugin.getConfig().getBoolean("treasure-found-particle.toggle");
             if(toggleFoundParticle){
-                double treasureX = treasures.getDouble("treasures."+treasureID+".x") + 0.5;
+                double treasureX = treasures.getDouble("treasures."+treasureID+".x");
                 double treasureY = treasures.getDouble("treasures."+treasureID+".y");
-                double treasureZ = treasures.getDouble("treasures."+treasureID+".z") + 0.5;
+                double treasureZ = treasures.getDouble("treasures."+treasureID+".z");
+
+                //Correcting the X/Z coordinates
+                if(treasureX < 0) treasureX-=0.5;
+                else treasureX+=0.5;
+
+                if(treasureZ < 0) treasureZ-=0.5;
+                else treasureZ+=0.5;
 
                 Location loc = new Location(Bukkit.getWorld("treasures."+treasureID+".world"), treasureX, treasureY, treasureZ);
                 Particle foundParticle;

@@ -48,6 +48,10 @@ public class TreasureManager{
             double y = treasures.getDouble(path + ".y");
             double z = treasures.getDouble(path + ".z");
 
+            //Correcting the X/Z coordinates
+            if(x < 0) x--;
+            if(z < 0) z--;
+
             Location loc = new Location(world, x, y, z);
             Block block = loc.getBlock();
             block.setType(Material.PLAYER_HEAD, false);
@@ -98,9 +102,17 @@ public class TreasureManager{
                 if(playerFoundAll(p)) continue;
                 if (playerParticleTask.containsKey(key)) continue; //Skips if the treasure already has the particles enabled
 
-                double x = treasures.getDouble(path + ".x") + 0.5;
+                double x = treasures.getDouble(path + ".x");
                 double y = treasures.getDouble(path + ".y");
-                double z = treasures.getDouble(path + ".z") + 0.5;
+                double z = treasures.getDouble(path + ".z");
+
+                //Correcting the X/Z coordinates
+                if(x < 0) x -= 0.5;
+                else x += 0.5;
+
+                if(z < 0) z -= 0.5;
+                else z += 0.5;
+
                 Location loc = new Location(Bukkit.getWorld(treasures.getString(path + ".world")), x, y, z);
 
                 BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
@@ -150,6 +162,10 @@ public class TreasureManager{
             double x = treasures.getDouble(path + ".x");
             double y = treasures.getDouble(path + ".y");
             double z = treasures.getDouble(path + ".z");
+
+            //Correcting the X/Z coordinates
+            if(x < 0) x--;
+            if(z < 0) z--;
 
             Location loc = new Location(world, x, y ,z);
             Block block = loc.getBlock();
