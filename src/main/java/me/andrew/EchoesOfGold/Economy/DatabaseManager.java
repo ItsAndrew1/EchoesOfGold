@@ -1,6 +1,8 @@
 //Developed by _ItsAndrew_
 package me.andrew.EchoesOfGold.Economy;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import me.andrew.EchoesOfGold.EchoesOfGold;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -9,7 +11,7 @@ import java.sql.*;
 
 public class DatabaseManager {
     private final EchoesOfGold plugin;
-    private Connection dbConnection;
+    private HikariDataSource dataSource;
 
     public DatabaseManager(EchoesOfGold plugin){
         this.plugin = plugin;
@@ -18,18 +20,23 @@ public class DatabaseManager {
     //Main method for making the connection with the database
     public void connectDB() throws SQLException{
         FileConfiguration mainConfig = plugin.getConfig();
+        HikariConfig config = new HikariConfig();
 
         //Getting the database type
         String databaseType = mainConfig.getString("economy.internal-economy.database-system.type", "sqlite");
-        if(!databaseType.equals("sqlite") && !databaseType.equals("mysql")) databaseType = "sqlite";
 
         //If the type is 'sqlite', it creates a .db file inside the EchoesOfGold folder (located in the plugins folder)
         if(databaseType.equals("sqlite")){
             String fileName = mainConfig.getString("economy.internal-economy.database-system.file-name", "database.db");
             File dbFile = new File(plugin.getDataFolder(), fileName);
 
-            String url = "jdbc:sqlite:"+dbFile.getAbsolutePath();
-            dbConnection = DriverManager.getConnection(url);
+            config.setDriverClassName("org.sqlite.JDBC");
+            config.setMaximumPoolSize(1);
+            config.setJdbcUrl("jdbc:sqlite:" + dbFile.getAbsolutePath());
+
+            config.addDataSourceProperty("busy_timeout", 10000);
+            config.addDataSourceProperty("journal_mode", "WAL");
+            config.addDataSourceProperty("sync_mode", "NORMAL");
         }
 
         //If the type is 'mysql', it sets up the connection with the data from the config file
@@ -47,10 +54,24 @@ public class DatabaseManager {
                 return;
             }
 
-            String url = "jdbc:mysql://"+host+":"+port+"/"+database +
-                    "?useSSL=false&autoReconnect=true&characterEncoding=utf8";
-            dbConnection = DriverManager.getConnection(url, username, password);
+            config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+            config.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + database +
+                    "?useSSL=false&allowPublicKeyRetrieval=true");
+            config.setUsername(username);
+            config.setPassword(password);
+
+            config.setMaximumPoolSize(10);
+            config.setMinimumIdle(2);
+
+            config.addDataSourceProperty("cachePrepStmts", "true");
+            config.addDataSourceProperty("prepStmtCacheSize", "250");
+            config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         }
+
+        config.setPoolName("Echoes Of Gold Database Pool");
+        config.setConnectionTimeout(10000);
+        config.setMaxLifetime(1800000); //30 Minutes Max Lifetime for a connection
+        this.dataSource = new HikariDataSource(config);
 
         //Creating the players table
         String playersTable = """
@@ -60,7 +81,7 @@ public class DatabaseManager {
                 balance DECIMAL(12,2) DEFAULT 0.00
             );
         """;
-        try(PreparedStatement statement = dbConnection.prepareStatement(playersTable)){
+        try(Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(playersTable)){
             statement.executeUpdate();
         }
 
@@ -69,7 +90,7 @@ public class DatabaseManager {
 
     public boolean isPlayerInDatabase(String uuid){
         String query = "SELECT * FROM players WHERE uuid = ?";
-        try(PreparedStatement statement = dbConnection.prepareStatement(query)){
+        try(Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(query)){
             statement.setString(1, uuid);
             return statement.executeQuery().next();
         } catch (SQLException e){
@@ -80,7 +101,7 @@ public class DatabaseManager {
 
     public double getPlayerBalance(String uuid){
         String query = "SELECT balance FROM players WHERE uuid = ?";
-        try(PreparedStatement statement = dbConnection.prepareStatement(query)){
+        try(Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(query)){
             statement.setString(1, uuid);
             try(ResultSet resultSet = statement.executeQuery()){
                 if(resultSet.next()) return resultSet.getDouble("balance");
@@ -97,7 +118,7 @@ public class DatabaseManager {
 
         //Getting the player values
         String sql = "SELECT balance FROM players WHERE uuid = ?";
-        try(PreparedStatement ps = dbConnection.prepareStatement(sql)){
+        try(Connection connection = dataSource.getConnection(); PreparedStatement ps = connection.prepareStatement(sql)){
              ps.setString(1, uuid);
              try(ResultSet rs = ps.executeQuery()){
                  if(rs.next()) playerBalance = rs.getDouble("balance");
@@ -111,7 +132,7 @@ public class DatabaseManager {
 
         //Updating the values in the database
         String updateQuery = "UPDATE players SET balance = ? WHERE uuid = ?";
-        try(PreparedStatement ps = dbConnection.prepareStatement(updateQuery)){
+        try(Connection connection = dataSource.getConnection(); PreparedStatement ps = connection.prepareStatement(updateQuery)){
             ps.setDouble(1, playerBalance);
             ps.setString(2, uuid);
             ps.executeUpdate();
@@ -122,7 +143,7 @@ public class DatabaseManager {
 
     public void withdrawFromPlayer(String uuid, double amount){
         String query = "UPDATE players SET balance = balance - ? WHERE uuid = ?";
-        try(PreparedStatement statement = dbConnection.prepareStatement(query)){
+        try(Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(query)){
             statement.setDouble(1, amount);
             statement.setString(2, uuid);
             statement.executeUpdate();
@@ -131,7 +152,7 @@ public class DatabaseManager {
         }
     }
 
-    public Connection getDbConnection(){
-        return dbConnection;
+    public HikariDataSource getDataSource(){
+        return dataSource;
     }
 }

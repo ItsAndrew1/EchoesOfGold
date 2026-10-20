@@ -13,12 +13,10 @@ import java.util.UUID;
 
 public class InternalEconomyProvider implements EconomyProvider{
     private final DatabaseManager dbManager;
-    private final Connection dbConnection;
     private final EchoesOfGold plugin;
 
     public InternalEconomyProvider(DatabaseManager dbManager, EchoesOfGold plugin){
         this.dbManager = dbManager;
-        this.dbConnection = dbManager.getDbConnection();
         this.plugin = plugin;
     }
 
@@ -47,7 +45,7 @@ public class InternalEconomyProvider implements EconomyProvider{
     public void setupAccount(UUID playerUUID){
         if(!dbManager.isPlayerInDatabase(playerUUID.toString())){
             String sql = "INSERT INTO players (uuid, balance) VALUES (?, 0)";
-            try(PreparedStatement ps = dbConnection.prepareStatement(sql)){
+            try(Connection connection = dbManager.getDataSource().getConnection(); PreparedStatement ps = connection.prepareStatement(sql)){
                 ps.setString(1, playerUUID.toString());
                 ps.executeUpdate();
             } catch (Exception e){
@@ -59,7 +57,7 @@ public class InternalEconomyProvider implements EconomyProvider{
     @Override
     public boolean hasEnough(OfflinePlayer player, double amount){
         String query = "SELECT balance FROM players WHERE uuid = ?";
-        try(PreparedStatement statement = dbConnection.prepareStatement(query)){
+        try(Connection connection = dbManager.getDataSource().getConnection(); PreparedStatement statement = connection.prepareStatement(query)){
             statement.setString(1, player.getUniqueId().toString());
             try(ResultSet resultSet = statement.executeQuery()){
                 if(resultSet.next()) return resultSet.getDouble("balance") >= amount;

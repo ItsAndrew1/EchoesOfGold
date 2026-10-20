@@ -319,9 +319,6 @@ public final class EchoesOfGold extends JavaPlugin implements Listener{
     public EconomyProvider getEconomyProvider(){
         return economyProvider;
     }
-    public DatabaseManager getDbManager(){
-        return dbManager;
-    }
     public PlaceholdersManager getPlaceholdersManager(){
         return placeholderManager;
     }
